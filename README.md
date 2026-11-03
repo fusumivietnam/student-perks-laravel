@@ -38,7 +38,7 @@ For production use `docker compose up -d --build` with a distinct production `.e
 
 ## GitHub source of truth
 
-The GitHub repository is authoritative, not chat conversations. [SOT policy](docs/SOURCE_OF_TRUTH.md) defines precedence. Roadmap management belongs in **GitHub Projects V2**, with [GitHub Issues](https://github.com/fusumivietnam/student-perks-laravel/issues) and linked PRs as work items. See [Project configuration and integration status](docs/GITHUB_PROJECT.md). The Project has not yet been created/connected; do not claim otherwise.
+The GitHub repository is authoritative, not chat conversations. [SOT policy](docs/SOURCE_OF_TRUTH.md) defines precedence. Roadmap management belongs in **GitHub Projects V2**, with [GitHub Issues](https://github.com/fusumivietnam/student-perks-laravel/issues) and linked PRs as work items. See [Project configuration and integration status](docs/GITHUB_PROJECT.md). [Project #5](https://github.com/users/fusumivietnam/projects/5) is the registered central planning URL. Board configuration and automation are not yet verified.
 
 ## Development policy
 
