@@ -23,4 +23,5 @@ RUN composer dump-autoload --no-dev --classmap-authoritative && \
     chown -R www-data:www-data storage bootstrap/cache && \
     php -v
 EXPOSE 9000
+ENTRYPOINT ["sh", "/usr/local/bin/app-entrypoint.sh"]
 CMD ["php-fpm"]
