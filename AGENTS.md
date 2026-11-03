@@ -1,6 +1,6 @@
 # Student Perks Hub — execution rules for AI coding agents
 
-Read this file before making ANY code or infrastructure change. Source of truth: `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`, `docs/DELIVERY.md` and `docs/ROADMAP.md`.
+Read this file before making ANY code or infrastructure change. **GitHub is the only SOT; chat is unverified input.** First read `docs/SOURCE_OF_TRUTH.md`. `docs/ROADMAP.md` is the ONLY central roadmap/status record. `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`, and `docs/DELIVERY.md` define scope and engineering rules. Code and tests merged to `main` establish implementation truth.
 
 ## Mission
 
@@ -16,7 +16,7 @@ Ship a fast, SEO-friendly, maintainable PUBLIC directory of student/education of
 
 ## Before implementing
 
-1. Inspect actual repository state and `docs/ROADMAP.md`, never assume previously planned features are implemented.
+1. Inspect actual GitHub `main`, `docs/ROADMAP.md`, relevant issues/PRs and Actions evidence; never assume prior chat or planned features are implemented.
 2. Choose the next incomplete *vertical slice* that reaches a usable UI, not isolated infrastructure.
 3. Search Laravel/Filament/Livewire capabilities before writing custom frameworks or CRUD.
 4. Check package compatibility with Laravel 13/PHP 8.3, existing Composer lock, license, security and maintenance.
