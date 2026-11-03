@@ -1,4 +1,4 @@
-name: Bootstrap Laravel
+name: Bootstrap Laravel 13
 on:
   workflow_dispatch:
 
@@ -16,8 +16,6 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-        with:
-          persist-credentials: true
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
@@ -29,34 +27,34 @@ jobs:
         run: |
           test ! -f artisan || { echo 'Laravel already installed'; exit 1; }
           if git ls-remote --exit-code --heads origin bootstrap/laravel-foundation >/dev/null 2>&1; then
-            echo "Bootstrap branch already exists; review its PR or branch."
+            echo "Bootstrap branch already exists; review that branch before retrying."
             exit 1
           fi
-      - name: Generate official Laravel 12 application
+      - name: Generate Laravel 13 application
         shell: bash
         run: |
-          composer create-project 'laravel/laravel:^12.0' "$RUNNER_TEMP/laravel-bootstrap" --prefer-dist --no-interaction --no-progress
-          rsync -a --exclude='.git' --exclude='.github' --exclude='.env' --exclude='vendor' --exclude='node_modules' "$RUNNER_TEMP/laravel-bootstrap/" ./
-      - name: Run baseline tests
+          composer create-project 'laravel/laravel:^13.0' "$RUNNER_TEMP/laravel-bootstrap" --prefer-dist --no-interaction --no-progress
+          rsync -a --exclude='.git' --exclude='.github' --exclude='.env' --exclude='vendor' --exclude='node_modules' --exclude='README.md' "$RUNNER_TEMP/laravel-bootstrap/" ./
+      - name: Run baseline tests on SQLite
         shell: bash
         run: |
           cp .env.example .env
           php artisan key:generate
           php artisan test
-      - name: Push isolated bootstrap branch
+      - name: Push bootstrap branch
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c bootstrap/laravel-foundation
           git add -A
-          git commit -m "chore: scaffold Laravel 12 application"
+          git commit -m "chore: scaffold Laravel 13 application"
           git push --set-upstream origin bootstrap/laravel-foundation
-      - name: Open review pull request
+      - name: Open bootstrap PR
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           gh pr create --base main --head bootstrap/laravel-foundation \
-            --title "Bootstrap Laravel 12 foundation" \
-            --body "Generate official Laravel skeleton and baseline tests. No existing production deployment or Supabase data is modified. Follow docs/MIGRATION_PLAN.md for feature migration."
+            --title "Bootstrap Laravel 13 self-hosted foundation" \
+            --body "Create an official Laravel 13 app with SQLite baseline. Public information directory; no student verification or managed-service dependency."
