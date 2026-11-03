@@ -1,49 +1,50 @@
-# Student Perks Hub — Laravel 13 launch plan
+# Student Perks Hub — implementation roadmap
 
-## Approved product contract (2026-11-03)
+## Product definition (approved)
 
-Public directory of student discounts, subscriptions, credits and trials. The website publishes editorial information and outbound links to verified partner destinations. Partners alone manage eligibility, student verification, purchase and redemption. Never collect student cards or other student verification evidence.
+Public editorial directory listing student/education promotions. Visitors browse/search offers, learn terms and follow trusted links to partner sites. **Partners** handle registration, student verification, payment and redemption. There is no student membership, internal verification or document collection.
 
-## Database decision — final
+## Foundation
 
-**PostgreSQL 18.x** is the sole database engine for local development, CI, staging and production. Use an ordinary self-managed PostgreSQL instance locally and on a VPS. Do not add SQLite, MySQL, Supabase Auth or hosted database dependencies. Future managed PostgreSQL is an optional change of hosting, not a change of database family. Maintain forward-compatible migrations, avoid relying on superuser permissions and test the actual production database engine. PostgreSQL major upgrades will still require standard maintenance and testing.
+- Laravel 13.x + PHP 8.3 + Blade/Livewire + Tailwind/Vite.
+- **PostgreSQL 18 is the only database engine** used in dev, CI, staging and production.
+- **Docker Compose is the standard deployment unit** everywhere; the same app Dockerfile/runtime is built in dev/prod. A dev-only overlay bind mounts code.
+- FrankenPHP (Caddy + PHP runtime) runs Laravel; PostgreSQL uses private Docker networking and a persistent named volume.
+- Filesystem media and file cache. No Redis, S3, mail service or dedicated workers as baseline.
+- Production needs HTTPS proxy/domain, restricted ports, secrets, minimum backup/restore and rollback procedures; advanced managed operations are later.
 
-## Infrastructure
+## Preferred Laravel packages (avoid reinventing implementation)
 
-- Laravel 13.x, PHP >= 8.3; Eloquent ORM and source-controlled migrations
-- PostgreSQL 18 with restricted application role; localhost/private interface, strong credentials
-- Blade + Livewire + Tailwind CSS for public UX; Filament for authenticated admin-only CMS
-- Local filesystem for media and file cache; Redis, S3 and managed hosting remain optional
-- VPS: Nginx + PHP-FPM + self-managed PostgreSQL, HTTPS and minimal scheduled jobs
-- Required before production: basic consistent backups, restore test, secure secrets, firewall and rollback plan; defer advanced automated backup/recovery platforms
-- No TinyFish, Supabase, or Vercel infrastructure required
-
-## Content schema
-
-- `brands`: name, slug, logo, website, status, SEO
-- `categories`: name, slug, description, order
-- `offers`: title, slug, brand, categories, summary, terms, offer value/type, eligibility text, partner instructions and HTTPS redemption URL, availability window, last editorial review, publication and SEO
-- `articles`, `pages`: editorial content, publish status, SEO
-- `users`: admin accounts only, guarded with policies/roles
-- Optional aggregate outbound link counters without student profiling
-
-## Public functionality
-
-Homepage; /offers, /offers/{slug}, brand/category directories and detail, /search, articles and informational/legal pages. Filter/sort/search offers, show expiry and eligibility conditions, and direct CTA links to partner websites. Responsive and accessible UI, canonical/OG/sitemap and clear disclaimers. No internal student verification, public registration, saved offers, student submissions or payments.
-
-## Delivery gates
-
-| Phase | Deliverable | Acceptance criteria |
+| Feature | Package/pattern | Launch decision |
 |---|---|---|
-| 0 | Laravel 13 + PostgreSQL 18 skeleton | PostgreSQL tests pass and PR merged |
-| 1 | Schema, models, seed factories | PostgreSQL migrations and CRUD tests |
-| 2 | Offers, categories, brands, search | Mobile UX and route/SEO tests |
-| 3 | Filament CMS and editorial workflow | Admin policies, CRUD and media tests |
-| 4 | Articles, pages, legal copy, outbound links | Content/link/SEO tests |
-| 5 | VPS deployment | TLS, smoke, security, backup/restore baseline and rollback |
+| Administration | `filament/filament:^5` | Install first after scaffold; admin login, resources, tables, forms |
+| UI interactions | `livewire/livewire` | Use for search/filter/pagination, prefer simple Blade otherwise |
+| Role/authorization | Built-in Laravel policies and Filament panel gates | Start here; consider `spatie/laravel-permission` only for multiple roles |
+| SEO | `artesaos/seotools` or simple Laravel metadata | Evaluate only if manual meta markup becomes repetitive |
+| Images | Built-in Laravel filesystem + image conversion only if needed | Avoid early cloud and media abstractions |
+| Sitemap | `spatie/laravel-sitemap` if generation is needed | Add during SEO phase |
+| Redirects/slug | Laravel routing and model route binding | No custom routing framework |
+| Backups | Basic PostgreSQL pg_dump and stored files | Essential before live launch; postpone complex orchestration |
+| Queue/cache | Laravel sync/file defaults | Introduce Redis/worker based on measured need |
 
-One meaningful PR per vertical slice, one minimal CI pipeline, avoid infrastructure duplication. The previous Next.js deployment stays untouched until explicit production cutover. No managed paid resources without user approval.
+Check exact Composer compatibility and install only purposeful packages. Do not start with a giant dependency list.
 
-## Current status
+## Data model
 
-Documentation and framework bootstrap workflow exist. Application scaffold and PostgreSQL tests have **not** been run yet.
+Brands, categories, offers, articles, pages and admin users. Offer fields include title, slug, brand, categories, offer terms, eligibility wording, partner HTTPS destination, published status, active dates, source update date and SEO text. Optional basic anonymous outbound metrics; no student tracking.
+
+## Vertical slices
+
+| Phase | Deliverable | Test gate |
+|---|---|---|
+| 0 | Official Laravel 13 skeleton + Docker + PostgreSQL 18 | Composer install, migrations, Laravel tests, Docker build |
+| 1 | Migrations, factories and Filament resources for offers/brands/categories | Admin CRUD, authorization, DB tests |
+| 2 | Public offer listing, details, category/brand pages and search | Responsive, functional navigation and SEO smoke |
+| 3 | Articles/pages, content publishing, media, sitemap and outbound safety | CRUD, SEO and link tests |
+| 4 | VPS deployment and launch readiness | TLS, production env, backup/restore, monitoring baseline, rollback |
+
+No changes to the previous Next.js production system without an approved cutover. No paid managed services without an explicit choice.
+
+## Status
+
+Docker source files committed and ready for framework bootstrap. Laravel executable image and framework tests are **not yet verified**.
