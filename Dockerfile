@@ -1,5 +1,5 @@
-# Shared production image for local development and VPS deployment.
-FROM node:24-alpine AS assets
+# Portable Laravel image: same PHP-FPM runtime in development and production.
+FROM node:24-alpine AS frontend
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -7,17 +7,20 @@ COPY vite.config.* ./
 COPY resources ./resources
 RUN npm run build
 
-FROM dunglas/frankenphp:1-php8.3
-WORKDIR /app
-RUN install-php-extensions pdo_pgsql intl zip opcache
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+FROM php:8.3-fpm-bookworm AS app
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git unzip libpq-dev libicu-dev libzip-dev \
+    && docker-php-ext-install pdo_pgsql intl zip opcache \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+WORKDIR /var/www/html
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --prefer-dist --no-progress --no-interaction --no-scripts --optimize-autoloader
+RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --no-scripts --optimize-autoloader
 COPY . .
-COPY --from=assets /app/public/build ./public/build
+COPY --from=frontend /app/public/build ./public/build
 RUN composer dump-autoload --no-dev --classmap-authoritative && \
-    mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache && \
-    chown -R www-data:www-data storage bootstrap/cache
-ENV APP_ENV=production
-ENV APP_DEBUG=false
-EXPOSE 80 443
+    mkdir -p storage/app/public storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && \
+    chown -R www-data:www-data storage bootstrap/cache && \
+    php -v
+EXPOSE 9000
+CMD ["php-fpm"]
