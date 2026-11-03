@@ -1,6 +1,6 @@
 # Student Perks Hub — execution rules for AI coding agents
 
-Read this file before making ANY code or infrastructure change. **GitHub is the only SOT; chat is unverified input.** First read `docs/SOURCE_OF_TRUTH.md`. `docs/ROADMAP.md` is the ONLY central GENERATED roadmap/status view; update milestone Issues/PRs, not the generated Markdown. `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`, and `docs/DELIVERY.md` define scope and engineering rules. Code and tests merged to `main` establish implementation truth.
+Read this file before making ANY code or infrastructure change. **GitHub is the only SOT; chat is unverified input.** First read `docs/SOURCE_OF_TRUTH.md`. GitHub Projects V2 is the intended central roadmap/board (see `docs/GITHUB_PROJECT.md`); GitHub Issues/PRs are canonical work items. No manual or custom-generated Markdown roadmap. Until the Project is connected, use GitHub Issues as the live task list. `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`, and `docs/DELIVERY.md` define scope and engineering rules. Code and tests merged to `main` establish implementation truth.
 
 ## Mission
 
@@ -16,7 +16,7 @@ Ship a fast, SEO-friendly, maintainable PUBLIC directory of student/education of
 
 ## Before implementing
 
-1. Inspect actual GitHub `main`, `docs/ROADMAP.md`, relevant issues/PRs and Actions evidence; never assume prior chat or planned features are implemented.
+1. Inspect actual GitHub `main`, GitHub Project if connected, relevant issues/PRs and Actions evidence; never assume prior chat or planned features are implemented.
 2. Choose the next incomplete *vertical slice* that reaches a usable UI, not isolated infrastructure.
 3. Search Laravel/Filament/Livewire capabilities before writing custom frameworks or CRUD.
 4. Check package compatibility with Laravel 13/PHP 8.3, existing Composer lock, license, security and maintenance.
@@ -36,7 +36,7 @@ Ship a fast, SEO-friendly, maintainable PUBLIC directory of student/education of
 
 ## Completion criteria
 
-For a feature: migration/model, admin editing, public display (where relevant), authorization/input validation, responsive UX, tests, SEO/redirect safety as applicable. Update the corresponding GitHub milestone Issue/PR with verified facts; Actions regenerate `docs/ROADMAP.md`. Never manually edit its status or use estimated percentages. No claim of 'done' without passing checks.
+For a feature: migration/model, admin editing, public display (where relevant), authorization/input validation, responsive UX, tests, SEO/redirect safety as applicable. Update the GitHub Issue/PR with verified facts and Project status when available. No Markdown roadmap updates or estimated percentages. No claim of 'done' without passing checks.
 
 For infrastructure: reproducible Docker build, PostgreSQL migrations and tests, health endpoint, persistent data, no public database port, documented setup and recovery.
 
