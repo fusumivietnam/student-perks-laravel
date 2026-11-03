@@ -34,11 +34,11 @@ docker compose -f compose.yaml -f compose.dev.yaml exec app php artisan migrate 
 
 Then open http://localhost:8080. All application PHP runs in Docker; installing PHP/PostgreSQL directly on your host is unnecessary.
 
-For production use `docker compose up -d --build` with a distinct production `.env`, HTTPS reverse proxy and preserved Docker volumes. See [Docker guide](docs/DOCKER.md) and [single authoritative roadmap](docs/ROADMAP.md).
+For production use `docker compose up -d --build` with a distinct production `.env`, HTTPS reverse proxy and preserved Docker volumes. See [Docker guide](docs/DOCKER.md) and [GitHub Project setup](docs/GITHUB_PROJECT.md).
 
 ## GitHub source of truth
 
-The GitHub repository is authoritative, not chat conversations. [SOT policy](docs/SOURCE_OF_TRUTH.md) defines precedence; [ROADMAP](docs/ROADMAP.md) is automatically generated from [milestone Issues](https://github.com/fusumivietnam/student-perks-laravel/issues?q=is%3Aissue+label%3Aroadmap%3Amilestone) and linked PRs by [roadmap-sync](.github/workflows/roadmap-sync.yml). Never edit roadmap status manually. Product, architecture, tests and PR/Actions evidence remain in GitHub.
+The GitHub repository is authoritative, not chat conversations. [SOT policy](docs/SOURCE_OF_TRUTH.md) defines precedence. Roadmap management belongs in **GitHub Projects V2**, with [GitHub Issues](https://github.com/fusumivietnam/student-perks-laravel/issues) and linked PRs as work items. See [Project configuration and integration status](docs/GITHUB_PROJECT.md). The Project has not yet been created/connected; do not claim otherwise.
 
 ## Development policy
 
