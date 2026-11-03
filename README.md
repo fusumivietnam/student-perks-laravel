@@ -9,10 +9,10 @@ Self-hosted information directory for education discounts, trials, credits and p
 | Application | Laravel 13, PHP 8.3, Blade + Livewire |
 | Admin CMS | Filament 5 (compatible release, installed after scaffold) |
 | Data | PostgreSQL 18 only, self-hosted |
-| Containers | Docker Compose, shared FrankenPHP application Dockerfile |
+| Containers | Docker Compose, shared Nginx and PHP-FPM Docker runtime |
 | Assets | Tailwind + Vite |
 | Media / cache | Local filesystem / Laravel file cache |
-| Hosting | Docker-compatible Linux VPS, HTTPS reverse proxy for production |
+| Hosting | Docker VPS with TLS proxy; portable native PHP-FPM hosting |
 | Optional later | Redis, object storage, managed PostgreSQL, queue workers |
 
 **No SQLite, MySQL, Supabase, Vercel, TinyFish or student verification services required.**
