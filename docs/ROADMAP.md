@@ -1,23 +1,29 @@
-# Execution board — verified status
+# Student Perks Hub — single canonical roadmap
 
-Last reviewed: 2026-11-03. Status is based on committed repository files, not runtime evidence.
+This is the **only** authoritative project milestone and execution-status document. GitHub code/tests on `main` establish implementation reality; GitHub Issues/PRs/Actions provide evidence. Do not duplicate this board in `README.md`, older plans, GitHub Project fields or chat. Policy: [SOURCE_OF_TRUTH.md](SOURCE_OF_TRUTH.md).
 
-| Order | Milestone | Acceptance gate | Status |
-|---|---|---|---|
-| 0 | Laravel 13 scaffold / Composer and npm locks | Framework exists, PostgreSQL 18 tests and Docker build pass | BLOCKED: bootstrap workflow not yet executed |
-| 1 | Database model, sample seeds and Filament admin | Admin can manage brands/categories/offers with policies and tests | NOT STARTED |
-| 2 | Offer discovery UX | Homepage, offer list/detail, search/filter, brands/categories work | NOT STARTED |
-| 3 | Editorial + SEO | Articles/pages, metadata, sitemap, partner CTA safeguards | NOT STARTED |
-| 4 | VPS launch | TLS, data persistence, minimum backup/restore, smoke/rollback | NOT STARTED |
+Last repository review: 2026-11-03. All statuses below are based on committed source; no Laravel or Docker runtime success has been verified.
 
-## Governance and portability prepared
+| ID | Priority | Milestone / deliverable | Exit criteria | Status | Evidence / blocker |
+|---|---|---|---|---|---|
+| M0 | P0 | Laravel 13 skeleton, PHP-FPM + Nginx Docker, PostgreSQL 18 | Framework in `main`, Composer/npm locks, migrations/tests and Docker build green | BLOCKED | Bootstrap workflow committed but not executed; no green build evidence |
+| M1 | P0 | Database and Filament CMS for brands/categories/offers | Migrations, factories, admin CRUD, authorization and PostgreSQL tests pass | NOT STARTED | Depends on M0 |
+| M2 | P0 | Public directory and search | Homepage, offer list/detail, brand/category routes, filter/search and responsive UX pass | NOT STARTED | Depends on M1 |
+| M3 | P0 | Editorial publishing and SEO | Articles/pages, media, sitemap, metadata, safe partner CTA and tests pass | NOT STARTED | Depends on M2 |
+| M4 | P0 | VPS launch-ready deployment | TLS, secured config, persistence, production smoke, baseline backup/restore and rollback verified | NOT STARTED | Depends on M0–M3 |
 
-Committed: AGENTS.md, PRODUCT.md, ARCHITECTURE.md, DELIVERY.md, Docker PHP-FPM/Nginx configuration and corrected bootstrap YAML. These are source changes only; no working Laravel runtime or Docker smoke evidence yet.
+## Current blocking dependency
 
-## Next action
+**M0:** Trigger [Bootstrap Laravel 13 (PostgreSQL 18)](https://github.com/fusumivietnam/student-perks-laravel/actions/workflows/bootstrap-laravel.yml) on `main`; inspect run logs and generated PR, then merge only after PostgreSQL tests and Docker build pass. Current Docker files are committed but not validated.
 
-Execute and inspect the GitHub Actions `Bootstrap Laravel 13 (PostgreSQL 18)` workflow, merge a green scaffold PR, then implement milestone 1 as a coherent feature slice. The Docker setup must be validated by actual build and smoke test before declaring foundation ready.
+## Current repo evidence
 
-## Pending validation
+- Architecture and product guardrails: [AGENTS.md](../AGENTS.md), [PRODUCT.md](PRODUCT.md), [ARCHITECTURE.md](ARCHITECTURE.md), [DELIVERY.md](DELIVERY.md), [SOURCE_OF_TRUTH.md](SOURCE_OF_TRUTH.md)
+- Dev/prod Docker configuration and Nginx/PHP-FPM: `Dockerfile`, `compose.yaml`, `compose.dev.yaml`, `docker/nginx/default.conf`
+- GitHub Actions: `.github/workflows/bootstrap-laravel.yml`, `.github/workflows/ci.yml`
 
-Docker image build, PHP execution, live Postgres connection, migrations, Laravel tests, Filament installation and public URL rendering have **not** been verified.
+**Not verified:** Docker build/boot, HTTP behavior, PHP application bootstrap, PostgreSQL migration/test runs, Filament installation, public/admin routes, VPS deployment. Source/configuration commits are not equivalent to delivered functionality.
+
+## Update protocol
+
+Update this file in the same PR that materially advances a milestone. Use only statuses `NOT STARTED`, `IN PROGRESS`, `BLOCKED`, `DONE`, `DEFERRED`, supported by GitHub PR/commit/Actions links. Mark `DONE` only after actual acceptance evidence. Link Issues as execution tasks, not second roadmaps. Only one next blocking action is maintained here. Chat summaries must link to this file rather than maintain separate roadmap versions.
