@@ -14,7 +14,6 @@ concurrency:
 
 jobs:
   app:
-    if: ${{ hashFiles('artisan') != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     services:
@@ -33,15 +32,21 @@ jobs:
           --health-retries 10
     steps:
       - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
+      - name: Detect scaffold
+        id: scaffold
+        run: echo "present=$([ -f artisan ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      - if: steps.scaffold.outputs.present == 'true'
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
           extensions: mbstring, xml, ctype, pgsql, pdo_pgsql, bcmath, fileinfo
           tools: composer:v2
           coverage: none
       - name: Install PHP dependencies
+        if: steps.scaffold.outputs.present == 'true'
         run: composer install --prefer-dist --no-interaction --no-progress
       - name: Test PostgreSQL migrations and application
+        if: steps.scaffold.outputs.present == 'true'
         env:
           DB_CONNECTION: pgsql
           DB_HOST: 127.0.0.1
@@ -56,4 +61,5 @@ jobs:
           php artisan migrate --force
           php artisan test
       - name: Build production Docker image
+        if: steps.scaffold.outputs.present == 'true'
         run: docker build --tag student-perks:ci .
