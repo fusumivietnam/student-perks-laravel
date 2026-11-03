@@ -34,7 +34,11 @@ docker compose -f compose.yaml -f compose.dev.yaml exec app php artisan migrate 
 
 Then open http://localhost:8080. All application PHP runs in Docker; installing PHP/PostgreSQL directly on your host is unnecessary.
 
-For production use `docker compose up -d --build` with a distinct production `.env`, HTTPS reverse proxy and preserved Docker volumes. See [Docker guide](docs/DOCKER.md) and [product roadmap](docs/MIGRATION_PLAN.md).
+For production use `docker compose up -d --build` with a distinct production `.env`, HTTPS reverse proxy and preserved Docker volumes. See [Docker guide](docs/DOCKER.md) and [single authoritative roadmap](docs/ROADMAP.md).
+
+## GitHub source of truth
+
+The GitHub repository is authoritative, not chat conversations. [SOT policy](docs/SOURCE_OF_TRUTH.md) defines precedence and synchronization; [ROADMAP](docs/ROADMAP.md) is the single milestone/status tracker. Product, architecture, tests and PR/Actions evidence remain in GitHub.
 
 ## Development policy
 
