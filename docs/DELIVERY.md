@@ -2,7 +2,7 @@
 
 ## Work order
 
-Follow `docs/ROADMAP.md` from top to bottom unless fixing a regression/security issue. A vertical slice includes user-visible behavior, admin control, data and tests. Do not spend cycles on repeated governance, backup/recovery orchestration or speculative cloud integrations before a usable launch.
+Follow the SINGLE authoritative `docs/ROADMAP.md` (see `docs/SOURCE_OF_TRUTH.md`) from top to bottom unless fixing a regression/security issue. A vertical slice includes user-visible behavior, admin control, data and tests. Do not spend cycles on repeated governance, backup/recovery orchestration or speculative cloud integrations before a usable launch.
 
 ## Feature definition of done
 
@@ -26,7 +26,7 @@ Never run destructive migrations or `migrate:fresh` on a real data database.
 
 ## PR policy
 
-One meaningful vertical slice per PR; reduce repeated CI and branches. Commit lock files. A red CI is not a pass. No automatic production deployment or domain cutover. Record only verifiable status and links to real checks.
+One meaningful vertical slice per PR; reduce repeated CI and branches. Commit lock files. A red CI is not a pass. No automatic production deployment or domain cutover. Update the central roadmap in the same delivery change; record only verifiable status and links to actual GitHub PRs, commits and checks. No competing status board in chat or other docs.
 
 ## Quality bar
 
