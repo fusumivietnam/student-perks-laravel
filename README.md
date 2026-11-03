@@ -1,42 +1,41 @@
-# Student Perks Hub — Laravel
+# Student Perks Hub — Laravel 13
 
-Self-hosted information directory for student discounts, credits, trials and education offers. Verification and redemption happen on partner websites, not here.
+Self-hosted information directory for education discounts, trials, credits and partner offers. The site **publishes offers and sends visitors to partner websites**. Student verification and redemption happen on partners' own sites. No public student accounts or document collection.
 
-## Locked stack
+## Architecture locked
 
-- Laravel 13.x (PHP >= 8.3), Blade, Livewire, Tailwind CSS
-- Filament for admin CMS (compatible release)
-- **PostgreSQL 18.x is the sole supported database for development, CI, staging and production**
-- Self-managed local PostgreSQL and later VPS PostgreSQL; managed PostgreSQL is an optional hosting choice, not a required service
-- Laravel local media and file cache; no Redis/S3/Supabase/Vercel requirement
-- No public accounts, student verification, user submissions or saved offers at launch; admin login only
+| Layer | Choice |
+|---|---|
+| Application | Laravel 13, PHP 8.3, Blade + Livewire |
+| Admin CMS | Filament 5 (compatible release, installed after scaffold) |
+| Data | PostgreSQL 18 only, self-hosted |
+| Containers | Docker Compose, shared FrankenPHP application Dockerfile |
+| Assets | Tailwind + Vite |
+| Media / cache | Local filesystem / Laravel file cache |
+| Hosting | Docker-compatible Linux VPS, HTTPS reverse proxy for production |
+| Optional later | Redis, object storage, managed PostgreSQL, queue workers |
 
-## One-time framework bootstrap
+**No SQLite, MySQL, Supabase, Vercel, TinyFish or student verification services required.**
 
-Run [Bootstrap Laravel](https://github.com/fusumivietnam/student-perks-laravel/actions/workflows/bootstrap-laravel.yml) on main. It generates Laravel 13 on a separate branch, configures PostgreSQL and tests against the PostgreSQL 18 service before opening a pull request. GitHub Actions must be allowed to write contents and create PRs.
+## Progress
 
-## Local development — PostgreSQL only
+This repository currently contains **Docker infrastructure and project documentation**, not yet an installed Laravel app. Scaffold must be generated and reviewed first; `docker compose build` cannot succeed until `artisan`, `composer.lock`, `package-lock.json` and the app source exist.
 
-Install PHP 8.3+, Composer, Node.js and a **locally running PostgreSQL 18** server. Create a database and non-superuser application role (substitute a strong locally managed password):
+Run [Bootstrap Laravel 13](https://github.com/fusumivietnam/student-perks-laravel/actions/workflows/bootstrap-laravel.yml) once on main. It generates Laravel 13 and tests on PostgreSQL 18 in GitHub Actions, then opens a PR.
 
-```sql
-CREATE ROLE student_perks LOGIN PASSWORD 'CHANGE_ME';
-CREATE DATABASE student_perks OWNER student_perks;
-```
-
-After the framework bootstrap PR is merged:
+## Docker quick start (after merging scaffold PR)
 
 ```bash
-composer install
-cp .env.example .env
-php artisan key:generate
-# Set DB_PASSWORD in .env to your local database role password.
-php artisan migrate
-npm ci
-npm run build
-php artisan serve
+cp .env.docker.example .env
+# Set APP_KEY (random 32-byte base64 Laravel key) and DB_PASSWORD in .env
+docker compose -f compose.yaml -f compose.dev.yaml up -d --build
+docker compose -f compose.yaml -f compose.dev.yaml exec app php artisan migrate --force
 ```
 
-The scaffolded `.env.example` will use `DB_CONNECTION=pgsql`, `DB_HOST=127.0.0.1`, `DB_PORT=5432`, `DB_DATABASE=student_perks`, `DB_USERNAME=student_perks` and an empty `DB_PASSWORD`. Keep secrets in uncommitted `.env`. PostgreSQL should bind only to localhost / private networks.
+Then open http://localhost:8080. All application PHP runs in Docker; installing PHP/PostgreSQL directly on your host is unnecessary.
 
-See [docs/MIGRATION_PLAN.md](docs/MIGRATION_PLAN.md). Existing Next.js source is an optional UX/editorial reference, **not** an authentication or database migration requirement.
+For production use `docker compose up -d --build` with a distinct production `.env`, HTTPS reverse proxy and preserved Docker volumes. See [Docker guide](docs/DOCKER.md) and [product roadmap](docs/MIGRATION_PLAN.md).
+
+## Development policy
+
+Feature-first delivery: Filament resources for content, Laravel form requests/policies, Eloquent relationships and Livewire reusable components. Avoid custom-built CRUD panels, student identity systems and unnecessary background services. Reference the [old frontend](https://github.com/fusumivietnam/student-perks-hub) for visual/editorial ideas only.
