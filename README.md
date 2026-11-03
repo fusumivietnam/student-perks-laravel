@@ -1,31 +1,39 @@
 # Student Perks Hub — Laravel
 
-New Laravel implementation of Student Perks Hub. This repository replaces application code incrementally; the original [Next.js repository](https://github.com/fusumivietnam/student-perks-hub) remains the reference for UX, routes, business rules and existing data.
+Self-hostable directory of student discounts, credits, trials, and education offers. **We publish information and link visitors to the partner's offer page.** Student status verification, purchases, enrollment and redemption happen exclusively at the partner, not on this website.
 
-## Status
+## Stack and deployment
 
-**Bootstrap pending.** This repository initially contains a manual bootstrap workflow and a migration plan. It is **not yet a running Laravel application**. Do not point production traffic here until acceptance tests pass.
+- **Laravel 13.x** (PHP >= 8.3), Blade, Livewire, Tailwind CSS.
+- Filament admin CMS (install an officially compatible release after framework bootstrap).
+- **Local-first**: SQLite by default for lightweight development, optionally locally installed PostgreSQL on laptop or VPS.
+- Production VPS: PHP-FPM + Nginx, PostgreSQL or SQLite depending on operational needs; database must not be exposed publicly.
+- Laravel filesystem for media, file cache, database-backed sessions/jobs only as needed. Redis, S3, Supabase, cloud databases, managed hosting are optional future adapters, **not dependencies**.
+- No public user registration, logins, bookmarks or student verification in launch scope. Admin authentication only.
 
-## One-time initialization
+## Bootstrap (one time)
 
-1. Open [Actions → Bootstrap Laravel](https://github.com/fusumivietnam/student-perks-laravel/actions/workflows/bootstrap-laravel.yml).
-2. Select **Run workflow** on `main`.
-3. The workflow generates a Laravel 12 skeleton on a separate branch, runs the base test suite, and opens a pull request.
-4. Review the PR and CI results, then merge it. The resulting repository supports ordinary Laravel development.
+Run [Bootstrap Laravel](https://github.com/fusumivietnam/student-perks-laravel/actions/workflows/bootstrap-laravel.yml) on main from GitHub Actions. This generates an official Laravel **13.x** application on `bootstrap/laravel-foundation`, tests it and opens a PR for review. GitHub Actions needs write and pull-request creation permissions. It does not deploy anything.
 
-This one-time workflow needs GitHub Actions **Read and write permissions** for `GITHUB_TOKEN` and permission to create pull requests. If org policy blocks automated PR creation, the workflow will fail at that step; its generated branch is retained for opening a PR manually.
+After merge, on a local machine with PHP 8.3+, Composer and Node.js:
 
-## Proposed architecture
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite
+php artisan migrate
+npm ci
+npm run build
+php artisan serve
+```
 
-- Laravel monolith (PHP + Blade + Livewire for public-facing dynamic pages).
-- Filament admin panel, added after the Laravel skeleton is merged.
-- PostgreSQL for production; SQLite in CI and local test runs.
-- Laravel migrations as the schema source of truth for the new app.
-- Conventional Laravel authentication and authorization. Supabase Auth data is **not** silently or automatically migrated.
-- Queue, cache and storage providers chosen based on hosting constraints; avoid introducing Redis or a second frontend by default.
+For local PostgreSQL, create a local user and database, change `DB_CONNECTION=pgsql`, `DB_HOST=127.0.0.1`, `DB_PORT=5432`, `DB_DATABASE`, `DB_USERNAME` and `DB_PASSWORD` in your uncommitted `.env`, then run `php artisan migrate`.
 
-## Migration principles
+## Product
 
-See [docs/MIGRATION_PLAN.md](docs/MIGRATION_PLAN.md). Reuse design and business behavior, **not** the Next.js runtime or its CI/CD workflows. Keep the previous production deployment unchanged until the replacement passes parity and cutover checks.
+Visitors browse brands, categories, searchable offers and informational pages. Each offer describes eligibility, availability, terms, redemption steps and the official external partner link, with a clear "verify / redeem on partner website" action. Admins curate and publish content through Filament.
 
-No TinyFish, backups or scheduled production monitors are part of initial launch scope.
+Original project for editorial/UX reference: https://github.com/fusumivietnam/student-perks-hub
+
+See [docs/MIGRATION_PLAN.md](docs/MIGRATION_PLAN.md) for launch milestones. We are **building a new product foundation**, not lifting the previous auth stack, Supabase RLS policies, or elaborate CI/recovery automation.
