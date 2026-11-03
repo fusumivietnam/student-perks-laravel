@@ -1,6 +1,6 @@
 # Student Perks Hub — execution rules for AI coding agents
 
-Read this file before making ANY code or infrastructure change. **GitHub is the only SOT; chat is unverified input.** First read `docs/SOURCE_OF_TRUTH.md`. `docs/ROADMAP.md` is the ONLY central roadmap/status record. `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`, and `docs/DELIVERY.md` define scope and engineering rules. Code and tests merged to `main` establish implementation truth.
+Read this file before making ANY code or infrastructure change. **GitHub is the only SOT; chat is unverified input.** First read `docs/SOURCE_OF_TRUTH.md`. `docs/ROADMAP.md` is the ONLY central GENERATED roadmap/status view; update milestone Issues/PRs, not the generated Markdown. `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`, and `docs/DELIVERY.md` define scope and engineering rules. Code and tests merged to `main` establish implementation truth.
 
 ## Mission
 
@@ -36,7 +36,7 @@ Ship a fast, SEO-friendly, maintainable PUBLIC directory of student/education of
 
 ## Completion criteria
 
-For a feature: migration/model, admin editing, public display (where relevant), authorization/input validation, responsive UX, tests, SEO/redirect safety as applicable. Update `docs/ROADMAP.md` with tested facts, not estimated completion percentages. No claim of 'done' without passing checks.
+For a feature: migration/model, admin editing, public display (where relevant), authorization/input validation, responsive UX, tests, SEO/redirect safety as applicable. Update the corresponding GitHub milestone Issue/PR with verified facts; Actions regenerate `docs/ROADMAP.md`. Never manually edit its status or use estimated percentages. No claim of 'done' without passing checks.
 
 For infrastructure: reproducible Docker build, PostgreSQL migrations and tests, health endpoint, persistent data, no public database port, documented setup and recovery.
 
