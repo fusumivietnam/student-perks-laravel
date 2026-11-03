@@ -78,7 +78,7 @@ jobs:
           php artisan key:generate
           php artisan migrate --force
           php artisan test
-      - name: Push isolated bootstrap branch
+      - name: Validate production Docker image\n        shell: bash\n        run: |\n          docker build --tag student-perks:bootstrap .\n      - name: Push isolated bootstrap branch
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
@@ -94,4 +94,4 @@ jobs:
         run: |
           gh pr create --base main --head bootstrap/laravel-foundation \
             --title "Bootstrap Laravel 13 + PostgreSQL 18" \
-            --body "Official Laravel 13 skeleton with PostgreSQL as the sole app and CI database. No managed services or student verification."
+            --body "Official Laravel 13 skeleton, PostgreSQL 18 migrations/tests and shared Docker production image build. No managed services or student verification."
