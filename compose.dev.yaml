@@ -1,0 +1,16 @@
+# Use alongside compose.yaml: docker compose -f compose.yaml -f compose.dev.yaml up --build
+# Rebuild after PHP dependency changes. For frontend dev, run Vite separately using the node toolchain.
+services:
+  app:
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+    volumes:
+      - ./:/app
+      - dev-vendor:/app/vendor
+      - app-storage:/app/storage
+      - caddy-data:/data
+      - caddy-config:/config
+    command: ["sh", "-lc", "composer install --no-interaction --prefer-dist && exec frankenphp run --config /etc/caddy/Caddyfile"]
+volumes:
+  dev-vendor:
