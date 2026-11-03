@@ -1,0 +1,42 @@
+name: Feature / implementation task
+description: A scoped deliverable linked to the canonical GitHub Project.
+title: "[Feature] "
+labels: ["type:feature"]
+body:
+  - type: markdown
+    attributes:
+      value: "Project SOT: https://github.com/users/fusumivietnam/projects/5. Choose a single milestone M0–M4; do not create another roadmap."
+  - type: dropdown
+    id: milestone
+    attributes:
+      label: Milestone
+      options:
+        - M0 — Foundation
+        - M1 — Filament CMS
+        - M2 — Public discovery
+        - M3 — Editorial and SEO
+        - M4 — Production
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: User-visible outcome
+      description: Describe the smallest complete vertical slice.
+      placeholder: "Visitors can ... / Admins can ..."
+    validations:
+      required: true
+  - type: textarea
+    id: reuse
+    attributes:
+      label: Existing Laravel / Filament / Livewire capability to reuse
+      placeholder: "Filament Resource, Eloquent, Laravel validation, etc."
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria and tests
+      placeholder: "- [ ] ...\n- [ ] PostgreSQL tests ...\n- [ ] Responsive UI ..."
+    validations:
+      required: true
