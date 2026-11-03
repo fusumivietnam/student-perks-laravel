@@ -1,39 +1,42 @@
 # Student Perks Hub — Laravel
 
-Self-hostable directory of student discounts, credits, trials, and education offers. **We publish information and link visitors to the partner's offer page.** Student status verification, purchases, enrollment and redemption happen exclusively at the partner, not on this website.
+Self-hosted information directory for student discounts, credits, trials and education offers. Verification and redemption happen on partner websites, not here.
 
-## Stack and deployment
+## Locked stack
 
-- **Laravel 13.x** (PHP >= 8.3), Blade, Livewire, Tailwind CSS.
-- Filament admin CMS (install an officially compatible release after framework bootstrap).
-- **Local-first**: SQLite by default for lightweight development, optionally locally installed PostgreSQL on laptop or VPS.
-- Production VPS: PHP-FPM + Nginx, PostgreSQL or SQLite depending on operational needs; database must not be exposed publicly.
-- Laravel filesystem for media, file cache, database-backed sessions/jobs only as needed. Redis, S3, Supabase, cloud databases, managed hosting are optional future adapters, **not dependencies**.
-- No public user registration, logins, bookmarks or student verification in launch scope. Admin authentication only.
+- Laravel 13.x (PHP >= 8.3), Blade, Livewire, Tailwind CSS
+- Filament for admin CMS (compatible release)
+- **PostgreSQL 18.x is the sole supported database for development, CI, staging and production**
+- Self-managed local PostgreSQL and later VPS PostgreSQL; managed PostgreSQL is an optional hosting choice, not a required service
+- Laravel local media and file cache; no Redis/S3/Supabase/Vercel requirement
+- No public accounts, student verification, user submissions or saved offers at launch; admin login only
 
-## Bootstrap (one time)
+## One-time framework bootstrap
 
-Run [Bootstrap Laravel](https://github.com/fusumivietnam/student-perks-laravel/actions/workflows/bootstrap-laravel.yml) on main from GitHub Actions. This generates an official Laravel **13.x** application on `bootstrap/laravel-foundation`, tests it and opens a PR for review. GitHub Actions needs write and pull-request creation permissions. It does not deploy anything.
+Run [Bootstrap Laravel](https://github.com/fusumivietnam/student-perks-laravel/actions/workflows/bootstrap-laravel.yml) on main. It generates Laravel 13 on a separate branch, configures PostgreSQL and tests against the PostgreSQL 18 service before opening a pull request. GitHub Actions must be allowed to write contents and create PRs.
 
-After merge, on a local machine with PHP 8.3+, Composer and Node.js:
+## Local development — PostgreSQL only
+
+Install PHP 8.3+, Composer, Node.js and a **locally running PostgreSQL 18** server. Create a database and non-superuser application role (substitute a strong locally managed password):
+
+```sql
+CREATE ROLE student_perks LOGIN PASSWORD 'CHANGE_ME';
+CREATE DATABASE student_perks OWNER student_perks;
+```
+
+After the framework bootstrap PR is merged:
 
 ```bash
 composer install
 cp .env.example .env
 php artisan key:generate
-touch database/database.sqlite
+# Set DB_PASSWORD in .env to your local database role password.
 php artisan migrate
 npm ci
 npm run build
 php artisan serve
 ```
 
-For local PostgreSQL, create a local user and database, change `DB_CONNECTION=pgsql`, `DB_HOST=127.0.0.1`, `DB_PORT=5432`, `DB_DATABASE`, `DB_USERNAME` and `DB_PASSWORD` in your uncommitted `.env`, then run `php artisan migrate`.
+The scaffolded `.env.example` will use `DB_CONNECTION=pgsql`, `DB_HOST=127.0.0.1`, `DB_PORT=5432`, `DB_DATABASE=student_perks`, `DB_USERNAME=student_perks` and an empty `DB_PASSWORD`. Keep secrets in uncommitted `.env`. PostgreSQL should bind only to localhost / private networks.
 
-## Product
-
-Visitors browse brands, categories, searchable offers and informational pages. Each offer describes eligibility, availability, terms, redemption steps and the official external partner link, with a clear "verify / redeem on partner website" action. Admins curate and publish content through Filament.
-
-Original project for editorial/UX reference: https://github.com/fusumivietnam/student-perks-hub
-
-See [docs/MIGRATION_PLAN.md](docs/MIGRATION_PLAN.md) for launch milestones. We are **building a new product foundation**, not lifting the previous auth stack, Supabase RLS policies, or elaborate CI/recovery automation.
+See [docs/MIGRATION_PLAN.md](docs/MIGRATION_PLAN.md). Existing Next.js source is an optional UX/editorial reference, **not** an authentication or database migration requirement.
