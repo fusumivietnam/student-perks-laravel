@@ -78,7 +78,11 @@ jobs:
           php artisan key:generate
           php artisan migrate --force
           php artisan test
-      - name: Validate production Docker image\n        shell: bash\n        run: |\n          docker build --tag student-perks:bootstrap .\n      - name: Push isolated bootstrap branch
+      - name: Validate production Docker image
+        shell: bash
+        run: |
+          docker build --tag student-perks:bootstrap .
+      - name: Push isolated bootstrap branch
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
