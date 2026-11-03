@@ -1,0 +1,50 @@
+# GitHub as the single source of truth (SOT)
+
+## Authority and precedence
+
+GitHub repository `fusumivietnam/student-perks-laravel` is the only authoritative record for this project. ChatGPT conversations, past summaries and informal plans are *input proposals*, not project state or approval.
+
+Within GitHub, use the following authority order:
+
+1. Code, migrations, manifests and tests on **default branch `main`** determine what is actually implemented.
+2. **`docs/ROADMAP.md`** is the single authoritative *milestone and execution status board*. Do not maintain a second roadmap or percentage-based tracker.
+3. `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`, and `docs/DELIVERY.md` define approved scope and engineering rules.
+4. GitHub Issues and Pull Requests track actionable work and evidence; GitHub Actions runs establish test results.
+5. `README.md` is a compact entrypoint linking to the documents above, not a competing status tracker.
+
+If documents and code disagree, inspect current `main` and reconcile the documentation via a traceable commit or PR. A branch/PR is *proposed work*, not a released feature. CI green alone does not demonstrate production deployment.
+
+## Roadmap vs issues vs PRs
+
+- Roadmap: milestone identifier, scope, acceptance criteria, state, blocking dependency, related GitHub links and next action.
+- Issues: individual problems and deliverables linked to a roadmap milestone; do not reproduce the full roadmap in issue descriptions.
+- PRs: actual implementation, test evidence, issue/milestone reference and release implications.
+- Actions: checkable execution logs; never claim build/test passed without a real green run.
+- A GitHub Project board may be a **view** of GitHub Issues; it must not become a separate manually edited roadmap or source of contradictory status.
+
+## Status vocabulary
+
+`NOT STARTED` — no verified work integrated; `IN PROGRESS` — work exists in a branch/PR, not yet accepted; `BLOCKED` — identified dependency with specific next action; `DONE` — accepted code merged into main, relevant tests green, acceptance criteria verified; `DEFERRED` — deliberately out of current scope.
+
+Never infer `DONE` from a conversation, a draft, a documentation commit, or a planned workflow. Do not assign arbitrary completion percentages.
+
+## Working protocol (every development turn)
+
+1. Read GitHub `main`, `AGENTS.md` and `docs/ROADMAP.md`; check relevant open PRs/issues and latest Actions when accessible.
+2. Select the next blocker or milestone in `docs/ROADMAP.md`; avoid unrelated opportunistic tasks.
+3. Treat new user chat direction as a change request: compare it against the GitHub baseline, implement approved changes in GitHub, and update product/architecture/roadmap only where needed.
+4. Implement a cohesive vertical slice; avoid multiple small PRs and duplicate workflows. Check existing Laravel/Filament/Livewire packages first.
+5. Record verifiable outcome in GitHub: commit/PR, exact tests run and result, remaining blockers, roadmap state/links, and single next action.
+6. In chat, summarize **GitHub evidence**, distinguishing committed, merged, tested, deployed and not verified. Link to canonical files rather than maintaining an independent status list.
+
+## Change management
+
+- A new roadmap initiative requires updating `docs/ROADMAP.md`, with acceptance gate and priority.
+- Architectural changes require an explicit rationale and revision to `docs/ARCHITECTURE.md`; use a short ADR only for significant tradeoffs.
+- Scope changes require `docs/PRODUCT.md` update.
+- Avoid reopening accepted decisions without a concrete requirement or incompatibility.
+- Existing archived or older repo content is reference material, not authority over the new Laravel repo.
+
+## Review and synchronization
+
+Update the central roadmap in the same PR/commit that changes a milestone, not a later discussion. Before each substantial development batch, reconcile repository, PRs and CI with roadmap. If GitHub access is unavailable, do not invent status: explicitly report inability to verify and do not use chat as replacement SOT.
