@@ -21,7 +21,7 @@ Nginx reads public assets from the source mount in dev. PHP dependencies install
 
 Do not use the dev override. Provide production `.env` with `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL` and unique secrets. Deploy a tested image and run reviewed migrations with `docker compose exec app php artisan migrate --force`.
 
-Nginx reads a shared public volume. **Initialization step required for new or updated deployments:** `docker compose run --rm app sh -lc 'cp -a public/. /tmp/public-assets/'` is NOT sufficient for populating a mounted volume (image directory is masked). Prefer an image-backed release task that copies baked `public` assets into the named volume from a temporary path. Until that is implemented and tested, production Compose is infrastructure-in-progress and NOT release-ready.
+Nginx reads a shared public volume. The application image stores its built public release files at `/opt/app-public`; the app entrypoint copies these into the shared `public-assets` volume on each startup, retaining uploaded media through the independent `app-storage` volume. Nginx has read-only access to both volumes, allowing the public storage symlink to resolve. Validate this in an actual Docker boot before declaring production readiness.
 
 Bind port only on localhost behind a TLS reverse proxy by default; expose publicly only with configured HTTPS, firewall and trusted proxy behavior. Never publish database port 5432. Keep volumes for PostgreSQL and uploads across deploys.
 
