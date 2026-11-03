@@ -2,7 +2,7 @@
 
 ## Work order
 
-Follow the SINGLE authoritative `docs/ROADMAP.md` (see `docs/SOURCE_OF_TRUTH.md`) from top to bottom unless fixing a regression/security issue. A vertical slice includes user-visible behavior, admin control, data and tests. Do not spend cycles on repeated governance, backup/recovery orchestration or speculative cloud integrations before a usable launch.
+Follow the GitHub Project backlog (see `docs/GITHUB_PROJECT.md`) or canonical Issues before Project setup, starting with the highest-priority unblocked item unless fixing a regression/security issue. A vertical slice includes user-visible behavior, admin control, data and tests. Do not spend cycles on repeated governance, backup/recovery orchestration or speculative cloud integrations before a usable launch.
 
 ## Feature definition of done
 
@@ -26,7 +26,7 @@ Never run destructive migrations or `migrate:fresh` on a real data database.
 
 ## PR policy
 
-One meaningful vertical slice per PR; reduce repeated CI and branches. Commit lock files. A red CI is not a pass. No automatic production deployment or domain cutover. Link the PR to its milestone Issue, record acceptance evidence in that Issue, and rely on roadmap-sync workflow to generate the central roadmap. No manual edits to generated `docs/ROADMAP.md`; record only verifiable status and actual GitHub checks. No competing status board in chat or other docs.
+One meaningful vertical slice per PR; reduce repeated CI and branches. Commit lock files. A red CI is not a pass. No automatic production deployment or domain cutover. Link the PR to its milestone Issue, record acceptance evidence there, and use GitHub Projects V2 built-in automation for board progress. No custom roadmap generator or manual Markdown status tracker; record only verifiable status and actual GitHub checks. No competing status board in chat or other docs.
 
 ## Quality bar
 
