@@ -1,56 +1,49 @@
 # Student Perks Hub — Laravel 13 launch plan
 
-## Product contract (approved 2026-11-03)
+## Approved product contract (2026-11-03)
 
-A public information website listing student offers, credits, trials, and discounts. All eligibility checks, student verification, sign-up, payment and redemption are performed by the **partner website**. Student Perks Hub is not a verification provider and should not collect student IDs, school documents, or student status evidence.
+Public directory of student discounts, subscriptions, credits and trials. The website publishes editorial information and outbound links to verified partner destinations. Partners alone manage eligibility, student verification, purchase and redemption. Never collect student cards or other student verification evidence.
 
-Build on a **new Laravel foundation**, not a feature-for-feature port of Next.js. Previous UX and editorial content may be referenced selectively; existing production remains untouched until launch.
+## Database decision — final
 
-## Local-first infrastructure
+**PostgreSQL 18.x** is the sole database engine for local development, CI, staging and production. Use an ordinary self-managed PostgreSQL instance locally and on a VPS. Do not add SQLite, MySQL, Supabase Auth or hosted database dependencies. Future managed PostgreSQL is an optional change of hosting, not a change of database family. Maintain forward-compatible migrations, avoid relying on superuser permissions and test the actual production database engine. PostgreSQL major upgrades will still require standard maintenance and testing.
 
-- PHP >=8.3 and latest compatible Laravel 13.x patches via Composer lock.
-- SQLite as zero-service dev/test default. Self-managed PostgreSQL is an option locally or on VPS; adopt it when concurrency/content volume warrants it.
-- Blade / Livewire / Tailwind for public site; compatible Filament for authenticated admin-only CMS.
-- Laravel local disk, file cache and simple queue configuration. Redis, S3, managed PostgreSQL, Cloudflare and other managed options must remain optional.
-- Deploy to Nginx + PHP-FPM on a VPS; TLS, least-privilege OS/database account, private DB binding, backups and restore baseline are required before public production, but **advanced backup automation** is deferred.
-- Preserve .env secrets outside git. Do not configure Supabase, Vercel, TinyFish or an external database by default.
+## Infrastructure
 
-## Content model
+- Laravel 13.x, PHP >= 8.3; Eloquent ORM and source-controlled migrations
+- PostgreSQL 18 with restricted application role; localhost/private interface, strong credentials
+- Blade + Livewire + Tailwind CSS for public UX; Filament for authenticated admin-only CMS
+- Local filesystem for media and file cache; Redis, S3 and managed hosting remain optional
+- VPS: Nginx + PHP-FPM + self-managed PostgreSQL, HTTPS and minimal scheduled jobs
+- Required before production: basic consistent backups, restore test, secure secrets, firewall and rollback plan; defer advanced automated backup/recovery platforms
+- No TinyFish, Supabase, or Vercel infrastructure required
 
-- `brands`: name, slug, logo, website, status, metadata.
-- `categories`: name, slug, description, display order.
-- `offers`: title, slug, brand, categories, summary, detailed terms, offer type/value, eligibility text, student instructions, partner redemption URL, active period, editorial verification date, publication status and SEO.
-- `articles`, `pages`: editorial content, SEO, status and publication date.
-- `admins` / Laravel users: restricted administrator accounts only; use policies/roles.
-- Optional `offer_clicks` aggregate/event records for privacy-conscious outbound-link analytics (no student tracking needed).
+## Content schema
+
+- `brands`: name, slug, logo, website, status, SEO
+- `categories`: name, slug, description, order
+- `offers`: title, slug, brand, categories, summary, terms, offer value/type, eligibility text, partner instructions and HTTPS redemption URL, availability window, last editorial review, publication and SEO
+- `articles`, `pages`: editorial content, publish status, SEO
+- `users`: admin accounts only, guarded with policies/roles
+- Optional aggregate outbound link counters without student profiling
 
 ## Public functionality
 
-1. Landing page with featured/new offers and categories.
-2. /offers and /offers/{slug}, filters, sorting, expired-offer handling.
-3. /brands and /brands/{slug}; /categories/{slug}; /search.
-4. /articles, /articles/{slug}, static informational/legal pages.
-5. Offer CTA leading directly to verified HTTPS partner destination; `rel="noopener noreferrer sponsored"` when appropriate, no unsafe arbitrary URL redirect.
-6. Mobile-responsive, accessible layout; metadata, Open Graph, sitemap, canonical, robots and basic structured data.
-7. Clear editorial disclaimer that partner controls eligibility, pricing, verification and redemption.
+Homepage; /offers, /offers/{slug}, brand/category directories and detail, /search, articles and informational/legal pages. Filter/sort/search offers, show expiry and eligibility conditions, and direct CTA links to partner websites. Responsive and accessible UI, canonical/OG/sitemap and clear disclaimers. No internal student verification, public registration, saved offers, student submissions or payments.
 
-**Explicit non-goals:** public login/register, student verification, saved offers, user submissions, accounts, student documents, Supabase Auth, ecommerce/payment, custom admin SPA.
+## Delivery gates
 
-## Delivery phases and acceptance gates
-
-| Phase | Scope | Gate |
+| Phase | Deliverable | Acceptance criteria |
 |---|---|---|
-| 0 | Official Laravel 13 foundation, local SQLite, minimal CI | Scaffold PR merged, tests pass |
-| 1 | Models, migrations, factories and sample seed content | Database migrate/fresh and model tests pass |
-| 2 | Public templates for offer directory, brand/category and search | End-to-end page/SEO/accessibility checks |
-| 3 | Filament admin CRUD, media and editorial publication | Policies, CRUD and authenticated access tests |
-| 4 | Articles, pages, SEO and outbound-link safeguards | Content and link tests pass |
-| 5 | VPS deploy and launch readiness | Smoke tests, HTTPS, server security, baseline backup/restore and rollback plan |
+| 0 | Laravel 13 + PostgreSQL 18 skeleton | PostgreSQL tests pass and PR merged |
+| 1 | Schema, models, seed factories | PostgreSQL migrations and CRUD tests |
+| 2 | Offers, categories, brands, search | Mobile UX and route/SEO tests |
+| 3 | Filament CMS and editorial workflow | Admin policies, CRUD and media tests |
+| 4 | Articles, pages, legal copy, outbound links | Content/link/SEO tests |
+| 5 | VPS deployment | TLS, smoke, security, backup/restore baseline and rollback |
 
-## Delivery rules
+One meaningful PR per vertical slice, one minimal CI pipeline, avoid infrastructure duplication. The previous Next.js deployment stays untouched until explicit production cutover. No managed paid resources without user approval.
 
-One PR per meaningful vertical feature, avoid multiple redundant workflows. Use source-controlled Laravel migrations and testable business logic. Never import legacy Supabase user credentials or student verification functionality. Do not activate paid/managed resources without user approval.
+## Current status
 
-## State
-
-Repository documentation and bootstrap workflow committed; Laravel application generation is not yet verified. Do not describe as production-ready.
+Documentation and framework bootstrap workflow exist. Application scaffold and PostgreSQL tests have **not** been run yet.
