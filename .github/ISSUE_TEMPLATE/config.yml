@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Canonical project board
+    url: https://github.com/users/fusumivietnam/projects/5
+    about: Review roadmap, work items and dependencies before filing a duplicate.
