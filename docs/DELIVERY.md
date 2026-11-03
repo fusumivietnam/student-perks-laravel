@@ -26,7 +26,7 @@ Never run destructive migrations or `migrate:fresh` on a real data database.
 
 ## PR policy
 
-One meaningful vertical slice per PR; reduce repeated CI and branches. Commit lock files. A red CI is not a pass. No automatic production deployment or domain cutover. Update the central roadmap in the same delivery change; record only verifiable status and links to actual GitHub PRs, commits and checks. No competing status board in chat or other docs.
+One meaningful vertical slice per PR; reduce repeated CI and branches. Commit lock files. A red CI is not a pass. No automatic production deployment or domain cutover. Link the PR to its milestone Issue, record acceptance evidence in that Issue, and rely on roadmap-sync workflow to generate the central roadmap. No manual edits to generated `docs/ROADMAP.md`; record only verifiable status and actual GitHub checks. No competing status board in chat or other docs.
 
 ## Quality bar
 
