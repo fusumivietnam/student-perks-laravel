@@ -1,29 +1,17 @@
-# Student Perks Hub — single canonical roadmap
+# Student Perks Hub — canonical roadmap
 
-This is the **only** authoritative project milestone and execution-status document. GitHub code/tests on `main` establish implementation reality; GitHub Issues/PRs/Actions provide evidence. Do not duplicate this board in `README.md`, older plans, GitHub Project fields or chat. Policy: [SOURCE_OF_TRUTH.md](SOURCE_OF_TRUTH.md).
+> **GENERATED VIEW:** This file is now managed by [GitHub Actions roadmap-sync](../.github/workflows/roadmap-sync.yml) and [the renderer](../scripts/sync-roadmap.cjs). Do not manually edit milestone status here. The scheduled/on-change sync has not yet been verified running.
 
-Last repository review: 2026-11-03. All statuses below are based on committed source; no Laravel or Docker runtime success has been verified.
+| ID | Milestone | Acceptance gate | Issue | Last verified state |
+|---|---|---|---|---|
+| M0 | Laravel 13 + Docker + PostgreSQL 18 | Bootstrap, migrations, Docker build/HTTP smoke | [#5](https://github.com/fusumivietnam/student-perks-laravel/issues/5) | BLOCKED |
+| M1 | Data model + Filament CMS | Schema and admin CRUD tests | [#1](https://github.com/fusumivietnam/student-perks-laravel/issues/1) | NOT STARTED |
+| M2 | Public website and discovery | Offer pages/search/responsive testing | [#2](https://github.com/fusumivietnam/student-perks-laravel/issues/2) | NOT STARTED |
+| M3 | Editorial and SEO | Articles/pages, sitemap, links | [#3](https://github.com/fusumivietnam/student-perks-laravel/issues/3) | NOT STARTED |
+| M4 | VPS launch readiness | HTTPS, persistence, backup/restore, smoke | [#4](https://github.com/fusumivietnam/student-perks-laravel/issues/4) | NOT STARTED |
 
-| ID | Priority | Milestone / deliverable | Exit criteria | Status | Evidence / blocker |
-|---|---|---|---|---|---|
-| M0 | P0 | Laravel 13 skeleton, PHP-FPM + Nginx Docker, PostgreSQL 18 | Framework in `main`, Composer/npm locks, migrations/tests and Docker build green | BLOCKED | Bootstrap workflow committed but not executed; no green build evidence |
-| M1 | P0 | Database and Filament CMS for brands/categories/offers | Migrations, factories, admin CRUD, authorization and PostgreSQL tests pass | NOT STARTED | Depends on M0 |
-| M2 | P0 | Public directory and search | Homepage, offer list/detail, brand/category routes, filter/search and responsive UX pass | NOT STARTED | Depends on M1 |
-| M3 | P0 | Editorial publishing and SEO | Articles/pages, media, sitemap, metadata, safe partner CTA and tests pass | NOT STARTED | Depends on M2 |
-| M4 | P0 | VPS launch-ready deployment | TLS, secured config, persistence, production smoke, baseline backup/restore and rollback verified | NOT STARTED | Depends on M0–M3 |
+## First sync
 
-## Current blocking dependency
+Run the [Roadmap sync workflow](https://github.com/fusumivietnam/student-perks-laravel/actions/workflows/roadmap-sync.yml) manually once to replace this migration marker with the computed view. After that, issue/PR events and the scheduled reconciliation maintain this document. Any automation failure must be fixed in the workflow, not bypassed by manually editing this file.
 
-**M0:** Trigger [Bootstrap Laravel 13 (PostgreSQL 18)](https://github.com/fusumivietnam/student-perks-laravel/actions/workflows/bootstrap-laravel.yml) on `main`; inspect run logs and generated PR, then merge only after PostgreSQL tests and Docker build pass. Current Docker files are committed but not validated.
-
-## Current repo evidence
-
-- Architecture and product guardrails: [AGENTS.md](../AGENTS.md), [PRODUCT.md](PRODUCT.md), [ARCHITECTURE.md](ARCHITECTURE.md), [DELIVERY.md](DELIVERY.md), [SOURCE_OF_TRUTH.md](SOURCE_OF_TRUTH.md)
-- Dev/prod Docker configuration and Nginx/PHP-FPM: `Dockerfile`, `compose.yaml`, `compose.dev.yaml`, `docker/nginx/default.conf`
-- GitHub Actions: `.github/workflows/bootstrap-laravel.yml`, `.github/workflows/ci.yml`
-
-**Not verified:** Docker build/boot, HTTP behavior, PHP application bootstrap, PostgreSQL migration/test runs, Filament installation, public/admin routes, VPS deployment. Source/configuration commits are not equivalent to delivered functionality.
-
-## Update protocol
-
-Update this file in the same PR that materially advances a milestone. Use only statuses `NOT STARTED`, `IN PROGRESS`, `BLOCKED`, `DONE`, `DEFERRED`, supported by GitHub PR/commit/Actions links. Mark `DONE` only after actual acceptance evidence. Link Issues as execution tasks, not second roadmaps. Only one next blocking action is maintained here. Chat summaries must link to this file rather than maintain separate roadmap versions.
+This marker is a one-time transition snapshot, not a second roadmap.
