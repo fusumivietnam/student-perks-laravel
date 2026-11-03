@@ -38,7 +38,7 @@ For production use `docker compose up -d --build` with a distinct production `.e
 
 ## GitHub source of truth
 
-The GitHub repository is authoritative, not chat conversations. [SOT policy](docs/SOURCE_OF_TRUTH.md) defines precedence and synchronization; [ROADMAP](docs/ROADMAP.md) is the single milestone/status tracker. Product, architecture, tests and PR/Actions evidence remain in GitHub.
+The GitHub repository is authoritative, not chat conversations. [SOT policy](docs/SOURCE_OF_TRUTH.md) defines precedence; [ROADMAP](docs/ROADMAP.md) is automatically generated from [milestone Issues](https://github.com/fusumivietnam/student-perks-laravel/issues?q=is%3Aissue+label%3Aroadmap%3Amilestone) and linked PRs by [roadmap-sync](.github/workflows/roadmap-sync.yml). Never edit roadmap status manually. Product, architecture, tests and PR/Actions evidence remain in GitHub.
 
 ## Development policy
 
