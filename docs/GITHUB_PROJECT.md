@@ -41,3 +41,20 @@ Owner: `fusumivietnam`; Project name: `Student Perks Hub`; repository: `fusumivi
 ## Transition
 
 `docs/ROADMAP.md` is a historical pointer/snapshot, **not** an authoritative live roadmap. The custom `roadmap-sync.yml` and `scripts/sync-roadmap.cjs` are retired; no new custom sync is needed. Project #5 is the registered roadmap entrypoint. Until its fields/items can be verified, GitHub Issues remain canonical individual task records; do not claim full integration.
+
+## API access — initial integration
+
+The user-owned Project #5 requires a credential with GitHub Projects permissions; the repository-scoped default GitHub Actions `GITHUB_TOKEN` does **not** suffice. The connected ChatGPT GitHub connector does not expose generic GraphQL/Projects V2 tools, so adding a secret to Actions will enable **the workflow**, not directly grant ChatGPT a new connector capability.
+
+Recommended initial low-friction setup:
+
+1. Visit https://github.com/settings/tokens and choose **Generate new token (classic)**. For this **user-owned** Project, grant `project`. Add only the repository scopes GitHub requires for your issue access (the official Actions example uses `repo`; avoid broader permissions unless actually needed). Set a short expiration and revoke/rotate after use.
+2. **Do not paste tokens into any chat, issue, PR or tracked file.** In https://github.com/fusumivietnam/student-perks-laravel/settings/secrets/actions choose **New repository secret**, name it exactly `PROJECT_V2_TOKEN`, and paste the secret value into GitHub's secure field.
+3. Run https://github.com/fusumivietnam/student-perks-laravel/actions/workflows/project-v2-setup.yml on `main` with **apply=false** to validate API access without changing Project items.
+4. Inspect the GitHub Actions run. If it reports access to Project #5 and lists missing Issues, run it again with **apply=true**. This is idempotent: it adds only missing existing Issues #5, #1, #2, #3, #4 and #6.
+5. In Project #5, configure built-in views, Status/Priority/Milestone fields and auto-add Workflows as defined above. This one-time API workflow does **not** create views or configure Project's built-in automation.
+6. Once the project is configured and verified, remove or rotate the temporary classic PAT. If continued API automation is explicitly required, replace the temporary credential with a narrowly scoped, rotatable credential and an approved integration design.
+
+The setup script is at `scripts/setup-project-v2.cjs`. It checks GraphQL access to `user(login:"fusumivietnam"){projectV2(number:5)}`, checks current repository Issues and adds missing Project items using `addProjectV2ItemById`. It intentionally never prints the token, makes no destructive requests and does not modify issue states.
+
+Status: **Workflow and script committed; secret not verified, API execution not performed, project item membership not verified.**
