@@ -40,6 +40,19 @@ For a feature: migration/model, admin editing, public display (where relevant), 
 
 For infrastructure: reproducible Docker build, PostgreSQL migrations and tests, health endpoint, persistent data, no public database port, documented setup and recovery.
 
+## Resource and execution efficiency (mandatory)
+
+- First check whether code, CI, package or GitHub native automation already solves the task; do not recreate it.
+- Prefer one coherent, testable feature PR over sequences of small governance/formatting PRs.
+- Do not repeat GitHub API queries, Actions dispatches, Docker builds or tests without a changed input, failed result or explicit verification need.
+- Use GitHub Project native workflows for task progress; no scheduled or custom markdown status generator.
+- CI must ignore documentation-only commits where safe, cancel superseded PR runs, cache dependency downloads and keep least-privilege tokens.
+- Build Docker images only when code, dependencies or Docker inputs change; avoid unnecessary service containers and redundant runtime matrices.
+- Inspect workflow queues/usage before triggering jobs. Never trigger repeated runs to bypass queued capacity.
+- Cache Composer/npm/Docker layers when justified by observed repeated costs. Avoid caches whose restore/save overhead exceeds benefit.
+- Maintain necessary correctness, security and acceptance gates: efficiency must not mean skipping required tests.
+- Document any newly proposed service, action or automation with concrete benefit, cost/maintenance and a simpler alternative.
+
 ## Delivery
 
 Prefer one cohesive feature PR over many micro-PRs. Run relevant checks before merge; do not override failed checks. Keep main releasable. Do not alter old Next.js repository or launch DNS without explicit authorization. Production changes require backup, rollback and approval.
