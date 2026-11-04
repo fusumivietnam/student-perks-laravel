@@ -12,6 +12,10 @@ Follow the GitHub Project backlog (see `docs/GITHUB_PROJECT.md`) or canonical Is
 - Responsive, accessible UI with appropriate metadata, links and error states
 - CI passes, changes documented and no unrelated functionality introduced
 
+## Efficiency policy
+
+Use one canonical GitHub Project and native GitHub workflows. Avoid duplicate tracker scripts and repetitive checks. Run fast targeted checks during iteration, then full relevant PostgreSQL/test/build gates before merging. Limit CI to substantive code/config changes, cancel superseded runs and cache package downloads. Inspect real failures before re-running. Do not add schedule-based automation unless a real recurring obligation justifies it. Prefer free, built-in Laravel and Filament functionality over additional hosted services.
+
 ## Mandatory checks
 
 1. `composer validate --strict`
