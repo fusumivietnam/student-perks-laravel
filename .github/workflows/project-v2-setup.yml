@@ -1,0 +1,31 @@
+name: Configure GitHub Project #5
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Add milestone issues to Project #5 (default only checks access)"
+        type: boolean
+        default: false
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: student-perks-project-setup
+  cancel-in-progress: false
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify GitHub Project token and synchronize existing issues
+        env:
+          PROJECT_TOKEN: ${{ secrets.PROJECT_V2_TOKEN }}
+          APPLY: ${{ inputs.apply }}
+        run: node scripts/setup-project-v2.cjs
