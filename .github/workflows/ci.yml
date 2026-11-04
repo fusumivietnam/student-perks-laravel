@@ -2,14 +2,24 @@ name: Laravel CI
 on:
   pull_request:
     branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/project-setup-trigger.txt'
   push:
     branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/project-setup-trigger.txt'
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -42,6 +52,18 @@ jobs:
           extensions: mbstring, xml, ctype, pgsql, pdo_pgsql, bcmath, fileinfo
           tools: composer:v2
           coverage: none
+      - name: Get Composer cache location
+        if: steps.scaffold.outputs.present == 'true'
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+      - name: Cache Composer downloads
+        if: steps.scaffold.outputs.present == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            composer-${{ runner.os }}-
       - name: Install PHP dependencies
         if: steps.scaffold.outputs.present == 'true'
         run: composer install --prefer-dist --no-interaction --no-progress
