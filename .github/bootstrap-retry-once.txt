@@ -1,1 +1,0 @@
-Trigger a single Laravel 13 bootstrap retry after fixing missing vendor/autoload.php. Project item import has already passed and must not rerun.
