@@ -19,6 +19,7 @@ RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --no-
 COPY . .
 COPY --from=frontend /app/public/build ./public/build
 RUN composer dump-autoload --no-dev --classmap-authoritative && \
+    php artisan filament:assets --no-interaction && \
     mkdir -p storage/app/public storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && \
     chown -R www-data:www-data storage bootstrap/cache && \
     php -v
