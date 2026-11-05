@@ -57,4 +57,4 @@ Recommended initial low-friction setup:
 
 The setup script is at `scripts/setup-project-v2.cjs`. It checks GraphQL access to `user(login:"fusumivietnam"){projectV2(number:5)}`, checks current repository Issues and adds missing Project items using `addProjectV2ItemById`. It intentionally never prints the token, makes no destructive requests and does not modify issue states.
 
-Status: **Workflow and script committed; secret not verified, API execution not performed, project item membership not verified.**
+Status (verified 2026-11-05): **Run #41863901123 failed before API execution** because `PROJECT_V2_TOKEN` was empty in the Actions environment. Verify repository secret visibility, then execute `apply=false` and only after success `apply=true`. Project item membership is not verified. See [Issue #6](https://github.com/fusumivietnam/student-perks-laravel/issues/6).
