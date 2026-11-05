@@ -1,1 +1,1 @@
-One-shot Filament 5 generator on feature/m1-filament-cms. Run only once; generator removes this file and its workflow before push.
+Rerun once: APP_KEY setup and explicit bool cast for new admin model fixed after initial generated resource test failure.

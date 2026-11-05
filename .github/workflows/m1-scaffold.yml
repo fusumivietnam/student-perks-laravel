@@ -56,6 +56,8 @@ jobs:
           php artisan make:filament-resource Brand --generate --simple --no-interaction
           php artisan make:filament-resource Category --generate --simple --no-interaction
           php artisan make:filament-resource Offer --generate --no-interaction
+          cp .env.example .env
+          php artisan key:generate
           php artisan test
           php artisan route:list --path=admin
       - name: Save generated code and retire one-time workflow
