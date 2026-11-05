@@ -21,6 +21,10 @@ Self-hosted information directory for education discounts, trials, credits and p
 
 Laravel 13 scaffold is merged to `main` via [PR #7](https://github.com/fusumivietnam/student-perks-laravel/pull/7). [CI #41994566276](https://github.com/fusumivietnam/student-perks-laravel/actions/runs/41994566276) verified PostgreSQL 18 migrations/tests, Docker build, entrypoint assets, and Docker Compose HTTP smoke. One-time bootstrap workflow retired; further changes use ordinary PR CI.
 
+## Private preview (no domain or branding required)
+
+Run the real Docker stack on your computer or in GitHub Codespaces using `bash scripts/preview.sh`. Codespaces port 8080 stays **Private** by default. See [Preview guide](docs/PREVIEW.md) for setup, admin access and safe test-data handling.
+
 ## Docker quick start
 
 ```bash
