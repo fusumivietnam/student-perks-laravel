@@ -41,14 +41,14 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Detect scaffold
         id: scaffold
         run: echo "present=$([ -f artisan ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
       - if: steps.scaffold.outputs.present == 'true'
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.5'
           extensions: mbstring, xml, ctype, pgsql, pdo_pgsql, bcmath, fileinfo
           tools: composer:v2
           coverage: none
@@ -90,7 +90,7 @@ jobs:
         shell: bash
         run: |
           docker run --rm --entrypoint sh student-perks:ci -c 'test -f /usr/local/bin/app-entrypoint.sh && test -f /opt/app-public/index.php && test -f /opt/app-public/build/manifest.json && test -d /opt/app-public/css/filament && test -d /opt/app-public/js/filament'
-          docker run --rm --entrypoint sh student-perks:ci -c 'php-fpm -t'
+          docker run --rm --entrypoint sh student-perks:ci -c 'php-fpm -t && php -m | grep -Ei "^Zend OPcache$"'
           docker run --rm --entrypoint sh student-perks:ci -c 'mkdir -p /var/www/html/public && sh /usr/local/bin/app-entrypoint.sh sh -c "test -f /var/www/html/public/index.php && test -f /var/www/html/public/build/manifest.json"'
 
       - name: Docker Compose HTTP and migration smoke test
