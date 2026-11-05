@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '.github/project-bootstrap-once.txt'
+      - '.github/bootstrap-retry-once.txt'
   workflow_dispatch:
 
 permissions:
@@ -68,6 +68,9 @@ jobs:
           text = re.sub(r'(?m)^.*<env name="DB_DATABASE"[^>]*\/>.*\n?', '', text)
           phpunit.write_text(text)
           PY
+      - name: Install project dependencies after copying skeleton
+        shell: bash
+        run: composer install --prefer-dist --no-interaction --no-progress
       - name: Verify PostgreSQL migrations and Laravel tests
         shell: bash
         env:
