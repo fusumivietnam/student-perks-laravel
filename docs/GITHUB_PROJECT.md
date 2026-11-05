@@ -4,9 +4,9 @@
 
 **GitHub Project V2 #5 is the canonical planning, workflow and roadmap entrypoint.** Its items must link to GitHub Issues/PRs; actual implementation is established by code and green checks on `main`. Conversations are proposals only. Do not create competing Markdown roadmap generators, scheduled status synchronizers or separate project plans.
 
-Current state: The Project URL was provided by the project owner on 2026-11-03 and is registered below. The connected GitHub API does not expose Projects V2 read/edit operations; its items, views, fields, and automations have **not been independently verified**.
+Current state: The Project URL was provided by the project owner on 2026-11-03 and is registered below. The connected GitHub API does not expose Projects V2 read/edit operations; its items are now verified by GitHub Actions API logs; views, fields and native automations have **not been independently verified**.
 
-Project URL: **https://github.com/users/fusumivietnam/projects/5** (owner-provided; configuration unverified)
+Project URL: **https://github.com/users/fusumivietnam/projects/5** (GraphQL-access verified; six Issues imported)
 
 Owner: `fusumivietnam`; Project name: `Student Perks Hub`; repository: `fusumivietnam/student-perks-laravel`.
 
@@ -57,4 +57,4 @@ Recommended initial low-friction setup:
 
 The setup script is at `scripts/setup-project-v2.cjs`. It checks GraphQL access to `user(login:"fusumivietnam"){projectV2(number:5)}`, checks current repository Issues and adds missing Project items using `addProjectV2ItemById`. It intentionally never prints the token, makes no destructive requests and does not modify issue states.
 
-Status (verified 2026-11-05): **Run #41863901123 failed before API execution** because `PROJECT_V2_TOKEN` was empty in the Actions environment. Verify repository secret visibility, then execute `apply=false` and only after success `apply=true`. Project item membership is not verified. See [Issue #6](https://github.com/fusumivietnam/student-perks-laravel/issues/6).
+Status (verified 2026-11-05): Previous run #41863901123 failed due to missing token, but the secret is now available. [Read-only validation #41992895400](https://github.com/fusumivietnam/student-perks-laravel/actions/runs/41992895400) passed; [apply run #41993142767](https://github.com/fusumivietnam/student-perks-laravel/actions/runs/41993142767) successfully **added Issues #1–#6** to Project #5. No further import runs needed. Project views, custom fields and native automations remain unverified. See [Issue #6](https://github.com/fusumivietnam/student-perks-laravel/issues/6).
