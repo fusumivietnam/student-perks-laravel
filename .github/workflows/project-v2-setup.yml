@@ -1,5 +1,9 @@
 name: Configure GitHub Project #5
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/project-bootstrap-once.txt'
   workflow_dispatch:
     inputs:
       apply:
@@ -27,5 +31,5 @@ jobs:
       - name: Verify GitHub Project token and synchronize existing issues
         env:
           PROJECT_TOKEN: ${{ secrets.PROJECT_V2_TOKEN }}
-          APPLY: ${{ inputs.apply }}
+          APPLY: ${{ github.event_name == 'push' || inputs.apply }}
         run: node scripts/setup-project-v2.cjs
