@@ -42,6 +42,11 @@ jobs:
           --health-retries 10
     steps:
       - uses: actions/checkout@v5
+      - name: Validate preview launcher syntax
+        if: ${{ hashFiles('scripts/preview.sh') != '' }}
+        run: |
+          bash -n scripts/preview.sh
+          python3 -m json.tool .devcontainer/devcontainer.json >/dev/null
       - name: Detect scaffold
         id: scaffold
         run: echo "present=$([ -f artisan ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
