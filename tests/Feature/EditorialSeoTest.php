@@ -73,7 +73,7 @@ class EditorialSeoTest extends TestCase
     public function test_editorial_admin_resources_are_registered(): void
     {
         $panel = \Filament\Facades\Filament::getPanel('admin');
-        $this->assertContains(\App\Filament\Resources\Articles\ArticleResource::class, array_keys($panel->getResources()));
+        $this->assertContains(\App\Filament\Resources\Articles\ArticleResource::class, $panel->getResources());
         $this->assertContains(\App\Filament\Resources\Pages\PageResource::class, array_keys($panel->getResources()));
     }
 }
