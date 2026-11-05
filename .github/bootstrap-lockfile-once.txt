@@ -1,1 +1,0 @@
-Trigger one bootstrap run after confirming PostgreSQL tests pass and fixing missing npm package-lock.json for Docker. No Project import should be rerun.
