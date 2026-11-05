@@ -3,14 +3,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="@yield('description', 'Find current student discounts, free plans and education offers from official partners.')">
-    <meta name="robots" content="@yield('robots', 'index,follow')">
+    <meta name="description" content="{{ $__env->yieldContent('description', 'Find current student discounts, free plans and education offers from official partners.') }}">
+    <meta name="robots" content="{{ $__env->yieldContent('robots', 'index,follow') }}">
     <link rel="canonical" href="{{ url()->current() }}">
-    <meta property="og:type" content="@yield('og_type', 'website')">
-    <meta property="og:title" content="@yield('title', 'Student Perks Hub')">
-    <meta property="og:description" content="@yield('description', 'Find student offers and learning guides.')">
+    <meta property="og:type" content="{{ $__env->yieldContent('og_type', 'website') }}">
+    <meta property="og:title" content="{{ $__env->yieldContent('title', 'Student Perks Hub') }}">
+    <meta property="og:description" content="{{ $__env->yieldContent('description', 'Find student offers and learning guides.') }}">
     <meta property="og:url" content="{{ url()->current() }}">
-    <title>@yield('title', 'Student Perks Hub') · Student Perks Hub</title>
+    <title>{{ $__env->yieldContent('title', 'Student Perks Hub') }} · Student Perks Hub</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">

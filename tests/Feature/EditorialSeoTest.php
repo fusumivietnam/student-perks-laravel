@@ -19,6 +19,7 @@ class EditorialSeoTest extends TestCase
         Article::create([
             'title' => 'Student guide', 'slug' => 'student-guide', 'summary' => 'Learn about discounts',
             'body' => '<script>alert(1)</script> Safe guidance', 'is_published' => true,
+            'seo_title' => '\"><script>evil()</script>',
         ]);
         Article::create([
             'title' => 'Embargoed', 'slug' => 'embargoed', 'summary' => 'Later',
@@ -34,7 +35,9 @@ class EditorialSeoTest extends TestCase
         $this->get('/articles')->assertOk()->assertSee('Student guide')->assertDontSee('Embargoed')->assertDontSee('Draft');
         $this->get('/articles/student-guide')->assertOk()
             ->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false)->assertDontSee('<script>alert(1)</script>', false)
-            ->assertSee('rel="canonical"', false);
+            ->assertSee('rel="canonical"', false)
+            ->assertSee('&lt;script&gt;evil()&lt;/script&gt;', false)
+            ->assertDontSee('<script>evil()</script>', false);
         $this->get('/articles/embargoed')->assertNotFound();
         $this->get('/articles/draft')->assertNotFound();
         $this->get('/pages/about')->assertOk()->assertSee('Our mission');
@@ -68,6 +71,21 @@ class EditorialSeoTest extends TestCase
             ->assertSee('/articles/guide')->assertSee('/pages/terms')->assertDontSee('/pages/draft');
         $this->get('/search?q=Acme')->assertOk()->assertSee('noindex,follow');
         $this->assertStringContainsString('Sitemap: /sitemap.xml', file_get_contents(public_path('robots.txt')));
+    }
+
+    public function test_invalid_partner_link_is_not_rendered_as_clickable_url(): void
+    {
+        $brand = Brand::create(['name' => 'Brand', 'slug' => 'brand', 'is_published' => true]);
+        $category = Category::create(['name' => 'Category', 'slug' => 'category', 'is_published' => true]);
+        Offer::create([
+            'brand_id' => $brand->id, 'category_id' => $category->id, 'title' => 'Offer',
+            'slug' => 'unsafe', 'summary' => 'Summary', 'description' => 'Details',
+            'partner_url' => 'javascript:alert(1)', 'is_published' => true,
+        ]);
+
+        $this->get('/offers/unsafe')->assertOk()
+            ->assertSee('Partner link is temporarily unavailable')
+            ->assertDontSee('href="javascript:', false);
     }
 
     public function test_editorial_admin_resources_are_registered(): void
