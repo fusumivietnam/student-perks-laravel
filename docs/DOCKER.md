@@ -2,9 +2,9 @@
 
 ## Runtime
 
-Three services: Nginx (public HTTP), PHP 8.3-FPM Laravel app, PostgreSQL 18 (private). Development and production build the same PHP Dockerfile, with a development-only source bind mount. This allows a later native panel deployment via Nginx/Apache + matching PHP-FPM.
+Three services: Nginx (public HTTP), PHP 8.5-FPM Laravel app, PostgreSQL 18 (private). Development and production build the same PHP Dockerfile, with a development-only source bind mount. This allows a later native panel deployment via Nginx/Apache + matching PHP-FPM.
 
-**Prerequisite:** Bootstrap Laravel skeleton and lockfiles first. Until then Docker builds will fail.
+**Prerequisite:** Composer and npm lockfiles are committed to main. Bootstrap is complete.
 
 ## Local development
 
@@ -28,3 +28,5 @@ Bind port only on localhost behind a TLS reverse proxy by default; expose public
 Mandatory before launch: asset synchronization, rollback, PostgreSQL dump + file media backup with restore rehearsal, SSL, scheduled Laravel tasks if required and smoke tests.
 
 Never run `docker compose down -v` against valuable data.
+
+See [production release checklist](PRODUCTION.md) before any VPS or DNS changes.

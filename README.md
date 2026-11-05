@@ -6,8 +6,8 @@ Self-hosted information directory for education discounts, trials, credits and p
 
 | Layer | Choice |
 |---|---|
-| Application | Laravel 13, PHP 8.3, Blade + Livewire |
-| Admin CMS | Filament 5 (compatible release, installed after scaffold) |
+| Application | Laravel 13, PHP 8.5, Blade + Livewire |
+| Admin CMS | Filament 5 |
 | Data | PostgreSQL 18 only, self-hosted |
 | Containers | Docker Compose, shared Nginx and PHP-FPM Docker runtime |
 | Assets | Tailwind + Vite |
@@ -21,7 +21,7 @@ Self-hosted information directory for education discounts, trials, credits and p
 
 Laravel 13 scaffold is merged to `main` via [PR #7](https://github.com/fusumivietnam/student-perks-laravel/pull/7). [CI #41994566276](https://github.com/fusumivietnam/student-perks-laravel/actions/runs/41994566276) verified PostgreSQL 18 migrations/tests, Docker build, entrypoint assets, and Docker Compose HTTP smoke. One-time bootstrap workflow retired; further changes use ordinary PR CI.
 
-## Docker quick start (after merging scaffold PR)
+## Docker quick start
 
 ```bash
 cp .env.docker.example .env
@@ -32,7 +32,7 @@ docker compose -f compose.yaml -f compose.dev.yaml exec app php artisan migrate 
 
 Then open http://localhost:8080. All application PHP runs in Docker; installing PHP/PostgreSQL directly on your host is unnecessary.
 
-For production use `docker compose up -d --build` with a distinct production `.env`, HTTPS reverse proxy and preserved Docker volumes. See [Docker guide](docs/DOCKER.md) and [GitHub Project setup](docs/GITHUB_PROJECT.md).
+For production use `docker compose up -d --build` with a distinct production `.env`, HTTPS reverse proxy and preserved Docker volumes. Complete the [M4 production release checklist](docs/PRODUCTION.md) before exposing the service. See [Docker guide](docs/DOCKER.md) and [GitHub Project setup](docs/GITHUB_PROJECT.md).
 
 ## Filament CMS admin (M1)
 
