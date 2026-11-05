@@ -22,6 +22,9 @@ RUN composer dump-autoload --no-dev --classmap-authoritative && \
     mkdir -p storage/app/public storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && \
     chown -R www-data:www-data storage bootstrap/cache && \
     php -v
+# Preserve public release assets outside the named public volume mounted at runtime.
+RUN mkdir -p /opt/app-public && cp -a public/. /opt/app-public/
+COPY docker/app-entrypoint.sh /usr/local/bin/app-entrypoint.sh
 EXPOSE 9000
 ENTRYPOINT ["sh", "/usr/local/bin/app-entrypoint.sh"]
 CMD ["php-fpm"]
