@@ -1,0 +1,1 @@
+One-shot Filament 5 generator on feature/m1-filament-cms. Run only once; generator removes this file and its workflow before push.
