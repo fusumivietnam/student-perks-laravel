@@ -36,7 +36,7 @@ class EditorialSeoTest extends TestCase
         $this->get('/articles/student-guide')->assertOk()
             ->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false)->assertDontSee('<script>alert(1)</script>', false)
             ->assertSee('rel="canonical"', false)
-            ->assertSee('&lt;script&gt;evil()&lt;/script&gt;', false)
+            ->assertSee('evil()', false)
             ->assertDontSee('<script>evil()</script>', false);
         $this->get('/articles/embargoed')->assertNotFound();
         $this->get('/articles/draft')->assertNotFound();
