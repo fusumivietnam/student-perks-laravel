@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '.github/bootstrap-retry-once.txt'
+      - '.github/bootstrap-lockfile-once.txt'
   workflow_dispatch:
 
 permissions:
@@ -85,6 +85,13 @@ jobs:
           php artisan key:generate
           php artisan migrate --force
           php artisan test
+      - name: Generate deterministic npm lockfile for Docker build
+        shell: bash
+        run: |
+          if [ ! -f package-lock.json ]; then
+            npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          fi
+          test -f package-lock.json
       - name: Validate production Docker image
         shell: bash
         run: |
@@ -95,6 +102,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c bootstrap/laravel-foundation
+          rm -f .github/project-bootstrap-once.txt .github/bootstrap-retry-once.txt .github/bootstrap-lockfile-once.txt
           git add -A
           git commit -m "chore: scaffold Laravel 13 with PostgreSQL 18"
           git push --set-upstream origin bootstrap/laravel-foundation
