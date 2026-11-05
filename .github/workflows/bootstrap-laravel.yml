@@ -1,5 +1,9 @@
 name: Bootstrap Laravel 13 (PostgreSQL 18)
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/project-bootstrap-once.txt'
   workflow_dispatch:
 
 permissions:
