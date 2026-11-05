@@ -22,9 +22,13 @@ class CatalogController extends Controller
 
     public function offers(Request $request): View
     {
-        $term = mb_substr(trim((string) $request->query('q', '')), 0, 100);
-        $brand = (string) $request->query('brand', '');
-        $category = (string) $request->query('category', '');
+        $rawTerm = $request->query('q', '');
+        $rawBrand = $request->query('brand', '');
+        $rawCategory = $request->query('category', '');
+
+        $term = is_string($rawTerm) ? mb_substr(trim($rawTerm), 0, 100) : '';
+        $brand = is_string($rawBrand) ? mb_substr($rawBrand, 0, 255) : '';
+        $category = is_string($rawCategory) ? mb_substr($rawCategory, 0, 255) : '';
         $sort = $request->query('sort') === 'ending' ? 'ending' : 'latest';
 
         $query = Offer::current()->with(['brand', 'category'])
