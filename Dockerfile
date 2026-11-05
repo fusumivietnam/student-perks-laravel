@@ -1,5 +1,5 @@
 # Portable Laravel image: same PHP-FPM runtime in development and production.
-FROM node:24-alpine AS frontend
+FROM node:26-alpine AS frontend
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -7,7 +7,7 @@ COPY vite.config.* ./
 COPY resources ./resources
 RUN npm run build
 
-FROM php:8.3-fpm-bookworm AS app
+FROM php:8.5-fpm-bookworm AS app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git unzip libpq-dev libicu-dev libzip-dev \
     && docker-php-ext-install pdo_pgsql intl zip opcache \

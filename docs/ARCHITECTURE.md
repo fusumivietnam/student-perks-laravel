@@ -2,9 +2,9 @@
 
 ## Runtime and portability
 
-Application: Laravel 13 / PHP 8.3+ / PostgreSQL 18 / Blade + Livewire / Tailwind / Filament admin.
+Application: Laravel 13 / PHP 8.5 production and CI (Composer supports PHP 8.3+) / PostgreSQL 18 / Blade + Livewire / Tailwind / Filament 5 admin. Frontend builds use Node 26 LTS.
 
-Dev and VPS: Docker Compose with separate **Nginx**, **PHP-FPM** and **PostgreSQL 18** containers. Same PHP image, database family, extensions and Composer lockfile. Dev overlay mounts files and uses Vite as appropriate. Production serves a built image; no code edits on live hosts.
+Dev and VPS: Docker Compose with separate **Nginx**, **PHP-FPM** and **PostgreSQL 18** containers. Same PHP 8.5 runtime, database family, extensions and Composer lockfile. Dev overlay mounts files and uses Vite as appropriate. Production serves a built image; no code edits on live hosts.
 
 Control-panel option: install matching PHP/extensions, configure public document root, Composer dependencies, scheduler and PostgreSQL connection. Docker parity is not guaranteed on native panels; feature code must not depend on container-only runtime APIs.
 
