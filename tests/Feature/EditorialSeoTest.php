@@ -67,13 +67,13 @@ class EditorialSeoTest extends TestCase
             ->assertSee('/offers/active')->assertDontSee('/offers/draft')->assertDontSee('/offers/expired')
             ->assertSee('/articles/guide')->assertSee('/pages/terms')->assertDontSee('/pages/draft');
         $this->get('/search?q=Acme')->assertOk()->assertSee('noindex,follow');
-        $this->get('/robots.txt')->assertOk()->assertSee('Sitemap: /sitemap.xml');
+        $this->assertStringContainsString('Sitemap: /sitemap.xml', file_get_contents(public_path('robots.txt')));
     }
 
     public function test_editorial_admin_resources_are_registered(): void
     {
         $panel = \Filament\Facades\Filament::getPanel('admin');
         $this->assertContains(\App\Filament\Resources\Articles\ArticleResource::class, $panel->getResources());
-        $this->assertContains(\App\Filament\Resources\Pages\PageResource::class, array_keys($panel->getResources()));
+        $this->assertContains(\App\Filament\Resources\Pages\PageResource::class, $panel->getResources());
     }
 }
