@@ -9,6 +9,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
@@ -37,7 +38,10 @@ class BrandResource extends Resource
                     ->columnSpanFull(),
                 TextInput::make('website_url')
                     ->url(),
-                TextInput::make('logo_path'),
+                FileUpload::make('logo_path')
+                    ->image()
+                    ->disk('public')
+                    ->directory('brands'),
                 Toggle::make('is_published')
                     ->required(),
             ]);

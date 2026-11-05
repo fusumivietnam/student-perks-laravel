@@ -17,14 +17,19 @@ class OfferForm
             ->components([
                 Select::make('brand_id')
                     ->relationship('brand', 'name')
+                    ->searchable()
+                    ->preload()
                     ->required(),
                 Select::make('category_id')
                     ->relationship('category', 'name')
+                    ->searchable()
+                    ->preload()
                     ->required(),
                 TextInput::make('title')
                     ->required(),
                 TextInput::make('slug')
-                    ->required(),
+                    ->required()
+                    ->unique(ignoreRecord: true),
                 Textarea::make('summary')
                     ->required()
                     ->columnSpanFull(),
@@ -41,6 +46,7 @@ class OfferForm
                     ->columnSpanFull(),
                 TextInput::make('partner_url')
                     ->url()
+                    ->rule('starts_with:https://')
                     ->required(),
                 Toggle::make('is_published')
                     ->required(),

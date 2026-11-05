@@ -7,6 +7,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class OffersTable
@@ -52,7 +54,9 @@ class OffersTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('brand_id')->relationship('brand', 'name')->searchable(),
+                SelectFilter::make('category_id')->relationship('category', 'name')->searchable(),
+                TernaryFilter::make('is_published'),
             ])
             ->recordActions([
                 EditAction::make(),

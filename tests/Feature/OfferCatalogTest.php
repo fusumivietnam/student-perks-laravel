@@ -15,8 +15,8 @@ class OfferCatalogTest extends TestCase
 
     public function test_drafts_and_expired_offers_are_excluded_from_current_offers(): void
     {
-        $brand = Brand::create(['name' => 'Example', 'slug' => 'example']);
-        $category = Category::create(['name' => 'Software', 'slug' => 'software']);
+        $brand = Brand::create(['name' => 'Example', 'slug' => 'example', 'is_published' => true]);
+        $category = Category::create(['name' => 'Software', 'slug' => 'software', 'is_published' => true]);
 
         foreach ([
             ['slug' => 'active', 'is_published' => true, 'ends_at' => now()->addDay()],
@@ -37,6 +37,8 @@ class OfferCatalogTest extends TestCase
         $this->assertSame(['active'], Offer::current()->pluck('slug')->all());
         $this->assertCount(4, $brand->offers);
         $this->assertCount(4, $category->offers);
+        $brand->update(['is_published' => false]);
+        $this->assertSame([], Offer::current()->pluck('slug')->all());
     }
 
     public function test_only_explicit_administrators_can_access_filament(): void
