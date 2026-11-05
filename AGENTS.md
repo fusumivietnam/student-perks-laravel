@@ -53,6 +53,10 @@ For infrastructure: reproducible Docker build, PostgreSQL migrations and tests, 
 - Maintain necessary correctness, security and acceptance gates: efficiency must not mean skipping required tests.
 - Document any newly proposed service, action or automation with concrete benefit, cost/maintenance and a simpler alternative.
 
+## Ponytail engineering rule (mandatory)
+
+Follow the [Ponytail ladder](https://ponytail.dev/): first ask whether code is needed; reuse existing code; use PHP/Laravel native features; use Filament/Livewire built-ins and installed dependencies; only then write the minimum missing code. Avoid layers, helper classes, new dependencies or CI workflows without a concrete need. Preserve validation, access control, security, data integrity, accessibility and tests on nontrivial logic. Record intentionally deferred features and unverified checks in the PR. No benchmark percentage is assumed for this project.
+
 ## Delivery
 
 Prefer one cohesive feature PR over many micro-PRs. Run relevant checks before merge; do not override failed checks. Keep main releasable. Do not alter old Next.js repository or launch DNS without explicit authorization. Production changes require backup, rollback and approval.
