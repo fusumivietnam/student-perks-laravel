@@ -39,6 +39,6 @@ Avoid dependency-heavy starter kits, service wrappers and reinvented CMS/forms/t
 
 Managed services, caching cluster, horizontal scaling, advanced background jobs, multilingual system, automated import pipelines, analytics tracker, enterprise IAM. Document new decisions before introducing them.
 
-## Known bootstrap prerequisites
+## Verified foundation
 
-Laravel skeleton has not yet been generated. Docker build cannot be validated until `composer.lock`, `package-lock.json`, `artisan` and application resources exist.
+Laravel 13 skeleton and Composer/npm lockfiles are committed on main in [PR #7](https://github.com/fusumivietnam/student-perks-laravel/pull/7). CI verified PostgreSQL 18 tests/migrations and Docker Compose HTTP smoke. Continue through ordinary PR CI, not scaffold bootstrap.
