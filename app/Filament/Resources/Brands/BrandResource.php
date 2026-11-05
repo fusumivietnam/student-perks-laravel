@@ -33,7 +33,8 @@ class BrandResource extends Resource
                 TextInput::make('name')
                     ->required(),
                 TextInput::make('slug')
-                    ->required(),
+                    ->required()
+                    ->unique(ignoreRecord: true),
                 Textarea::make('description')
                     ->columnSpanFull(),
                 TextInput::make('website_url')
@@ -71,7 +72,7 @@ class BrandResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                \Filament\Tables\Filters\TernaryFilter::make('is_published'),
             ])
             ->recordActions([
                 EditAction::make(),
