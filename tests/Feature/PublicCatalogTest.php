@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Offer;
+use App\Models\Page;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -58,6 +59,30 @@ class PublicCatalogTest extends TestCase
         $this->get('/brands/acme')->assertOk()->assertSee('Acme student discount');
         $this->get('/categories/software')->assertOk()->assertSee('Acme student discount');
         $this->get('/offers/active')->assertOk()->assertSee('https://partner.example/offer');
+    }
+
+    public function test_footer_links_only_to_published_pages(): void
+    {
+        Page::create(['title' => 'Privacy policy', 'slug' => 'privacy', 'body' => 'Reviewed policy', 'is_published' => true]);
+        Page::create(['title' => 'Terms', 'slug' => 'terms', 'body' => 'Unreviewed', 'is_published' => false]);
+
+        $this->get('/')->assertOk()
+            ->assertSee('href="'.route('pages.show', 'privacy').'"', false)
+            ->assertDontSee('href="'.route('pages.show', 'terms').'"', false)
+            ->assertDontSee('href="'.route('pages.show', 'about').'"', false);
+
+        $this->get('/pages/privacy')->assertOk()->assertSee('Reviewed policy');
+        $this->get('/pages/terms')->assertNotFound();
+    }
+
+    public function test_malformed_search_parameters_do_not_trigger_server_errors(): void
+    {
+        [$brand, $category] = $this->catalog();
+        $this->offer($brand, $category, 'active');
+
+        $this->get('/search?q[]=wrong&brand[]=acme&category[]=software&sort[]=ending')
+            ->assertOk()
+            ->assertSee('Acme student discount');
     }
 
     public function test_hidden_brands_never_publish_their_offers(): void
