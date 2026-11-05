@@ -1,6 +1,9 @@
 @extends('layouts.public')
 
 @section('title', $title)
+@if(!($hideFilters ?? false))
+    @section('robots', 'noindex,follow')
+@endif
 @section('description', $description ?? 'Explore current education benefits and official partner offers.')
 
 @section('content')

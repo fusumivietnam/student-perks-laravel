@@ -20,7 +20,11 @@
             <p class="mt-6 inline-block rounded-full bg-indigo-100 px-4 py-2 font-bold text-indigo-800">{{ $offer->offer_value }}</p>
         @endif
         <div class="mt-8 rounded-2xl border border-indigo-100 bg-indigo-50 p-6">
-            <a href="{{ $offer->partner_url }}" target="_blank" rel="noopener noreferrer sponsored" class="inline-block rounded-lg bg-indigo-700 px-6 py-3 font-bold text-white hover:bg-indigo-800">Visit official partner <span aria-hidden="true">↗</span></a>
+            @if(filter_var($offer->partner_url, FILTER_VALIDATE_URL) && parse_url($offer->partner_url, PHP_URL_SCHEME) === 'https')
+                <a href="{{ $offer->partner_url }}" target="_blank" rel="noopener noreferrer sponsored" class="inline-block rounded-lg bg-indigo-700 px-6 py-3 font-bold text-white hover:bg-indigo-800">Visit official partner <span aria-hidden="true">↗</span></a>
+            @else
+                <p class="font-semibold text-rose-800">Partner link is temporarily unavailable. Please check again later.</p>
+            @endif
             <p class="mt-3 text-sm text-slate-600">You'll leave Student Perks Hub. The partner verifies eligibility and handles redemption. Terms and availability may change.</p>
         </div>
         <section class="mt-10 space-y-4 leading-relaxed">
