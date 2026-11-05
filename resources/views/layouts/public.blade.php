@@ -31,10 +31,13 @@
     </main>
     <footer class="border-t border-slate-200 bg-white">
         <div class="mx-auto max-w-6xl px-4 py-7 text-sm text-slate-600">
-            <a class="mr-4 font-semibold hover:text-indigo-700" href="{{ route('pages.show', 'about') }}">About</a>
-            <a class="mr-4 font-semibold hover:text-indigo-700" href="{{ route('pages.show', 'privacy') }}">Privacy</a>
-            <a class="mr-4 font-semibold hover:text-indigo-700" href="{{ route('pages.show', 'terms') }}">Terms</a>
-            <a class="mr-4 font-semibold hover:text-indigo-700" href="{{ route('pages.show', 'contact') }}">Contact</a>
+            <nav aria-label="Information and policies" class="flex flex-wrap gap-x-5 gap-y-2">
+                @foreach(['about' => 'About', 'privacy' => 'Privacy', 'terms' => 'Terms', 'contact' => 'Contact'] as $slug => $label)
+                    @if($footerPages->contains($slug))
+                        <a class="font-semibold hover:text-indigo-700 focus-visible:underline" href="{{ route('pages.show', $slug) }}">{{ $label }}</a>
+                    @endif
+                @endforeach
+            </nav>
             <span class="block mt-3">Offers are informational. Partners determine eligibility, availability and redemption. Always verify terms on the partner website.</span>
         </div>
     </footer>
