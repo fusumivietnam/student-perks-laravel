@@ -40,7 +40,7 @@ Owner: `fusumivietnam`; Project name: `Student Perks Hub`; repository: `fusumivi
 
 ## Transition
 
-`docs/ROADMAP.md` is a historical pointer/snapshot, **not** an authoritative live roadmap. The custom `roadmap-sync.yml` and `scripts/sync-roadmap.cjs` are retired; no new custom sync is needed. Project #5 is the registered roadmap entrypoint. Until its fields/items can be verified, GitHub Issues remain canonical individual task records; do not claim full integration.
+`docs/ROADMAP.md` is a historical pointer/snapshot, **not** an authoritative live roadmap. The custom `roadmap-sync.yml` and `scripts/sync-roadmap.cjs` are retired; no new custom sync is needed. Project #5 is the canonical roadmap. Six Issue memberships are verified by GitHub Actions GraphQL logs; Project fields, views and native automations still require independent verification.
 
 ## API access — initial integration
 
