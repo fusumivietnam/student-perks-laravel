@@ -90,7 +90,7 @@ jobs:
         shell: bash
         run: |
           docker run --rm --entrypoint sh student-perks:ci -c 'test -f /usr/local/bin/app-entrypoint.sh && test -f /opt/app-public/index.php && test -f /opt/app-public/build/manifest.json && test -d /opt/app-public/css/filament && test -d /opt/app-public/js/filament'
-          docker run --rm --entrypoint sh student-perks:ci -c 'php-fpm -t'
+          docker run --rm --entrypoint sh student-perks:ci -c 'php-fpm -t && php -m | grep -Ei "^Zend OPcache$"'
           docker run --rm --entrypoint sh student-perks:ci -c 'mkdir -p /var/www/html/public && sh /usr/local/bin/app-entrypoint.sh sh -c "test -f /var/www/html/public/index.php && test -f /var/www/html/public/build/manifest.json"'
 
       - name: Docker Compose HTTP and migration smoke test
