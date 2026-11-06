@@ -37,3 +37,18 @@ Open **http://localhost:8080**. The script creates untracked `.env` with random 
 - `APP_URL` is set to the Codespaces HTTPS forward URL when Codespaces environment variables are available. If authentication redirects or links have an incorrect scheme, verify the forwarded port URL and HTTPS/proxy configuration before changing privacy to Public.
 - Stop services without deleting volumes: `docker compose down`. Avoid `docker compose down -v` unless you intentionally want to destroy disposable data.
 - Preview is a development-only environment; it does not replace final-domain TLS, off-host backup/restore rehearsal or manual mobile/keyboard review.
+
+## Troubleshooting: unstyled page / links to localhost
+
+If the page looks like plain HTML (blue underlined links, serif text, no layout), inspect the page source. If stylesheet, JavaScript or navigation URLs start with `http://localhost:8080` while the browser address is `https://...-8080.app.github.dev`, the HTTPS forwarding origin has not been applied.
+
+In your **existing Codespace** terminal, update the repository and reapply preview settings:
+
+```bash
+git pull --ff-only
+bash scripts/preview.sh
+```
+
+Hard refresh the forwarded port page. The generated `/build/assets/*.css`, `/build/assets/*.js` and navigation links should use the same `https://...app.github.dev` origin as the browser, not localhost. Do **not** switch the port to Public just to fix missing styles.
+
+If the problem continues, inspect `grep '^APP_URL=' .env` (safe to display; never display APP_KEY or DB_PASSWORD), `docker compose ps` and the Network panel CSS request status. Reopen the forwarded port **8080** in the Ports panel. If generated URLs are correct but the CSS endpoint is 404, use `bash scripts/preview.sh --rebuild` to refresh the Docker image and asset volume.

@@ -35,6 +35,24 @@ class PublicCatalogTest extends TestCase
         ], $extra));
     }
 
+    public function test_codespaces_https_preview_uses_forwarded_origin_for_links_and_assets(): void
+    {
+        config()->set('app.env', 'local');
+        config()->set('app.url', 'https://sample-8080.app.github.dev');
+
+        (new \App\Providers\AppServiceProvider($this->app))->boot();
+
+        $this->get('/')->assertOk()
+            ->assertSee('href="https://sample-8080.app.github.dev/offers"', false)
+            ->assertSee('action="https://sample-8080.app.github.dev/search"', false)
+            ->assertDontSee('http://localhost:8080/offers', false);
+
+        $this->assertSame(
+            'https://sample-8080.app.github.dev/build/assets/demo.css',
+            asset('build/assets/demo.css'),
+        );
+    }
+
     public function test_homepage_and_listing_show_only_current_published_offers(): void
     {
         [$brand, $category] = $this->catalog();
