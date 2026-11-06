@@ -40,7 +40,7 @@ class PublicCatalogTest extends TestCase
         config()->set('app.env', 'local');
         config()->set('app.url', 'https://sample-8080.app.github.dev');
 
-        (new \\App\\Providers\\AppServiceProvider($this->app))->boot();
+        (new \App\Providers\AppServiceProvider($this->app))->boot();
 
         $this->get('/')->assertOk()
             ->assertSee('href="https://sample-8080.app.github.dev/offers"', false)
