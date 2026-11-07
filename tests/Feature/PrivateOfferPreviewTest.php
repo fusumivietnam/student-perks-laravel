@@ -44,7 +44,7 @@ class PrivateOfferPreviewTest extends TestCase
             ->assertSee('External redemption links are disabled in preview.')
             ->assertDontSee('Visit official partner')
             ->assertHeader('X-Robots-Tag', 'noindex, nofollow, noarchive')
-            ->assertHeader('Cache-Control', 'private, no-store, no-cache, must-revalidate');
+            ->assertHeader('Cache-Control', 'must-revalidate, no-cache, no-store, private');
 
         $this->get('/offers/unpublished-scholarship')->assertNotFound();
         $this->get('/sitemap.xml')->assertDontSee('/offers/unpublished-scholarship');
