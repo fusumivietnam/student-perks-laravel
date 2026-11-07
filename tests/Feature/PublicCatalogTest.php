@@ -101,6 +101,51 @@ class PublicCatalogTest extends TestCase
             ->assertSee('href="'.route('brands.show', 'acme').'"', false);
     }
 
+    public function test_offer_detail_renders_structured_eligibility_and_partner_cta(): void
+    {
+        [$brand, $category] = $this->catalog();
+        $this->offer($brand, $category, 'active', [
+            'offer_value' => 'Save 20%',
+            'eligibility' => 'Current students only',
+            'redemption_steps' => 'Verify on the provider website',
+            'ends_at' => now()->addWeek(),
+        ]);
+
+        $this->get('/offers/active')->assertOk()
+            ->assertSee('aria-label="Breadcrumb"', false)
+            ->assertSee('aria-label="Offer details and partner link"', false)
+            ->assertSee('About this offer')
+            ->assertSee('Who is eligible?')
+            ->assertSee('Current students only')
+            ->assertSee('How to redeem')
+            ->assertSee('Verify on the provider website')
+            ->assertSee('Save 20%')
+            ->assertSee('rel="noopener noreferrer sponsored"', false)
+            ->assertSee('href="'.route('offers.index').'"', false);
+    }
+
+    public function test_offer_search_shows_active_filters_and_can_reset_them(): void
+    {
+        [$brand, $category] = $this->catalog();
+        $this->offer($brand, $category, 'active');
+
+        $this->get('/offers?q=Acme&brand=acme&category=software&sort=ending')
+            ->assertOk()
+            ->assertSee('Active filters:')
+            ->assertSee('Search: Acme')
+            ->assertSee('Brand: Acme Learning')
+            ->assertSee('Category: Software')
+            ->assertSee('Ending soon')
+            ->assertSee('Reset all')
+            ->assertSee('Acme student discount')
+            ->assertSee('href="'.route('offers.index').'"', false);
+
+        $this->get('/offers?q=nomatch')
+            ->assertOk()
+            ->assertSee('No offers found')
+            ->assertSee('See all offers');
+    }
+
     public function test_footer_links_only_to_published_pages(): void
     {
         Page::create(['title' => 'Privacy policy', 'slug' => 'privacy', 'body' => 'Reviewed policy', 'is_published' => true]);
