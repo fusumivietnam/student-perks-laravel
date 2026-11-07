@@ -4,6 +4,7 @@
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
+  "postStartCommand": "bash scripts/preview-watch.sh start",
   "forwardPorts": [
     8080
   ],
