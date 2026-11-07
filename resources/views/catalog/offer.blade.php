@@ -2,8 +2,14 @@
 
 @section('title', $offer->seo_title ?: $offer->title)
 @section('description', $offer->seo_description ?: $offer->summary)
+@if($isPreview ?? false)
+    @section('robots', 'noindex,nofollow,noarchive')
+@endif
 
 @section('content')
+    @if($isPreview ?? false)
+        <div role="status" class="mb-6 rounded-xl border border-amber-300 bg-amber-50 px-5 py-4 font-semibold text-amber-950">Private admin preview of saved content — this offer may not be published. Changes must be saved before they appear here.</div>
+    @endif
     <nav aria-label="Breadcrumb" class="mb-8 flex flex-wrap items-center gap-2 text-sm text-slate-500">
         <a href="{{ route('offers.index') }}" class="rounded-sm font-semibold text-indigo-700 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">All offers</a>
         <span aria-hidden="true">/</span>
@@ -78,7 +84,9 @@
                     </div>
                 @endif
             </dl>
-            @if(filter_var($offer->partner_url, FILTER_VALIDATE_URL) && parse_url($offer->partner_url, PHP_URL_SCHEME) === 'https')
+            @if($isPreview ?? false)
+                <p class="mt-6 rounded-xl bg-amber-50 p-4 text-sm font-semibold text-amber-950">External redemption links are disabled in preview.</p>
+            @elseif(filter_var($offer->partner_url, FILTER_VALIDATE_URL) && parse_url($offer->partner_url, PHP_URL_SCHEME) === 'https')
                 <a href="{{ $offer->partner_url }}" target="_blank" rel="noopener noreferrer sponsored" class="mt-6 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-indigo-700 px-4 py-3 text-center text-sm font-extrabold text-white transition hover:bg-indigo-800 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-indigo-700">Visit official partner <span aria-hidden="true">↗</span></a>
             @else
                 <p class="mt-6 rounded-xl bg-rose-50 p-4 text-sm font-semibold text-rose-800">Partner link is temporarily unavailable. Please check again later.</p>
