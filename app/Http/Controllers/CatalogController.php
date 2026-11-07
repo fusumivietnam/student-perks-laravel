@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Offer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -76,6 +77,20 @@ class CatalogController extends Controller
         $currentOffer = Offer::current()->findOrFail($offerId);
 
         return redirect()->route('offers.show', $currentOffer->slug, 301);
+    }
+
+    public function previewOffer(Request $request, Offer $offer): Response
+    {
+        abort_unless($request->user()?->is_admin, 403);
+
+        return response()->view('catalog.offer', [
+            'offer' => $offer->load(['brand', 'category']),
+            'isPreview' => true,
+        ])->withHeaders([
+            'Cache-Control' => 'private, no-store, no-cache, must-revalidate',
+            'Pragma' => 'no-cache',
+            'X-Robots-Tag' => 'noindex, nofollow, noarchive',
+        ]);
     }
 
     public function brands(): View
