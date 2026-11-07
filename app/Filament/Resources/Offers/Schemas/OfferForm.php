@@ -33,7 +33,8 @@ class OfferForm
                     ->maxLength(255)
                     ->rule('regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
                     ->unique(ignoreRecord: true)
-                    ->helperText('Lowercase letters, numbers and hyphens only. Used in the public URL.'),
+                    ->rule('unique:offer_slug_redirects,slug')
+                    ->helperText('Lowercase letters, numbers and hyphens only. Previously published URLs are reserved for redirects.'),
                 Textarea::make('summary')
                     ->required()
                     ->columnSpanFull(),
