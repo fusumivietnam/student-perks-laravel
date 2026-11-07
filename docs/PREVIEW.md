@@ -38,6 +38,21 @@ Open **http://localhost:8080**. The script creates untracked `.env` with random 
 - Stop services without deleting volumes: `docker compose down`. Avoid `docker compose down -v` unless you intentionally want to destroy disposable data.
 - Preview is a development-only environment; it does not replace final-domain TLS, off-host backup/restore rehearsal or manual mobile/keyboard review.
 
+
+## One-command read-only acceptance check
+
+After Docker has started (including after a Codespaces pause/resume), run:
+
+```bash
+bash scripts/preview-check.sh
+```
+
+The check does **not** modify `.env`, run migrations, restart containers, or delete Docker volumes. It verifies the actual PostgreSQL Docker health status and `SELECT 1`, Laravel `/up`, public navigation/search URLs, and that the compiled CSS and JavaScript files are downloadable through Nginx. Codespaces assets must point to the private HTTPS forwarding origin, not `localhost`.
+
+If the check fails at database health, first inspect `docker compose logs db --tail=80`. A PostgreSQL process reporting *ready to accept connections* does not guarantee that authentication and queries finish; check `docker compose exec -T -u postgres db sh -c 'timeout 12s psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atqc "SELECT 1"'`. Avoid `down -v`, database resets, and repeated rebuilds for a database connection issue. On returning to a stopped Codespace, confirm the DB is healthy before running `bash scripts/preview.sh --rebuild` for the PHP code.
+
+A green check confirms server-side delivery only; manually inspect browser layout, mobile breakpoints, keyboard navigation and Filament login.
+
 ## Troubleshooting: unstyled page / links to localhost
 
 If the page looks like plain HTML (blue underlined links, serif text, no layout), inspect the page source. If stylesheet, JavaScript or navigation URLs start with `http://localhost:8080` while the browser address is `https://...-8080.app.github.dev`, the HTTPS forwarding origin has not been applied.
