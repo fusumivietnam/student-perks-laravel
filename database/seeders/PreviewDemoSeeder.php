@@ -20,7 +20,7 @@ class PreviewDemoSeeder extends Seeder
         $url = (string) config('app.url');
         $host = parse_url($url, PHP_URL_HOST);
 
-        if (! app()->environment('local')
+        if (config('app.env') !== 'local'
             || ! in_array($host, ['localhost', '127.0.0.1'], true)
                 && (! is_string($host) || ! str_ends_with($host, '.app.github.dev'))) {
             throw new RuntimeException('Preview demo content is restricted to local or Codespaces APP_URL.');
