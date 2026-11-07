@@ -88,6 +88,8 @@ else
 fi
 docker compose exec -T app php artisan migrate --force
 curl -fsS --retry 12 --retry-delay 2 --retry-connrefused http://127.0.0.1:8080/up >/dev/null
+# One command performs update, startup AND acceptance checks.
+bash scripts/preview-check.sh
 
 echo "Preview is ready. Admin route: /admin (provision a Filament admin yourself)."
 echo "Update from GitHub automatically: bash scripts/preview.sh --update"
