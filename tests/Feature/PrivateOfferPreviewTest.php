@@ -31,7 +31,7 @@ class PrivateOfferPreviewTest extends TestCase
 
         $url = route('offers.preview', $offer);
 
-        $this->get($url)->assertRedirect();
+        $this->get($url)->assertForbidden();
         $this->actingAs(User::factory()->create(['is_admin' => false]))
             ->get($url)->assertForbidden();
 
