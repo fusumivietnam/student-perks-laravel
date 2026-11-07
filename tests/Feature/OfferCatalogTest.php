@@ -23,6 +23,8 @@ class OfferCatalogTest extends TestCase
             ['slug' => 'draft', 'is_published' => false, 'ends_at' => null],
             ['slug' => 'expired', 'is_published' => true, 'ends_at' => now()->subDay()],
             ['slug' => 'future', 'is_published' => true, 'starts_at' => now()->addDay()],
+            ['slug' => 'scheduled-publication', 'is_published' => true, 'published_at' => now()->addDay()],
+            ['slug' => 'previously-published', 'is_published' => true, 'published_at' => now()->subDay()],
         ] as $attributes) {
             Offer::create(array_merge([
                 'brand_id' => $brand->id,
@@ -34,9 +36,9 @@ class OfferCatalogTest extends TestCase
             ], $attributes));
         }
 
-        $this->assertSame(['active'], Offer::current()->pluck('slug')->all());
-        $this->assertCount(4, $brand->offers);
-        $this->assertCount(4, $category->offers);
+        $this->assertSame(['active', 'previously-published'], Offer::current()->orderBy('slug')->pluck('slug')->all());
+        $this->assertCount(6, $brand->offers);
+        $this->assertCount(6, $category->offers);
         $brand->update(['is_published' => false]);
         $this->assertSame([], Offer::current()->pluck('slug')->all());
     }
