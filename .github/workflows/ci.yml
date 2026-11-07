@@ -46,6 +46,7 @@ jobs:
         if: ${{ hashFiles('scripts/preview.sh') != '' }}
         run: |
           bash -n scripts/preview.sh
+          bash -n scripts/preview-check.sh
           python3 -m json.tool .devcontainer/devcontainer.json >/dev/null
       - name: Detect scaffold
         id: scaffold
@@ -117,3 +118,10 @@ jobs:
           test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/secret.php)" = 404
           docker compose restart app
           curl --fail --silent --show-error --retry 12 --retry-delay 3 --retry-connrefused http://127.0.0.1:18080/up >/dev/null
+          # Verify Codespaces forwarded-origin HTML and real CSS without another CI job.
+          export APP_ENV=local
+          export APP_URL=https://ci-preview-8080.app.github.dev
+          docker compose up -d --no-build app
+          curl --fail --silent --show-error --retry 12 --retry-delay 3 --retry-connrefused http://127.0.0.1:18080/             | grep -F 'href="https://ci-preview-8080.app.github.dev/offers"'
+          curl --fail --silent --show-error http://127.0.0.1:18080/             | grep -E 'href="https://ci-preview-8080.app.github.dev/build/assets/[^"]+\.css"'
+          curl --fail --silent --show-error -I http://127.0.0.1:18080/build/manifest.json >/dev/null
