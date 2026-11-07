@@ -11,7 +11,7 @@ Run the **actual Laravel 13 / Filament 5 / PostgreSQL 18 / Nginx** stack before 
    ```
 3. Open the **Ports** panel and open the forwarded **8080** link. Keep **Port Visibility = Private**; GitHub authenticates the creator of a private Codespace port.
 4. Check `/`, `/offers`, `/brands`, `/search`, `/articles` and `/admin`. Start with empty data; create sample content through Filament to test publishing.
-5. For changes requiring an image rebuild run `bash scripts/preview.sh --rebuild`. For regular restarts use `bash scripts/preview.sh`.
+5. To fast-forward source from GitHub and automatically rebuild the Laravel image **only when the Git commit changed**, run `bash scripts/preview.sh --update`. To restart without fetching, use `bash scripts/preview.sh`. For uncommitted source edits, explicitly use `bash scripts/preview.sh --rebuild`.
 
 **Admin account:** run `docker compose exec app php artisan make:filament-user`, then promote only the intended account using `docker compose exec app php artisan tinker` and `App\\Models\\User::where('email', 'YOUR_EMAIL')->update(['is_admin' => true]);`. There is no default admin password or public registration.
 
@@ -51,7 +51,7 @@ The check does **not** modify `.env`, run migrations, restart containers, or del
 
 If the check fails at database health, first inspect `docker compose logs db --tail=80`. A PostgreSQL process reporting *ready to accept connections* does not guarantee that authentication and queries finish; check `docker compose exec -T -u postgres db sh -c 'timeout 12s psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atqc "SELECT 1"'`. Avoid `down -v`, database resets, and repeated rebuilds for a database connection issue. On returning to a stopped Codespace, confirm the DB is healthy before running `bash scripts/preview.sh --rebuild` for the PHP code.
 
-A green check confirms server-side delivery only; manually inspect browser layout, mobile breakpoints, keyboard navigation and Filament login.
+The check also compares the Git workspace commit with the revision embedded in the running Laravel Docker image. An older image now fails with a clear instruction to run `bash scripts/preview.sh`, instead of reporting a misleading all-PASS result. A green check confirms server-side delivery only; manually inspect browser layout, mobile breakpoints, keyboard navigation and Filament login.
 
 ## Troubleshooting: unstyled page / links to localhost
 
@@ -63,6 +63,8 @@ In your **existing Codespace** terminal, update the repository and reapply previ
 git pull --ff-only
 bash scripts/preview.sh
 ```
+
+The launcher detects when the Docker image was built from an older Git revision and rebuilds automatically; the first execution after this change will rebuild once because existing images lack the revision label. It keeps PostgreSQL, admin users and uploaded media in the existing named Docker volumes. Never use `down -v`.
 
 Hard refresh the forwarded port page. The generated `/build/assets/*.css`, `/build/assets/*.js` and navigation links should use the same `https://...app.github.dev` origin as the browser, not localhost. Do **not** switch the port to Public just to fix missing styles.
 
