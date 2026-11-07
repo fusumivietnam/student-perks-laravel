@@ -6,6 +6,8 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Offer;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -60,11 +62,20 @@ class CatalogController extends Controller
         ]);
     }
 
-    public function offer(string $slug): View
+    public function offer(string $slug): View|RedirectResponse
     {
-        return view('catalog.offer', [
-            'offer' => Offer::current()->with(['brand', 'category'])->where('slug', $slug)->firstOrFail(),
-        ]);
+        $offer = Offer::current()->with(['brand', 'category'])->where('slug', $slug)->first();
+
+        if ($offer) {
+            return view('catalog.offer', ['offer' => $offer]);
+        }
+
+        $offerId = DB::table('offer_slug_redirects')->where('slug', $slug)->value('offer_id');
+        abort_unless($offerId, 404);
+
+        $currentOffer = Offer::current()->findOrFail($offerId);
+
+        return redirect()->route('offers.show', $currentOffer->slug, 301);
     }
 
     public function brands(): View
