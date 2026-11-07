@@ -25,10 +25,12 @@ class CatalogController extends Controller
         $rawTerm = $request->query('q', '');
         $rawBrand = $request->query('brand', '');
         $rawCategory = $request->query('category', '');
+        $rawType = $request->query('type', '');
 
         $term = is_string($rawTerm) ? mb_substr(trim($rawTerm), 0, 100) : '';
         $brand = is_string($rawBrand) ? mb_substr($rawBrand, 0, 255) : '';
         $category = is_string($rawCategory) ? mb_substr($rawCategory, 0, 255) : '';
+        $type = is_string($rawType) ? mb_substr($rawType, 0, 255) : '';
         $sort = $request->query('sort') === 'ending' ? 'ending' : 'latest';
 
         $query = Offer::current()->with(['brand', 'category'])
@@ -38,7 +40,8 @@ class CatalogController extends Controller
                     ->orWhereHas('brand', fn (Builder $query) => $query->whereLike('name', "%{$term}%")),
             ))
             ->when($brand !== '', fn (Builder $query) => $query->whereHas('brand', fn (Builder $query) => $query->where('slug', $brand)))
-            ->when($category !== '', fn (Builder $query) => $query->whereHas('category', fn (Builder $query) => $query->where('slug', $category)));
+            ->when($category !== '', fn (Builder $query) => $query->whereHas('category', fn (Builder $query) => $query->where('slug', $category)))
+            ->when($type !== '', fn (Builder $query) => $query->where('offer_type', $type));
 
         $sort === 'ending' ? $query->orderBy('ends_at') : $query->latest();
 
@@ -47,9 +50,12 @@ class CatalogController extends Controller
             'offers' => $query->paginate(12)->withQueryString(),
             'brands' => Brand::where('is_published', true)->orderBy('name')->get(),
             'categories' => Category::where('is_published', true)->orderBy('name')->get(),
+            'types' => Offer::current()->whereNotNull('offer_type')->where('offer_type', '<>', '')
+                ->distinct()->orderBy('offer_type')->pluck('offer_type'),
             'term' => $term,
             'brand' => $brand,
             'category' => $category,
+            'type' => $type,
             'sort' => $sort,
         ]);
     }
