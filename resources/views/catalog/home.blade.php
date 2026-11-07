@@ -3,50 +3,78 @@
 @section('title', 'Student deals and education benefits')
 
 @section('content')
-    <section class="rounded-3xl bg-indigo-950 px-8 py-14 text-white sm:px-14">
-        <p class="text-sm font-semibold uppercase tracking-widest text-indigo-200">Education benefits, in one place</p>
-        <h1 class="mt-4 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">Make the most of being a student.</h1>
-        <p class="mt-5 max-w-2xl text-indigo-100">Discover software, learning and lifestyle offers. Read the conditions here, then redeem directly with the official partner.</p>
-        <form method="GET" action="{{ route('search') }}" role="search" class="mt-8 flex max-w-xl flex-wrap gap-3">
-            <label for="home-search" class="sr-only">Search student offers</label>
-            <input id="home-search" name="q" type="search" placeholder="Search discounts, brands, learning tools..." class="min-w-0 flex-1 rounded-xl bg-white px-4 py-3 text-slate-900" required>
-            <button class="rounded-xl bg-amber-400 px-6 py-3 font-bold text-slate-950 hover:bg-amber-300">Search</button>
-        </form>
+    <section class="relative isolate overflow-hidden rounded-[2rem] bg-indigo-950 px-6 py-12 text-white sm:px-12 sm:py-16 lg:px-16">
+        <div class="pointer-events-none absolute -right-24 -top-40 h-96 w-96 rounded-full bg-violet-500/25 blur-3xl" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute -bottom-40 right-12 h-96 w-96 rounded-full bg-sky-400/15 blur-3xl" aria-hidden="true"></div>
+        <div class="relative max-w-3xl">
+            <span class="inline-flex items-center gap-2 rounded-full border border-indigo-300/30 bg-white/10 px-4 py-2 text-xs font-bold tracking-widest text-indigo-100 uppercase"><span class="h-2 w-2 rounded-full bg-amber-400" aria-hidden="true"></span> Education benefits, made easier</span>
+            <h1 class="mt-7 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">Your student status deserves <span class="text-amber-300">more.</span></h1>
+            <p class="mt-6 max-w-2xl text-base leading-relaxed text-indigo-100 sm:text-lg">Discover software, learning and lifestyle offers in one place. Compare the details, check eligibility, and continue with the partner.</p>
+            <form method="GET" action="{{ route('search') }}" role="search" class="mt-8 flex max-w-2xl flex-col gap-3 sm:flex-row">
+                <label for="home-search" class="sr-only">Search student offers</label>
+                <input id="home-search" name="q" type="search" maxlength="100" placeholder="Search offers, brands, learning tools…" class="min-h-13 min-w-0 flex-1 rounded-xl border border-white bg-white px-5 py-3 text-base text-slate-900 placeholder:text-slate-500 focus-visible:outline-3 focus-visible:outline-amber-400" required>
+                <button type="submit" class="min-h-13 rounded-xl bg-amber-400 px-8 py-3 font-extrabold text-slate-950 transition hover:bg-amber-300 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white">Explore offers <span aria-hidden="true">→</span></button>
+            </form>
+            <p class="mt-5 text-sm text-indigo-200">No account required to browse. Always verify conditions with the provider.</p>
+        </div>
     </section>
 
-    <section class="mt-12">
-        <div class="mb-6 flex items-center justify-between gap-4">
-            <h2 class="text-2xl font-bold">Latest offers</h2>
-            <a href="{{ route('offers.index') }}" class="font-semibold text-indigo-700 hover:underline">Browse all</a>
+    <section class="mt-14" aria-labelledby="latest-offers-title">
+        <div class="mb-7 flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <p class="text-xs font-extrabold uppercase tracking-[0.18em] text-indigo-600">Explore what’s available</p>
+                <h2 id="latest-offers-title" class="mt-2 text-3xl font-extrabold tracking-tight text-slate-950">Latest student offers</h2>
+                <p class="mt-2 text-sm text-slate-600">Recently added benefits from our published directory.</p>
+            </div>
+            <a href="{{ route('offers.index') }}" class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-indigo-200 bg-white px-5 py-2 text-sm font-bold text-indigo-700 transition hover:border-indigo-500 hover:bg-indigo-50 focus-visible:outline-2 focus-visible:outline-indigo-700">Browse all offers <span aria-hidden="true">→</span></a>
         </div>
-        @forelse($offers->chunk(3) as $row)
-            <div class="mb-5 grid gap-5 md:grid-cols-3">
-                @foreach($row as $offer)
+        @if($offers->isNotEmpty())
+            <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach($offers as $offer)
                     <x-offer-card :offer="$offer" />
                 @endforeach
             </div>
-        @empty
-            <p class="rounded-2xl border border-dashed border-slate-300 p-8 text-slate-600">We're reviewing new offers. Browse again soon.</p>
-        @endforelse
+        @else
+            <div class="rounded-3xl border border-dashed border-slate-300 bg-white px-8 py-12 text-center">
+                <h3 class="text-xl font-bold">Offers are on their way</h3>
+                <p class="mt-2 text-slate-600">We’re reviewing new offers. Explore brands or check back soon.</p>
+                <a class="mt-4 inline-block font-semibold text-indigo-700 underline-offset-4 hover:underline" href="{{ route('brands.index') }}">Explore brands</a>
+            </div>
+        @endif
     </section>
 
     @if($categories->isNotEmpty())
-        <section class="mt-12">
-            <h2 class="mb-5 text-2xl font-bold">Explore categories</h2>
-            <div class="flex flex-wrap gap-3">
+        <section class="mt-16" aria-labelledby="categories-title">
+            <div class="mb-6">
+                <p class="text-xs font-extrabold uppercase tracking-[0.18em] text-indigo-600">Find your fit</p>
+                <h2 id="categories-title" class="mt-2 text-3xl font-extrabold tracking-tight">Browse by category</h2>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach($categories as $category)
-                    <a class="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold hover:border-indigo-400 hover:text-indigo-700" href="{{ route('categories.show', $category->slug) }}">{{ $category->name }}</a>
+                    <a class="group flex min-h-24 items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('categories.show', $category->slug) }}">
+                        <span class="text-lg font-bold text-slate-900 group-hover:text-indigo-700">{{ $category->name }}</span>
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-50 font-bold text-indigo-700 transition group-hover:bg-indigo-700 group-hover:text-white" aria-hidden="true">→</span>
+                    </a>
                 @endforeach
             </div>
         </section>
     @endif
 
     @if($brands->isNotEmpty())
-        <section class="mt-12">
-            <h2 class="mb-5 text-2xl font-bold">Featured brands</h2>
-            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <section class="mt-16" aria-labelledby="brands-title">
+            <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+                <div>
+                    <p class="text-xs font-extrabold uppercase tracking-[0.18em] text-indigo-600">Discover providers</p>
+                    <h2 id="brands-title" class="mt-2 text-3xl font-extrabold tracking-tight">Explore brands</h2>
+                </div>
+                <a href="{{ route('brands.index') }}" class="text-sm font-bold text-indigo-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">See all brands <span aria-hidden="true">→</span></a>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 @foreach($brands as $brand)
-                    <a class="rounded-xl border border-slate-200 bg-white p-5 font-semibold hover:border-indigo-400 hover:text-indigo-700" href="{{ route('brands.show', $brand->slug) }}">{{ $brand->name }}</a>
+                    <a class="group flex min-h-28 items-center gap-4 rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm transition hover:border-indigo-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('brands.show', $brand->slug) }}">
+                        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-sm font-black text-indigo-700" aria-hidden="true">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($brand->name, 0, 2)) }}</span>
+                        <span class="font-bold leading-snug text-slate-900 group-hover:text-indigo-700">{{ $brand->name }}</span>
+                    </a>
                 @endforeach
             </div>
         </section>
