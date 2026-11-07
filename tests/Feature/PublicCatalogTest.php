@@ -66,6 +66,26 @@ class PublicCatalogTest extends TestCase
         $this->get('/offers/expired')->assertNotFound();
     }
 
+    public function test_future_published_at_offer_is_hidden_from_all_public_routes(): void
+    {
+        [$brand, $category] = $this->catalog();
+        $this->offer($brand, $category, 'scheduled', [
+            'title' => 'Scheduled promotion',
+            'published_at' => now()->addDay(),
+        ]);
+
+        $this->get('/')->assertOk()->assertDontSee('Scheduled promotion');
+        $this->get('/offers')->assertOk()->assertDontSee('Scheduled promotion');
+        $this->get('/brands/acme')->assertOk()->assertDontSee('Scheduled promotion');
+        $this->get('/categories/software')->assertOk()->assertDontSee('Scheduled promotion');
+        $this->get('/search?q=Scheduled')->assertOk()->assertDontSee('Scheduled promotion');
+        $this->get('/offers/scheduled')->assertNotFound();
+        $this->get('/sitemap.xml')->assertOk()->assertDontSee('/offers/scheduled');
+
+        Offer::where('slug', 'scheduled')->update(['published_at' => now()->subMinute()]);
+        $this->get('/offers/scheduled')->assertOk()->assertSee('Scheduled promotion');
+    }
+
     public function test_search_and_brand_category_filtering_use_database_content(): void
     {
         [$brand, $category] = $this->catalog();
