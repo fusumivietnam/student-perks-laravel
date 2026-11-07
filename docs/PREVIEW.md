@@ -67,3 +67,17 @@ bash scripts/preview.sh
 Hard refresh the forwarded port page. The generated `/build/assets/*.css`, `/build/assets/*.js` and navigation links should use the same `https://...app.github.dev` origin as the browser, not localhost. Do **not** switch the port to Public just to fix missing styles.
 
 If the problem continues, inspect `grep '^APP_URL=' .env` (safe to display; never display APP_KEY or DB_PASSWORD), `docker compose ps` and the Network panel CSS request status. Reopen the forwarded port **8080** in the Ports panel. If generated URLs are correct but the CSS endpoint is 404, use `bash scripts/preview.sh --rebuild` to refresh the Docker image and asset volume.
+
+## Optional fictional content for M2 UI acceptance
+
+Run only in your existing **local/Codespaces** preview after confirming `bash scripts/preview-check.sh` passes:
+
+```bash
+docker compose exec -T app php artisan db:seed --class=PreviewDemoSeeder
+```
+
+The explicit `PreviewDemoSeeder` creates **3 fictional brands, 3 categories, 5 offers (4 public + 1 draft), and 2 articles (1 public + 1 draft)**. It never creates or changes users, does not populate legal policies, uses only `https://example.org/` as an inert placeholder link, and preserves existing records on rerun. Slugs start with `demo-`; titles and descriptions explicitly say DEMO and do not imply real partner arrangements.
+
+The seeder refuses environments other than `APP_ENV=local` with localhost or Codespaces `APP_URL`. It is **not** wired to `DatabaseSeeder` or production deployment. Run it only by specifying `--class=PreviewDemoSeeder`. The demo items should be deleted in Filament before any public launch.
+
+Acceptance: visit `/`, `/offers`, `/offers/demo-student-design-kit`, `/brands/demo-cloud-studio`, `/categories/demo-software`, `/articles/demo-how-to-compare-offers`. Confirm draft paths `/offers/demo-unpublished-offer` and `/articles/demo-editorial-draft` return 404. In Filament edit a demo offer title, save, and confirm the public page updates. Re-check mobile and keyboard navigation. Do not treat demo records as legally reviewed discounts.
