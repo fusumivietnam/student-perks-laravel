@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
 @section('title', $title)
-@if(!($hideFilters ?? false))
+@if(!($hideFilters ?? false) && (request()->routeIs('search') || request()->hasAny(['q', 'brand', 'category', 'sort', 'page'])))
     @section('robots', 'noindex,follow')
 @endif
 @section('description', $description ?? 'Explore current education benefits and official partner offers.')
