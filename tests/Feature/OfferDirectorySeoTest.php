@@ -24,6 +24,7 @@ class OfferDirectorySeoTest extends TestCase
             route('offers.index', ['q' => 'student']),
             route('offers.index', ['brand' => 'example']),
             route('offers.index', ['category' => 'example']),
+            route('offers.index', ['type' => 'discount']),
             route('offers.index', ['sort' => 'ending']),
             route('offers.index', ['page' => 2]),
         ];

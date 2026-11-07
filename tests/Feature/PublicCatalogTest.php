@@ -190,6 +190,64 @@ class PublicCatalogTest extends TestCase
             ->assertSee('Acme student discount');
     }
 
+    public function test_offer_type_filter_returns_only_matching_current_offers(): void
+    {
+        [$brand, $category] = $this->catalog();
+        $this->offer($brand, $category, 'discount', [
+            'title' => 'Discount plan',
+            'offer_type' => 'discount',
+        ]);
+        $this->offer($brand, $category, 'free', [
+            'title' => 'Free plan',
+            'offer_type' => 'free',
+        ]);
+        $this->offer($brand, $category, 'hidden-type', [
+            'title' => 'Hidden trial',
+            'offer_type' => 'trial',
+            'is_published' => false,
+        ]);
+
+        $this->get('/offers?type=free')
+            ->assertOk()
+            ->assertSee('Free plan')
+            ->assertDontSee('Discount plan')
+            ->assertDontSee('Hidden trial')
+            ->assertSee('Type: Free')
+            ->assertSee('value="free" selected', false)
+            ->assertDontSee('value="trial"', false)
+            ->assertSee('name="type"', false);
+
+        $this->get('/search?type=discount&q=Discount')
+            ->assertOk()
+            ->assertSee('Discount plan')
+            ->assertDontSee('Free plan');
+
+        $this->get('/offers?type=unknown')
+            ->assertOk()
+            ->assertSee('No offers found');
+    }
+
+    public function test_offer_type_filter_is_safe_for_invalid_query_shapes_and_combines_with_category(): void
+    {
+        [$brand, $category] = $this->catalog();
+        $this->offer($brand, $category, 'active', [
+            'title' => 'Active grant',
+            'offer_type' => 'grant',
+        ]);
+
+        $this->get('/offers?type[]=grant')
+            ->assertOk()
+            ->assertSee('Active grant');
+
+        $this->get('/offers?type=grant&category=software')
+            ->assertOk()
+            ->assertSee('Active grant');
+
+        $this->get('/offers?type=grant&category=unknown')
+            ->assertOk()
+            ->assertSee('No offers found');
+    }
+
     public function test_hidden_brands_never_publish_their_offers(): void
     {
         [$brand, $category] = $this->catalog(false);

@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
 @section('title', $title)
-@if(!($hideFilters ?? false) && (request()->routeIs('search') || request()->hasAny(['q', 'brand', 'category', 'sort', 'page'])))
+@if(!($hideFilters ?? false) && (request()->routeIs('search') || request()->hasAny(['q', 'brand', 'category', 'type', 'sort', 'page'])))
     @section('robots', 'noindex,follow')
 @endif
 @section('description', $description ?? 'Explore current education benefits and official partner offers.')
@@ -43,6 +43,15 @@
                     </select>
                 </div>
                 <div class="lg:col-span-3">
+                    <label for="type" class="mb-2 block text-sm font-bold text-slate-700">Offer type</label>
+                    <select name="type" id="type" class="min-h-12 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus-visible:outline-2 focus-visible:outline-indigo-500">
+                        <option value="">All types</option>
+                        @foreach($types as $item)
+                            <option value="{{ $item }}" @selected($type === $item)>{{ \Illuminate\Support\Str::headline($item) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="lg:col-span-3">
                     <label for="sort" class="mb-2 block text-sm font-bold text-slate-700">Sort by</label>
                     <select name="sort" id="sort" class="min-h-12 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus-visible:outline-2 focus-visible:outline-indigo-500">
                         <option value="latest" @selected($sort === 'latest')>Newest first</option>
@@ -53,7 +62,7 @@
             </form>
         </section>
 
-        @if($term !== '' || $brand !== '' || $category !== '' || $sort !== 'latest')
+        @if($term !== '' || $brand !== '' || $category !== '' || $type !== '' || $sort !== 'latest')
             <div class="mt-5 flex flex-wrap items-center gap-2" aria-label="Active filters">
                 <span class="mr-1 text-sm font-semibold text-slate-600">Active filters:</span>
                 @if($term !== '')
@@ -64,6 +73,9 @@
                 @endif
                 @if($category !== '')
                     <span class="rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-800">Category: {{ $categories->firstWhere('slug', $category)?->name ?? $category }}</span>
+                @endif
+                @if($type !== '')
+                    <span class="rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-800">Type: {{ \Illuminate\Support\Str::headline($type) }}</span>
                 @endif
                 @if($sort === 'ending')
                     <span class="rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-800">Ending soon</span>
