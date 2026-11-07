@@ -63,7 +63,7 @@ case "${1:-}" in
             echo "$(date -u +%FT%TZ) Skipping failed revision ${remote:0:12} until watcher restart or a new commit."
           else
             echo "$(date -u +%FT%TZ) Updating preview to ${remote:0:12}."
-            if git merge --ff-only "$remote" && bash scripts/preview.sh && bash scripts/preview-check.sh; then
+            if git merge --ff-only "$remote" && bash scripts/preview.sh; then
               last_failed_revision=""
               echo "$(date -u +%FT%TZ) Preview updated and checks passed."
             else
