@@ -11,11 +11,34 @@ Run the **actual Laravel 13 / Filament 5 / PostgreSQL 18 / Nginx** stack before 
    ```
 3. Open the **Ports** panel and open the forwarded **8080** link. Keep **Port Visibility = Private**; GitHub authenticates the creator of a private Codespace port.
 4. Check `/`, `/offers`, `/brands`, `/search`, `/articles` and `/admin`. Start with empty data; create sample content through Filament to test publishing.
-5. To fast-forward source from GitHub and automatically rebuild the Laravel image **only when the Git commit changed**, run `bash scripts/preview.sh --update`. To restart without fetching, use `bash scripts/preview.sh`. For uncommitted source edits, explicitly use `bash scripts/preview.sh --rebuild`.
+5. The Codespaces `postStartCommand` starts a background auto-sync watcher on Codespace startup/resume. It checks `origin/main` every 5 minutes and **only rebuilds when a new fast-forward commit is available**. To force an immediate one-time update: `bash scripts/preview.sh --update`; to rebuild uncommitted source edits: `bash scripts/preview.sh --rebuild`.
 
 **Admin account:** run `docker compose exec app php artisan make:filament-user`, then promote only the intended account using `docker compose exec app php artisan tinker` and `App\\Models\\User::where('email', 'YOUR_EMAIL')->update(['is_admin' => true]);`. There is no default admin password or public registration.
 
 **Privacy:** Codespaces private forwarding is accessible only after GitHub authentication; switching a port to **Public** removes that protection. Do not switch the admin preview to Public. Codespaces may stop when idle, so this is *not* a 24/7 staging host. Preview data lives in Codespaces Docker volumes and may be deleted when the Codespace is deleted. Use non-sensitive test data.
+
+## Codespaces auto-sync: zero repeated commands
+
+The GitHub Codespaces configuration starts `scripts/preview-watch.sh` after startup (no new paid service, no GitHub PAT, no scheduled GitHub Actions). Once enabled, it updates only a **clean checked-out `main`** by `git fetch` + fast-forward and runs both preview startup and the acceptance check. It **does not** switch branches, reset local changes, delete data or run the demo seeder automatically. Do not commit secrets.
+
+**One-time activation in an existing running Codespace** (its new `postStartCommand` will also activate on the next Codespace restart):
+
+```bash
+git pull --ff-only
+bash scripts/preview-watch.sh start
+```
+
+The watcher processes the current commit and thereafter new commits while the Codespace is running. Check or disable it without touching the application:
+
+```bash
+bash scripts/preview-watch.sh status
+tail -n 40 .git/preview-watch.log
+bash scripts/preview-watch.sh stop
+```
+
+The process skips a dirty working tree or a feature branch. A failed application build for a given commit is reported in the log and not retried on every poll; restart the watcher after resolving the cause. Codespaces stopping or being deleted stops the watcher: it is not a continuously hosted staging environment. To re-enable after stopping, run `start` or restart the Codespace.
+
+**Cache behavior:** `PREVIEW_SOURCE_SHA` is applied as image metadata *after* dependency and extension build steps, preserving cache when only Laravel/Blade/Tailwind source changes. First rebuild after Dockerfile changes may still recompile once; subsequent commits should reuse expensive PHP layers. Docker Buildx GitHub Actions cache is separate from Codespaces-local Docker cache.
 
 ## Laptop with Docker
 
