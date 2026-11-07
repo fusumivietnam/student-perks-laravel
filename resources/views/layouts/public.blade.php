@@ -22,10 +22,10 @@
                 <span>Student Perks Hub</span>
             </a>
             <nav aria-label="Main navigation" class="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm font-semibold text-slate-700">
-                <a class="inline-flex min-h-10 items-center rounded-md px-1 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('offers.index') }}">All offers</a>
-                <a class="inline-flex min-h-10 items-center rounded-md px-1 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('brands.index') }}">Brands</a>
-                <a class="inline-flex min-h-10 items-center rounded-md px-1 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('search') }}">Search</a>
-                <a class="inline-flex min-h-10 items-center rounded-md px-1 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('articles.index') }}">Guides</a>
+                <a class="inline-flex min-h-10 items-center rounded-md px-1 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('offers.index') }}" @if(request()->routeIs('offers.index')) aria-current="page" @endif>All offers</a>
+                <a class="inline-flex min-h-10 items-center rounded-md px-1 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('brands.index') }}" @if(request()->routeIs('brands.index')) aria-current="page" @endif>Brands</a>
+                <a class="inline-flex min-h-10 items-center rounded-md px-1 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('search') }}" @if(request()->routeIs('search')) aria-current="page" @endif>Search</a>
+                <a class="inline-flex min-h-10 items-center rounded-md px-1 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('articles.index') }}" @if(request()->routeIs('articles.index')) aria-current="page" @endif>Guides</a>
             </nav>
         </div>
     </header>
