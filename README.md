@@ -23,7 +23,7 @@ Laravel 13 scaffold is merged to `main` via [PR #7](https://github.com/fusumivie
 
 ## Private preview (no domain or branding required)
 
-Run the real Docker stack on your computer or in GitHub Codespaces using `bash scripts/preview.sh`. Codespaces port 8080 stays **Private** by default. See [Preview guide](docs/PREVIEW.md) for setup, admin access and safe test-data handling.
+Run the real Docker stack on your computer or in GitHub Codespaces using `bash scripts/preview.sh`. On later updates use `bash scripts/preview.sh --update` to fast-forward Git and automatically rebuild a stale Docker image without deleting any data. Codespaces port 8080 stays **Private** by default. See [Preview guide](docs/PREVIEW.md) for setup, admin access and safe test-data handling.
 
 ## Docker quick start
 
