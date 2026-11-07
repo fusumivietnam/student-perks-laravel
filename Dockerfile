@@ -8,8 +8,6 @@ COPY resources ./resources
 RUN npm run build
 
 FROM php:8.5-fpm-bookworm AS app
-ARG PREVIEW_SOURCE_SHA=unknown
-LABEL org.opencontainers.image.revision=$PREVIEW_SOURCE_SHA
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git unzip libpq-dev libicu-dev libzip-dev \
     && docker-php-ext-install pdo_pgsql intl zip \
@@ -28,6 +26,9 @@ RUN composer dump-autoload --no-dev --classmap-authoritative && \
 # Preserve public release assets outside the named public volume mounted at runtime.
 RUN mkdir -p /opt/app-public && cp -a public/. /opt/app-public/
 COPY docker/app-entrypoint.sh /usr/local/bin/app-entrypoint.sh
+# Source revision is metadata only. Keep it AFTER expensive OS/PHP/Composer steps.
+ARG PREVIEW_SOURCE_SHA=unknown
+LABEL org.opencontainers.image.revision=$PREVIEW_SOURCE_SHA
 EXPOSE 9000
 ENTRYPOINT ["sh", "/usr/local/bin/app-entrypoint.sh"]
 CMD ["php-fpm"]
