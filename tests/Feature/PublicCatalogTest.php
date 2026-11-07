@@ -79,6 +79,28 @@ class PublicCatalogTest extends TestCase
         $this->get('/offers/active')->assertOk()->assertSee('https://partner.example/offer');
     }
 
+    public function test_public_cards_have_accessible_offer_links_and_home_search(): void
+    {
+        [$brand, $category] = $this->catalog();
+        $this->offer($brand, $category, 'active');
+
+        $this->get('/')->assertOk()
+            ->assertSee('Your student status deserves')
+            ->assertSee('aria-label="Main navigation"', false)
+            ->assertSee('aria-labelledby="latest-offers-title"', false)
+            ->assertSee('action="'.route('search').'"', false)
+            ->assertSee('href="'.route('offers.show', 'active').'"', false)
+            ->assertSee('Acme student discount');
+
+        $this->get('/offers')->assertOk()
+            ->assertSee('View offer details')
+            ->assertSee('href="'.route('offers.show', 'active').'"', false);
+
+        $this->get('/brands')->assertOk()
+            ->assertSee('Discover brands')
+            ->assertSee('href="'.route('brands.show', 'acme').'"', false);
+    }
+
     public function test_footer_links_only_to_published_pages(): void
     {
         Page::create(['title' => 'Privacy policy', 'slug' => 'privacy', 'body' => 'Reviewed policy', 'is_published' => true]);
