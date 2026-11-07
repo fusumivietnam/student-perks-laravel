@@ -4,11 +4,25 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 rebuild=false
-case "${1:-}" in
-  "") ;;
-  --rebuild) rebuild=true ;;
-  *) echo "Usage: bash scripts/preview.sh [--rebuild]" >&2; exit 2 ;;
-esac
+update=false
+for arg in "$@"; do
+  case "$arg" in
+    --rebuild) rebuild=true ;;
+    --update) update=true ;;
+    *) echo "Usage: bash scripts/preview.sh [--update] [--rebuild]" >&2; exit 2 ;;
+  esac
+done
+
+if [[ "$update" == true ]]; then
+  command -v git >/dev/null || { echo "Git is required for --update." >&2; exit 1; }
+  # Never discard local modifications or force reset; pull must fast-forward.
+  git pull --ff-only
+fi
+
+command -v git >/dev/null || { echo "Git is required to identify the source version." >&2; exit 1; }
+PREVIEW_SOURCE_SHA="$(git rev-parse HEAD)"
+export PREVIEW_SOURCE_SHA
+echo "Source revision: ${PREVIEW_SOURCE_SHA:0:12}"
 
 for command in docker openssl awk curl; do
   command -v "$command" >/dev/null || { echo "Missing required command: $command" >&2; exit 1; }
@@ -59,13 +73,22 @@ else
 fi
 
 docker compose config --quiet
-if [[ "$rebuild" == true ]] || [[ -z "$(docker compose ps -q app)" ]]; then
+app_id="$(docker compose ps -q app)"
+running_revision=""
+if [[ -n "$app_id" ]]; then
+  running_revision="$(docker inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "$app_id" 2>/dev/null || true)"
+fi
+
+if [[ "$rebuild" == true ]] || [[ -z "$app_id" ]] || [[ "$running_revision" != "$PREVIEW_SOURCE_SHA" ]]; then
+  echo "Preview image revision: ${running_revision:-unknown}; rebuilding to match local source."
   docker compose up -d --build
 else
+  echo "Preview Docker image is already at this revision; skipping rebuild."
   docker compose up -d
 fi
 docker compose exec -T app php artisan migrate --force
 curl -fsS --retry 12 --retry-delay 2 --retry-connrefused http://127.0.0.1:8080/up >/dev/null
 
 echo "Preview is ready. Admin route: /admin (provision a Filament admin yourself)."
-echo "Rebuild code/dependencies: bash scripts/preview.sh --rebuild"
+echo "Update from GitHub automatically: bash scripts/preview.sh --update"
+echo "Force rebuild for uncommitted changes: bash scripts/preview.sh --rebuild"
