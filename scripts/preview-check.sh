@@ -23,6 +23,18 @@ if ! docker compose exec -T -u postgres db sh -c 'PGCONNECT_TIMEOUT=5 timeout 12
 fi
 echo "PASS: PostgreSQL query SELECT 1."
 
+# A green HTTP check can still serve an old Docker image after git pull.
+if command -v git >/dev/null; then
+  source_sha="$(git rev-parse HEAD)"
+  app_id="$(docker compose ps -q app)"
+  [[ -n "$app_id" ]] || fail "Laravel app container is absent."
+  image_sha="$(docker inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "$app_id" 2>/dev/null || true)"
+  if [[ "$image_sha" != "$source_sha" ]]; then
+    fail "Preview Docker image is stale (image: ${image_sha:-unknown}, local: ${source_sha:0:12}). Run bash scripts/preview.sh to rebuild."
+  fi
+  echo "PASS: Laravel image is at the same Git revision as the workspace (${source_sha:0:12})."
+fi
+
 local_url="http://127.0.0.1:8080"
 if ! curl -fsS --connect-timeout 3 --max-time 15 "$local_url/up" >/dev/null; then
   fail "Laravel /up is unavailable; check docker compose ps and docker compose logs app --tail=80."
