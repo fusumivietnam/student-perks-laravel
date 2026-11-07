@@ -8,6 +8,8 @@ COPY resources ./resources
 RUN npm run build
 
 FROM php:8.5-fpm-bookworm AS app
+ARG PREVIEW_SOURCE_SHA=unknown
+LABEL org.opencontainers.image.revision=$PREVIEW_SOURCE_SHA
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git unzip libpq-dev libicu-dev libzip-dev \
     && docker-php-ext-install pdo_pgsql intl zip \

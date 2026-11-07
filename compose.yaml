@@ -17,6 +17,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        PREVIEW_SOURCE_SHA: ${PREVIEW_SOURCE_SHA:-unknown}
     restart: unless-stopped
     environment:
       APP_ENV: ${APP_ENV:-production}

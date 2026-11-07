@@ -90,7 +90,9 @@ jobs:
           php artisan test
       - name: Build production Docker image
         if: steps.scaffold.outputs.present == 'true'
-        run: docker build --tag student-perks:ci .
+        run: |
+          docker build --build-arg PREVIEW_SOURCE_SHA=ci-test-revision --tag student-perks:ci .
+          test "$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' student-perks:ci)" = ci-test-revision
       - name: Smoke-test Docker image entrypoint and public release assets
         if: steps.scaffold.outputs.present == 'true'
         shell: bash
