@@ -47,6 +47,7 @@ jobs:
         run: |
           bash -n scripts/preview.sh
           bash -n scripts/preview-check.sh
+          bash -n scripts/preview-watch.sh
           python3 -m json.tool .devcontainer/devcontainer.json >/dev/null
       - name: Detect scaffold
         id: scaffold
@@ -88,11 +89,24 @@ jobs:
           php artisan key:generate
           php artisan migrate --force
           php artisan test
-      - name: Build production Docker image
+      - name: Configure cached Docker Buildx
         if: steps.scaffold.outputs.present == 'true'
-        run: |
-          docker build --build-arg PREVIEW_SOURCE_SHA=ci-test-revision --tag student-perks:ci .
-          test "$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' student-perks:ci)" = ci-test-revision
+        uses: docker/setup-buildx-action@v4
+      - name: Build production Docker image (shared layer cache)
+        if: steps.scaffold.outputs.present == 'true'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          push: false
+          tags: student-perks:ci
+          build-args: |
+            PREVIEW_SOURCE_SHA=ci-test-revision
+          cache-from: type=gha,scope=student-perks-app
+          cache-to: type=gha,mode=max,scope=student-perks-app
+      - name: Verify Docker image source revision
+        if: steps.scaffold.outputs.present == 'true'
+        run: test "$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' student-perks:ci)" = ci-test-revision
       - name: Smoke-test Docker image entrypoint and public release assets
         if: steps.scaffold.outputs.present == 'true'
         shell: bash
