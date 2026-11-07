@@ -44,6 +44,8 @@ case "${1:-}" in
       if [[ "$(git symbolic-ref --short -q HEAD || true)" != "main" ]] \
          || [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
         echo "$(date -u +%FT%TZ) Skipping: not on clean main."
+      elif ! docker info >/dev/null 2>&1; then
+        echo "$(date -u +%FT%TZ) Docker daemon is not ready; retrying on next check."
       elif ! git fetch -q origin main; then
         echo "$(date -u +%FT%TZ) Fetch failed; no files modified."
       else
