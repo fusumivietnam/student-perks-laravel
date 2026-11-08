@@ -96,7 +96,7 @@ class OffersTable
                     ->query(fn (Builder $query): Builder => $query->expiringSoon()),
                 Filter::make('needs_editorial_review')
                     ->label('Missing eligibility or redemption steps')
-                    ->query(fn (Builder $query): Builder => $query->hasMissingEditorialDetails()),
+                    ->query(fn (Builder $query): Builder => $query->needsEditorialReview()),
             ])
             ->recordActions([
                 EditAction::make(),
