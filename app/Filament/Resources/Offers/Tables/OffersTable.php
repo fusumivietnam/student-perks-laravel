@@ -37,6 +37,12 @@ class OffersTable
                     ->searchable(),
                 TextColumn::make('partner_url')
                     ->searchable(),
+                TextColumn::make('partner_reviewed_at')
+                    ->label('Link last reviewed')
+                    ->dateTime()
+                    ->sortable()
+                    ->placeholder('Never reviewed')
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('publication_status')
                     ->label('Public status')
                     ->getStateUsing(fn (Offer $record): string => $record->publicationStatus())
@@ -97,9 +103,22 @@ class OffersTable
                 Filter::make('needs_editorial_review')
                     ->label('Missing eligibility or redemption steps')
                     ->query(fn (Builder $query): Builder => $query->needsEditorialReview()),
+                Filter::make('partner_review_due')
+                    ->label('Live links not reviewed in 90 days')
+                    ->query(fn (Builder $query): Builder => $query->partnerReviewDue()),
             ])
             ->recordActions([
                 EditAction::make(),
+                Action::make('confirmPartnerReview')
+                    ->label('Mark link reviewed')
+                    ->color('info')
+                    ->requiresConfirmation()
+                    ->modalHeading('Confirm manual partner-link review')
+                    ->modalDescription('Only confirm after independently opening the official partner URL and checking its terms. This does not perform an automated HTTP health check.')
+                    ->action(function (Offer $record): void {
+                        $record->refresh();
+                        $record->forceFill(['partner_reviewed_at' => now()])->save();
+                    }),
                 Action::make('publish')
                     ->label('Publish now')
                     ->color('success')
