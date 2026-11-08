@@ -17,6 +17,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -41,8 +42,12 @@ class BrandResource extends Resource
                     ->url(),
                 FileUpload::make('logo_path')
                     ->image()
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                    ->maxSize(4096)
+                    ->imagePreviewHeight('120')
                     ->disk('public')
-                    ->directory('brands'),
+                    ->directory('brands')
+                    ->helperText('JPEG, PNG or WebP; up to 4 MB.'),
                 Toggle::make('is_published')
                     ->required(),
             ]);
@@ -58,8 +63,10 @@ class BrandResource extends Resource
                     ->searchable(),
                 TextColumn::make('website_url')
                     ->searchable(),
-                TextColumn::make('logo_path')
-                    ->searchable(),
+                ImageColumn::make('logo_path')
+                    ->label('Logo')
+                    ->disk('public')
+                    ->square(),
                 IconColumn::make('is_published')
                     ->boolean(),
                 TextColumn::make('created_at')

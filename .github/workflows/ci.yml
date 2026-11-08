@@ -134,6 +134,18 @@ jobs:
           test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/secret.php)" = 404
           docker compose restart app
           curl --fail --silent --show-error --retry 12 --retry-delay 3 --retry-connrefused http://127.0.0.1:18080/up >/dev/null
+          # Verify CMS media persists in the shared storage volume and Nginx serves it.
+          # Create the fixture as the PHP-FPM worker user, NOT root, to catch upload permission errors.
+          docker compose exec -T -u www-data app sh -c 'mkdir -p storage/app/public/brands && printf "%s" "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/0HcAAAAASUVORK5CYII=" | base64 -d > storage/app/public/brands/ci-media-persistence.png'
+          docker compose exec -T app sh -c 'test -L public/storage && test -f public/storage/brands/ci-media-persistence.png'
+          media_sha="$(docker compose exec -T app sha256sum storage/app/public/brands/ci-media-persistence.png | cut -d ' ' -f1)"
+          served_sha="$(curl --fail --silent --show-error http://127.0.0.1:18080/storage/brands/ci-media-persistence.png | sha256sum | cut -d ' ' -f1)"
+          test "$media_sha" = "$served_sha"
+          docker compose up -d --force-recreate --no-deps app
+          curl --fail --silent --show-error --retry 12 --retry-delay 3 --retry-connrefused http://127.0.0.1:18080/up >/dev/null
+          test "$media_sha" = "$(docker compose exec -T app sha256sum storage/app/public/brands/ci-media-persistence.png | cut -d ' ' -f1)"
+          test "$media_sha" = "$(curl --fail --silent --show-error http://127.0.0.1:18080/storage/brands/ci-media-persistence.png | sha256sum | cut -d ' ' -f1)"
+          docker compose exec -T -u www-data app rm storage/app/public/brands/ci-media-persistence.png
           # Verify Codespaces forwarded-origin HTML and real CSS without another CI job.
           export APP_ENV=local
           export APP_URL=https://ci-preview-8080.app.github.dev
