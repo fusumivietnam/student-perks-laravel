@@ -22,11 +22,18 @@ class Offer extends Model
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
             'published_at' => 'datetime',
+            'partner_reviewed_at' => 'datetime',
         ];
     }
 
     protected static function booted(): void
     {
+        static::updating(function (self $offer): void {
+            if ($offer->isDirty('partner_url')) {
+                $offer->partner_reviewed_at = null;
+            }
+        });
+
         static::updated(function (self $offer): void {
             if (! $offer->wasChanged('slug') || ! $offer->getOriginal('is_published')) {
                 return;
@@ -117,6 +124,20 @@ class Offer extends Model
                 ->orWhereRaw("TRIM(eligibility) = ''")
                 ->orWhereNull('redemption_steps')
                 ->orWhereRaw("TRIM(redemption_steps) = ''");
+        });
+    }
+
+    public function needsPartnerReview(): bool
+    {
+        return ! $this->partner_reviewed_at
+            || $this->partner_reviewed_at->lte(now()->subDays(90));
+    }
+
+    public function scopePartnerReviewDue(Builder $query): Builder
+    {
+        return $query->current()->where(function (Builder $q): void {
+            $q->whereNull('partner_reviewed_at')
+                ->orWhere('partner_reviewed_at', '<=', now()->subDays(90));
         });
     }
 
