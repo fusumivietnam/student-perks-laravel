@@ -20,6 +20,14 @@ HTTP: Nginx public-facing, PHP-FPM internal, public root `public/`, deny hidden 
 
 Deployment: build/test immutable application image, run migrations intentionally, restart services, smoke test. Keep PostgreSQL and uploads persistent. Do not publish 5432. Do not use `docker compose down -v` against real data.
 
+## CMS media lifecycle
+
+Brand logos and article covers are optional, human-reviewed uploads on Laravel's `public` filesystem disk. Filament restricts new uploads to JPEG, PNG, or WebP, at most 4 MB per file. Public pages reuse saved image paths and fall back when files are absent. Keep SVG and other active content types out of editor uploads.
+
+Docker Compose mounts a persistent `app-storage` named volume at `/var/www/html/storage` in PHP-FPM and read-only in Nginx. The app entrypoint creates `public/storage` pointing to `storage/app/public`; Nginx serves `/storage/*` without a PHP route. Uploaded images **must not** be baked into the immutable release image. The public release-assets volume is distinct, and entrypoint refreshes its assets without deleting uploads.
+
+The existing Compose CI smoke test verifies the PHP worker user can write an image into persistent storage, Nginx serves byte-for-byte identical content, and the image remains available after PHP-FPM container recreation. This proves the disposable CI stack, **not** Production storage health. Before launch, separately verify a real Filament upload, the public image URL, filesystem permissions, retention across an approved deployment, and storage backup/restore. Never run `docker compose down -v` on live data.
+
 ## Preferred packages
 
 | Need | Preferred choice | Constraint |
