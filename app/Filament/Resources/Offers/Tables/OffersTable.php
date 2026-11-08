@@ -50,7 +50,7 @@ class OffersTable
                     }),
                 IconColumn::make('editorial_review')
                     ->label('Needs details')
-                    ->getStateUsing(fn (Offer $record): bool => $record->needsEditorialReview())
+                    ->getStateUsing(fn (Offer $record): bool => $record->hasMissingEditorialDetails())
                     ->boolean()
                     ->trueColor('warning')
                     ->falseColor('success'),
@@ -96,7 +96,7 @@ class OffersTable
                     ->query(fn (Builder $query): Builder => $query->expiringSoon()),
                 Filter::make('needs_editorial_review')
                     ->label('Missing eligibility or redemption steps')
-                    ->query(fn (Builder $query): Builder => $query->needsEditorialReview()),
+                    ->query(fn (Builder $query): Builder => $query->hasMissingEditorialDetails()),
             ])
             ->recordActions([
                 EditAction::make(),
