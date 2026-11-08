@@ -66,8 +66,7 @@ class BrandResource extends Resource
                 ImageColumn::make('logo_path')
                     ->label('Logo')
                     ->disk('public')
-                    ->square()
-                    ->defaultImageUrl(null),
+                    ->square(),
                 IconColumn::make('is_published')
                     ->boolean(),
                 TextColumn::make('created_at')
