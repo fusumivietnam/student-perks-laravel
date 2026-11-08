@@ -104,6 +104,22 @@ class Offer extends Model
         };
     }
 
+    public function needsEditorialReview(): bool
+    {
+        return trim((string) $this->eligibility) === ''
+            || trim((string) $this->redemption_steps) === '';
+    }
+
+    public function scopeNeedsEditorialReview(Builder $query): Builder
+    {
+        return $query->where(function (Builder $q): void {
+            $q->whereNull('eligibility')
+                ->orWhereRaw("TRIM(eligibility) = ''")
+                ->orWhereNull('redemption_steps')
+                ->orWhereRaw("TRIM(redemption_steps) = ''");
+        });
+    }
+
     public function scopeExpiringSoon(Builder $query): Builder
     {
         return $query->current()
