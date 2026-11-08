@@ -104,7 +104,7 @@ class Offer extends Model
         };
     }
 
-    public function needsEditorialReview(): bool
+    public function hasMissingEditorialDetails(): bool
     {
         return trim((string) $this->eligibility) === ''
             || trim((string) $this->redemption_steps) === '';
