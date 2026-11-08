@@ -17,6 +17,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
@@ -33,7 +34,14 @@ class ArticleResource extends Resource
             TextInput::make('title')->required()->maxLength(255),
             TextInput::make('slug')->required()->unique(ignoreRecord: true)->maxLength(255),
             Textarea::make('summary')->required()->columnSpanFull(),
-            FileUpload::make('cover_path')->image()->disk('public')->directory('articles'),
+            FileUpload::make('cover_path')
+                ->image()
+                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                ->maxSize(4096)
+                ->imagePreviewHeight('160')
+                ->disk('public')
+                ->directory('articles')
+                ->helperText('JPEG, PNG or WebP; up to 4 MB.'),
             DateTimePicker::make('published_at'),
             Textarea::make('body')->required()->columnSpanFull(),
             Toggle::make('is_published')->default(false),
@@ -46,6 +54,7 @@ class ArticleResource extends Resource
     {
         return $table
             ->columns([
+                ImageColumn::make('cover_path')->label('Cover')->disk('public')->square(),
                 TextColumn::make('title')->searchable()->sortable(),
                 TextColumn::make('slug')->searchable(),
                 IconColumn::make('is_published')->boolean(),
