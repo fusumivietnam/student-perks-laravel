@@ -13,7 +13,11 @@
     <nav aria-label="Breadcrumb" class="mb-8 flex flex-wrap items-center gap-2 text-sm text-slate-500">
         <a href="{{ route('offers.index') }}" class="rounded-sm font-semibold text-indigo-700 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">All offers</a>
         <span aria-hidden="true">/</span>
-        <a href="{{ route('brands.show', $offer->brand->slug) }}" class="rounded-sm hover:text-indigo-700 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">{{ $offer->brand->name }}</a>
+        @if($isPreview ?? false)
+            <span>{{ $offer->brand->name }}</span>
+        @else
+            <a href="{{ route('brands.show', $offer->brand->slug) }}" class="rounded-sm hover:text-indigo-700 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">{{ $offer->brand->name }}</a>
+        @endif
         <span aria-hidden="true">/</span>
         <span class="max-w-full truncate font-medium text-slate-700" aria-current="page">{{ $offer->title }}</span>
     </nav>
@@ -30,9 +34,15 @@
                 </div>
                 <div class="px-6 py-8 sm:px-10 sm:py-10">
                     <div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-bold text-indigo-700">
-                        <a class="rounded-sm hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('brands.show', $offer->brand->slug) }}">{{ $offer->brand->name }}</a>
-                        <span class="text-slate-300" aria-hidden="true">·</span>
-                        <a class="rounded-sm hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('categories.show', $offer->category->slug) }}">{{ $offer->category->name }}</a>
+                        @if($isPreview ?? false)
+                            <span>{{ $offer->brand->name }}</span>
+                            <span class="text-slate-300" aria-hidden="true">·</span>
+                            <span>{{ $offer->category->name }}</span>
+                        @else
+                            <a class="rounded-sm hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('brands.show', $offer->brand->slug) }}">{{ $offer->brand->name }}</a>
+                            <span class="text-slate-300" aria-hidden="true">·</span>
+                            <a class="rounded-sm hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('categories.show', $offer->category->slug) }}">{{ $offer->category->name }}</a>
+                        @endif
                     </div>
                     <h1 class="mt-4 text-3xl font-extrabold leading-tight tracking-tight text-slate-950 sm:text-4xl">{{ $offer->title }}</h1>
                     <p class="mt-5 text-base leading-relaxed text-slate-600 sm:text-lg">{{ $offer->summary }}</p>
