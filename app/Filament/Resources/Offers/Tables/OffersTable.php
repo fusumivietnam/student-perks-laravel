@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Offers\Tables;
 
+use App\Models\Offer;
+use Filament\Actions\Action;
+
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -31,8 +34,20 @@ class OffersTable
                     ->searchable(),
                 TextColumn::make('partner_url')
                     ->searchable(),
+                TextColumn::make('publication_status')
+                    ->label('Public status')
+                    ->getStateUsing(fn (Offer $record): string => $record->publicationStatus())
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Live' => 'success',
+                        'Scheduled' => 'warning',
+                        'Expired' => 'danger',
+                        'Hidden by brand/category' => 'info',
+                        default => 'gray',
+                    }),
                 IconColumn::make('is_published')
-                    ->boolean(),
+                    ->boolean()
+                    ->label('Enabled'),
                 TextColumn::make('starts_at')
                     ->dateTime()
                     ->sortable(),
@@ -60,6 +75,32 @@ class OffersTable
             ])
             ->recordActions([
                 EditAction::make(),
+                Action::make('publish')
+                    ->label('Publish now')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->visible(fn (Offer $record): bool => $record->canPublishNow())
+                    ->action(function (Offer $record): void {
+                        $record->refresh();
+
+                        if (! $record->canPublishNow()) {
+                            return;
+                        }
+
+                        $record->update(['is_published' => true]);
+                    }),
+                Action::make('unpublish')
+                    ->label('Unpublish')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->visible(fn (Offer $record): bool => (bool) $record->is_published)
+                    ->action(function (Offer $record): void {
+                        $record->refresh();
+
+                        if ($record->is_published) {
+                            $record->update(['is_published' => false]);
+                        }
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

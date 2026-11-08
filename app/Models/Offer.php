@@ -51,6 +51,38 @@ class Offer extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function publicationStatus(): string
+    {
+        if (! $this->is_published) {
+            return 'Draft';
+        }
+
+        if ($this->ends_at && $this->ends_at->isPast()) {
+            return 'Expired';
+        }
+
+        if (($this->published_at && $this->published_at->isFuture())
+            || ($this->starts_at && $this->starts_at->isFuture())) {
+            return 'Scheduled';
+        }
+
+        if (! $this->brand?->is_published || ! $this->category?->is_published) {
+            return 'Hidden by brand/category';
+        }
+
+        return 'Live';
+    }
+
+    public function canPublishNow(): bool
+    {
+        return ! $this->is_published
+            && (! $this->ends_at || $this->ends_at->isFuture())
+            && (! $this->starts_at || ! $this->starts_at->isFuture())
+            && (! $this->published_at || ! $this->published_at->isFuture())
+            && (bool) $this->brand?->is_published
+            && (bool) $this->category?->is_published;
+    }
+
     public function scopeCurrent(Builder $query): Builder
     {
         return $query->where('is_published', true)
