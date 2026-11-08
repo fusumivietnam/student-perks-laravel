@@ -72,7 +72,7 @@
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 @foreach($brands as $brand)
                     <a class="group flex min-h-28 items-center gap-4 rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm transition hover:border-indigo-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('brands.show', $brand->slug) }}">
-                        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-sm font-black text-indigo-700" aria-hidden="true">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($brand->name, 0, 2)) }}</span>
+                        <x-brand-mark :brand="$brand" class="h-12 w-12" text-class="text-sm" />
                         <span class="font-bold leading-snug text-slate-900 group-hover:text-indigo-700">{{ $brand->name }}</span>
                     </a>
                 @endforeach
