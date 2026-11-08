@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Pages;
 use App\Filament\Resources\Pages\Pages\ManagePages;
 use App\Models\Page;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
@@ -48,7 +49,11 @@ class PageResource extends Resource
                 TextColumn::make('updated_at')->dateTime()->sortable(),
             ])
             ->filters([TernaryFilter::make('is_published')])
-            ->recordActions([EditAction::make(), DeleteAction::make()]);
+            ->recordActions([
+                EditAction::make(),
+                Action::make('preview')->label('Preview saved')->url(fn (Page $record): string => route('pages.preview', $record))->openUrlInNewTab(),
+                DeleteAction::make(),
+            ]);
     }
 
     public static function getPages(): array

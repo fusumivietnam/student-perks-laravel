@@ -7,6 +7,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Offer;
 use App\Models\Page;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
 
@@ -30,6 +31,29 @@ class EditorialController extends Controller
     {
         return view('editorial.page', [
             'page' => Page::published()->where('slug', $slug)->firstOrFail(),
+        ]);
+    }
+
+    public function previewArticle(Request $request, Article $article): Response
+    {
+        abort_unless($request->user()?->is_admin, 403);
+
+        return $this->privatePreview('editorial.article', ['article' => $article, 'isPreview' => true]);
+    }
+
+    public function previewPage(Request $request, Page $page): Response
+    {
+        abort_unless($request->user()?->is_admin, 403);
+
+        return $this->privatePreview('editorial.page', ['page' => $page, 'isPreview' => true]);
+    }
+
+    private function privatePreview(string $view, array $data): Response
+    {
+        return response()->view($view, $data)->withHeaders([
+            'Cache-Control' => 'private, no-store, no-cache, must-revalidate',
+            'Pragma' => 'no-cache',
+            'X-Robots-Tag' => 'noindex, nofollow, noarchive',
         ]);
     }
 
