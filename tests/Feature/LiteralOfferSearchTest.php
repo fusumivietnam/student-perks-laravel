@@ -14,7 +14,7 @@ class LiteralOfferSearchTest extends TestCase
 
     public function test_search_treats_percent_underscore_and_backslash_as_literal_characters(): void
     {
-        $brand = Brand::create(['name' => 'Acme Learning', 'slug' => 'acme-learning', 'is_published' => true]);
+        $brand = Brand::create(['name' => 'Acme Campus', 'slug' => 'acme-campus', 'is_published' => true]);
         $category = Category::create(['name' => 'Software', 'slug' => 'software', 'is_published' => true]);
 
         foreach ([
