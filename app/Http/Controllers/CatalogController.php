@@ -17,9 +17,9 @@ class CatalogController extends Controller
     public function home(): View
     {
         return view('catalog.home', [
-            'offers' => Offer::current()->with(['brand', 'category'])->latest()->limit(6)->get(),
-            'brands' => Brand::where('is_published', true)->orderBy('name')->limit(12)->get(),
-            'categories' => Category::where('is_published', true)->orderBy('name')->get(),
+            'offers' => Offer::current()->with(['brand', 'category'])->latest()->orderByDesc('id')->limit(6)->get(),
+            'brands' => Brand::where('is_published', true)->orderBy('name')->orderBy('id')->limit(12)->get(),
+            'categories' => Category::where('is_published', true)->orderBy('name')->orderBy('id')->get(),
         ]);
     }
 
@@ -48,7 +48,9 @@ class CatalogController extends Controller
             ->when($category !== '', fn (Builder $query) => $query->whereHas('category', fn (Builder $query) => $query->where('slug', $category)))
             ->when($type !== '', fn (Builder $query) => $query->where('offer_type', $type));
 
-        $sort === 'ending' ? $query->orderBy('ends_at') : $query->latest();
+        $sort === 'ending'
+            ? $query->orderBy('ends_at')->orderBy('id')
+            : $query->latest()->orderByDesc('id');
 
         return view('catalog.offers', [
             'title' => 'Student offers',
@@ -98,7 +100,7 @@ class CatalogController extends Controller
     public function brands(): View
     {
         return view('catalog.brands', [
-            'brands' => Brand::where('is_published', true)->orderBy('name')->paginate(24),
+            'brands' => Brand::where('is_published', true)->orderBy('name')->orderBy('id')->paginate(24),
         ]);
     }
 
@@ -109,7 +111,7 @@ class CatalogController extends Controller
         return view('catalog.offers', [
             'title' => $brand->name,
             'description' => $brand->description,
-            'offers' => Offer::current()->with(['brand', 'category'])->whereBelongsTo($brand)->latest()->paginate(12),
+            'offers' => Offer::current()->with(['brand', 'category'])->whereBelongsTo($brand)->latest()->orderByDesc('id')->paginate(12),
             'brands' => collect(),
             'categories' => collect(),
             'term' => '',
@@ -127,7 +129,7 @@ class CatalogController extends Controller
         return view('catalog.offers', [
             'title' => $category->name,
             'description' => $category->description,
-            'offers' => Offer::current()->with(['brand', 'category'])->whereBelongsTo($category)->latest()->paginate(12),
+            'offers' => Offer::current()->with(['brand', 'category'])->whereBelongsTo($category)->latest()->orderByDesc('id')->paginate(12),
             'brands' => collect(),
             'categories' => collect(),
             'term' => '',
