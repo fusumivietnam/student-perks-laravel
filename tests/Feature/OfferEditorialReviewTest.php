@@ -48,9 +48,9 @@ class OfferEditorialReviewTest extends TestCase
         $missingSteps = $this->offer('missing-steps', ['redemption_steps' => '   ']);
         $missingBoth = $this->offer('missing-both', ['eligibility' => '', 'redemption_steps' => null]);
 
-        $this->assertFalse($ready->needsEditorialReview());
+        $this->assertFalse($ready->hasMissingEditorialDetails());
         foreach ([$missingEligibility, $missingSteps, $missingBoth] as $incomplete) {
-            $this->assertTrue($incomplete->needsEditorialReview());
+            $this->assertTrue($incomplete->hasMissingEditorialDetails());
         }
 
         $this->assertEqualsCanonicalizing(
