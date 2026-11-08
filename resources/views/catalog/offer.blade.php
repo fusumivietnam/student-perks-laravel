@@ -23,7 +23,7 @@
             <header class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
                 <div class="relative flex min-h-44 items-center justify-between overflow-hidden bg-gradient-to-br from-indigo-100 via-violet-50 to-sky-100 px-7 py-8 sm:px-10">
                     <div class="absolute -right-16 -top-24 h-64 w-64 rounded-full border-[32px] border-white/50" aria-hidden="true"></div>
-                    <span class="relative flex h-20 w-20 items-center justify-center rounded-3xl border border-white bg-white text-2xl font-black tracking-tight text-indigo-800 shadow-md" aria-hidden="true">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($offer->brand->name, 0, 2)) }}</span>
+                    <x-brand-mark :brand="$offer->brand" class="relative h-20 w-20" text-class="text-2xl" />
                     @if($offer->offer_value)
                         <span class="relative max-w-44 rounded-full bg-white px-4 py-2 text-center text-sm font-extrabold text-indigo-800 shadow-sm">{{ $offer->offer_value }}</span>
                     @endif

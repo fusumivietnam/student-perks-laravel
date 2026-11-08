@@ -1,7 +1,7 @@
 <article class="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-950/10 focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-300">
     <div class="relative flex min-h-36 items-center justify-between overflow-hidden bg-gradient-to-br from-indigo-50 via-violet-50 to-sky-50 px-6 py-5">
         <div class="absolute -right-8 -top-12 h-40 w-40 rounded-full border-[22px] border-white/60" aria-hidden="true"></div>
-        <div class="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-white bg-white text-xl font-black tracking-tight text-indigo-800 shadow-sm" aria-hidden="true">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($offer->brand->name, 0, 2)) }}</div>
+        <x-brand-mark :brand="$offer->brand" class="relative h-16 w-16" text-class="text-xl" />
         @if($offer->offer_value)
             <span class="relative max-w-40 rounded-full bg-white px-3 py-1.5 text-right text-xs font-bold text-indigo-800 shadow-sm">{{ $offer->offer_value }}</span>
         @endif
