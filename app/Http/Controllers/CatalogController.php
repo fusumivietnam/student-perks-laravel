@@ -31,6 +31,8 @@ class CatalogController extends Controller
         $rawType = $request->query('type', '');
 
         $term = is_string($rawTerm) ? mb_substr(trim($rawTerm), 0, 100) : '';
+        // Escape LIKE metacharacters so user input is a literal search phrase.
+        $searchPattern = '%'.addcslashes($term, '%_\\').'%';
         $brand = is_string($rawBrand) ? mb_substr($rawBrand, 0, 255) : '';
         $category = is_string($rawCategory) ? mb_substr($rawCategory, 0, 255) : '';
         $type = is_string($rawType) ? mb_substr($rawType, 0, 255) : '';
@@ -38,9 +40,9 @@ class CatalogController extends Controller
 
         $query = Offer::current()->with(['brand', 'category'])
             ->when($term !== '', fn (Builder $query) => $query->where(
-                fn (Builder $query) => $query->whereLike('title', "%{$term}%")
-                    ->orWhereLike('summary', "%{$term}%")
-                    ->orWhereHas('brand', fn (Builder $query) => $query->whereLike('name', "%{$term}%")),
+                fn (Builder $query) => $query->whereLike('title', $searchPattern)
+                    ->orWhereLike('summary', $searchPattern)
+                    ->orWhereHas('brand', fn (Builder $query) => $query->whereLike('name', $searchPattern)),
             ))
             ->when($brand !== '', fn (Builder $query) => $query->whereHas('brand', fn (Builder $query) => $query->where('slug', $brand)))
             ->when($category !== '', fn (Builder $query) => $query->whereHas('category', fn (Builder $query) => $query->where('slug', $category)))
