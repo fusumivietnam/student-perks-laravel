@@ -4,13 +4,14 @@ namespace App\Filament\Resources\Offers\Tables;
 
 use App\Models\Offer;
 use Filament\Actions\Action;
-
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
@@ -72,6 +73,19 @@ class OffersTable
                 SelectFilter::make('brand_id')->relationship('brand', 'name')->searchable(),
                 SelectFilter::make('category_id')->relationship('category', 'name')->searchable(),
                 TernaryFilter::make('is_published'),
+                SelectFilter::make('publication_status')
+                    ->label('Public status')
+                    ->options([
+                        'draft' => 'Draft',
+                        'live' => 'Live',
+                        'scheduled' => 'Scheduled',
+                        'expired' => 'Expired',
+                        'hidden' => 'Hidden by brand/category',
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => $query->withPublicationStatus($data['value'] ?? '')),
+                Filter::make('expiring_soon')
+                    ->label('Expiring within 7 days')
+                    ->query(fn (Builder $query): Builder => $query->expiringSoon()),
             ])
             ->recordActions([
                 EditAction::make(),
