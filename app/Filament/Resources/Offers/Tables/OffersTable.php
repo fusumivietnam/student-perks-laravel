@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Offers\Tables;
 
 use App\Models\Offer;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -12,6 +13,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
@@ -46,6 +48,12 @@ class OffersTable
                         'Hidden by brand/category' => 'info',
                         default => 'gray',
                     }),
+                IconColumn::make('editorial_review')
+                    ->label('Needs details')
+                    ->getStateUsing(fn (Offer $record): bool => $record->hasMissingEditorialDetails())
+                    ->boolean()
+                    ->trueColor('warning')
+                    ->falseColor('success'),
                 IconColumn::make('is_published')
                     ->boolean()
                     ->label('Enabled'),
@@ -86,6 +94,9 @@ class OffersTable
                 Filter::make('expiring_soon')
                     ->label('Expiring within 7 days')
                     ->query(fn (Builder $query): Builder => $query->expiringSoon()),
+                Filter::make('needs_editorial_review')
+                    ->label('Missing eligibility or redemption steps')
+                    ->query(fn (Builder $query): Builder => $query->needsEditorialReview()),
             ])
             ->recordActions([
                 EditAction::make(),
@@ -118,6 +129,18 @@ class OffersTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('unpublishSelected')
+                        ->label('Unpublish selected')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (Collection $records): void {
+                            $records->each(function (Offer $record): void {
+                                if ($record->is_published) {
+                                    $record->update(['is_published' => false]);
+                                }
+                            });
+                        }),
                     DeleteBulkAction::make(),
                 ]),
             ]);
