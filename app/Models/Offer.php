@@ -83,6 +83,34 @@ class Offer extends Model
             && (bool) $this->category?->is_published;
     }
 
+    public function scopeWithPublicationStatus(Builder $query, string $status): Builder
+    {
+        return match ($status) {
+            'draft' => $query->where('is_published', false),
+            'live' => $query->current(),
+            'expired' => $query->where('is_published', true)
+                ->whereNotNull('ends_at')->where('ends_at', '<=', now()),
+            'scheduled' => $query->where('is_published', true)
+                ->where(fn (Builder $q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now()))
+                ->where(fn (Builder $q) => $q->where('published_at', '>', now())
+                    ->orWhere('starts_at', '>', now())),
+            'hidden' => $query->where('is_published', true)
+                ->where(fn (Builder $q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now()))
+                ->where(fn (Builder $q) => $q->whereNull('published_at')->orWhere('published_at', '<=', now()))
+                ->where(fn (Builder $q) => $q->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
+                ->where(fn (Builder $q) => $q->whereDoesntHave('brand', fn (Builder $b) => $b->where('is_published', true))
+                    ->orWhereDoesntHave('category', fn (Builder $c) => $c->where('is_published', true))),
+            default => $query,
+        };
+    }
+
+    public function scopeExpiringSoon(Builder $query): Builder
+    {
+        return $query->current()
+            ->where('ends_at', '>', now())
+            ->where('ends_at', '<=', now()->addDays(7));
+    }
+
     public function scopeCurrent(Builder $query): Builder
     {
         return $query->where('is_published', true)
