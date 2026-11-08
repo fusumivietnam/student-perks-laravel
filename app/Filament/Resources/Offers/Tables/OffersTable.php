@@ -8,7 +8,6 @@ use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -35,16 +34,17 @@ class OffersTable
                     ->searchable(),
                 TextColumn::make('partner_url')
                     ->searchable(),
-                BadgeColumn::make('publication_status')
+                TextColumn::make('publication_status')
                     ->label('Public status')
                     ->getStateUsing(fn (Offer $record): string => $record->publicationStatus())
-                    ->colors([
-                        'success' => 'Live',
-                        'warning' => 'Scheduled',
-                        'danger' => 'Expired',
-                        'gray' => 'Draft',
-                        'info' => 'Hidden by brand/category',
-                    ]),
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Live' => 'success',
+                        'Scheduled' => 'warning',
+                        'Expired' => 'danger',
+                        'Hidden by brand/category' => 'info',
+                        default => 'gray',
+                    }),
                 IconColumn::make('is_published')
                     ->boolean()
                     ->label('Enabled'),
