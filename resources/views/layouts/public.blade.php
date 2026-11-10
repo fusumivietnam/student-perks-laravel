@@ -37,7 +37,7 @@
             <div class="flex flex-wrap items-center justify-between gap-4">
                 <span class="text-base font-extrabold text-indigo-800">Student Perks Hub</span>
                 <nav aria-label="Information and policies" class="flex flex-wrap gap-x-6 gap-y-2">
-                    @foreach(['about' => 'About', 'privacy' => 'Privacy', 'terms' => 'Terms', 'contact' => 'Contact'] as $slug => $label)
+                    @foreach(['about' => 'About', 'privacy' => 'Privacy', 'terms' => 'Terms', 'contact' => 'Contact', 'disclaimer' => 'Disclaimer'] as $slug => $label)
                         @if($footerPages->contains($slug))
                             <a class="font-semibold hover:text-indigo-700 focus-visible:underline" href="{{ route('pages.show', $slug) }}">{{ $label }}</a>
                         @endif

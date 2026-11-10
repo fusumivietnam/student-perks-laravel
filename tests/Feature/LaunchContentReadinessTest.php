@@ -20,13 +20,25 @@ class LaunchContentReadinessTest extends TestCase
         $this->assertSame(1, Artisan::call('launch:check'));
         $output = Artisan::output();
 
-        foreach (['/pages/about', '/pages/privacy', '/pages/terms', '/pages/contact'] as $page) {
+        foreach (['/pages/about', '/pages/privacy', '/pages/terms', '/pages/contact', '/pages/disclaimer'] as $page) {
             $this->assertStringContainsString($page, $output);
         }
 
         $this->assertStringContainsString('No currently visible offers', $output);
         $this->assertStringContainsString('CONTENT GATE FAILED', $output);
         $this->assertDatabaseCount('offers', 0);
+    }
+
+    public function test_missing_disclaimer_alone_blocks_content_gate(): void
+    {
+        $this->publishLegalPages();
+        Page::where('slug', 'disclaimer')->delete();
+        $offer = $this->createOffer();
+        $offer->forceFill(['partner_reviewed_at' => now()])->save();
+
+        $this->assertSame(1, Artisan::call('launch:check'));
+        $this->assertStringContainsString('Published legal/information page missing: /pages/disclaimer', Artisan::output());
+        $this->assertStringNotContainsString('No currently visible offers', Artisan::output());
     }
 
     public function test_reviewed_live_offer_and_all_published_pages_pass_content_gate(): void
@@ -132,7 +144,7 @@ class LaunchContentReadinessTest extends TestCase
 
     private function publishLegalPages(): void
     {
-        foreach (['about', 'privacy', 'terms', 'contact'] as $slug) {
+        foreach (['about', 'privacy', 'terms', 'contact', 'disclaimer'] as $slug) {
             Page::create([
                 'title' => ucfirst($slug),
                 'slug' => $slug,
