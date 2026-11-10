@@ -2,6 +2,7 @@
 # Read-only diagnostic for the private Laravel preview; never changes Docker volumes.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+source scripts/preview-image.sh
 
 fail() { echo "FAIL: $*" >&2; exit 1; }
 command -v docker >/dev/null || fail "Docker is not installed."
@@ -29,10 +30,10 @@ if command -v git >/dev/null; then
   app_id="$(docker compose ps -q app)"
   [[ -n "$app_id" ]] || fail "Laravel app container is absent."
   image_sha="$(docker inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "$app_id" 2>/dev/null || true)"
-  if [[ "$image_sha" != "$source_sha" ]]; then
+  if ! preview_image_matches "$image_sha" "$source_sha"; then
     fail "Preview Docker image is stale (image: ${image_sha:-unknown}, local: ${source_sha:0:12}). Run bash scripts/preview.sh to rebuild."
   fi
-  echo "PASS: Laravel image is at the same Git revision as the workspace (${source_sha:0:12})."
+  echo "PASS: Laravel image runtime inputs match workspace ${source_sha:0:12} (image built from ${image_sha:0:12})."
 fi
 
 local_url="http://127.0.0.1:8080"
