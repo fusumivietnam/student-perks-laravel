@@ -20,7 +20,7 @@ class LaunchContentReadinessTest extends TestCase
         $this->assertSame(1, Artisan::call('launch:check'));
         $output = Artisan::output();
 
-        foreach (['/pages/about', '/pages/privacy', '/pages/terms', '/pages/contact'] as $page) {
+        foreach (['/pages/about', '/pages/privacy', '/pages/terms', '/pages/contact', '/pages/disclaimer'] as $page) {
             $this->assertStringContainsString($page, $output);
         }
 
@@ -132,7 +132,7 @@ class LaunchContentReadinessTest extends TestCase
 
     private function publishLegalPages(): void
     {
-        foreach (['about', 'privacy', 'terms', 'contact'] as $slug) {
+        foreach (['about', 'privacy', 'terms', 'contact', 'disclaimer'] as $slug) {
             Page::create([
                 'title' => ucfirst($slug),
                 'slug' => $slug,
