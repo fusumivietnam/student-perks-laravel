@@ -29,6 +29,18 @@ class LaunchContentReadinessTest extends TestCase
         $this->assertDatabaseCount('offers', 0);
     }
 
+    public function test_missing_disclaimer_alone_blocks_content_gate(): void
+    {
+        $this->publishLegalPages();
+        Page::where('slug', 'disclaimer')->delete();
+        $offer = $this->createOffer();
+        $offer->forceFill(['partner_reviewed_at' => now()])->save();
+
+        $this->assertSame(1, Artisan::call('launch:check'));
+        $this->assertStringContainsString('Published legal/information page missing: /pages/disclaimer', Artisan::output());
+        $this->assertStringNotContainsString('No currently visible offers', Artisan::output());
+    }
+
     public function test_reviewed_live_offer_and_all_published_pages_pass_content_gate(): void
     {
         $this->publishLegalPages();
