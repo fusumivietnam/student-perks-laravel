@@ -11,14 +11,14 @@ CI builds and tests images but **does not deploy**. Deploy to a VPS only after c
 3. Configure and test HTTPS certificates in the VPS reverse proxy before exposing public DNS. Forward `Host` and `X-Forwarded-Proto` accurately; configure trusted proxies only for actual trusted proxy IPs, not arbitrary internet clients.
 4. Confirm `docker compose config --quiet`, then `docker compose up -d --build`.
 5. Run migrations intentionally: `docker compose exec -T app php artisan migrate --force`. Create admin with Filament CLI and set `is_admin=true` **only for the intended account**, as described in README. Never seed default production credentials.
-6. Populate reviewed Brands/Categories/Offers and legal Pages (privacy, terms, contact, about) in Filament before launch. Test their public routes, outbound HTTPS links, robots and sitemap.
+6. Populate reviewed Brands/Categories/Offers and legal Pages (privacy, terms, contact, about, disclaimer) in Filament before launch. Test their public routes, outbound HTTPS links, robots and sitemap.
 7. Smoke-check `/up`, `/`, `/offers`, `/articles`, `/admin/login` and media URLs over the final HTTPS domain. Test desktop/mobile and keyboard access manually; CI HTTP checks alone do not verify visual accessibility.
 
 ## Read-only content readiness audit
 
 Once editorial content is populated, run `docker compose exec -T app php artisan launch:check` on a preview/staging environment with the intended content database. This command **only reads CMS tables**, does not send network requests and does not mutate records.
 
-- **BLOCK / nonzero exit**: a missing/unpublished **or empty** About, Privacy, Terms or Contact page; no currently visible offers; visible offers missing title/summary/description or eligibility/redemption steps; published brands, categories, current offers, articles or pages with legacy URL-unsafe slugs; visible partner links not manually reviewed in the past 90 days; invalid or non-HTTPS visible partner URLs
+- **BLOCK / nonzero exit**: a missing/unpublished **or empty** About, Privacy, Terms, Contact or Disclaimer page; no currently visible offers; visible offers missing title/summary/description or eligibility/redemption steps; published brands, categories, current offers, articles or pages with legacy URL-unsafe slugs; visible partner links not manually reviewed in the past 90 days; invalid or non-HTTPS visible partner URLs
 - **WARN**: there are no published guides (optional for initial launch)
 - **PASS / exit 0**: automated content checks pass, **not** authorization to deploy or a claim that partner URLs work
 
