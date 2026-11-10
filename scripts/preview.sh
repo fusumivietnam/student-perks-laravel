@@ -2,6 +2,7 @@
 # Private preview on a laptop or GitHub Codespaces.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+source scripts/preview-image.sh
 
 rebuild=false
 update=false
@@ -79,11 +80,11 @@ if [[ -n "$app_id" ]]; then
   running_revision="$(docker inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "$app_id" 2>/dev/null || true)"
 fi
 
-if [[ "$rebuild" == true ]] || [[ -z "$app_id" ]] || [[ "$running_revision" != "$PREVIEW_SOURCE_SHA" ]]; then
+if [[ "$rebuild" == true ]] || ! preview_image_matches "$running_revision" "$PREVIEW_SOURCE_SHA"; then
   echo "Preview image revision: ${running_revision:-unknown}; rebuilding to match local source."
   docker compose up -d --build
 else
-  echo "Preview Docker image is already at this revision; skipping rebuild."
+  echo "Preview runtime inputs unchanged since image ${running_revision:0:12}; skipping rebuild."
   docker compose up -d
 fi
 docker compose exec -T app php artisan migrate --force
