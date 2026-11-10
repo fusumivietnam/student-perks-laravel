@@ -18,7 +18,7 @@ CI builds and tests images but **does not deploy**. Deploy to a VPS only after c
 
 Once editorial content is populated, run `docker compose exec -T app php artisan launch:check` on a preview/staging environment with the intended content database. This command **only reads CMS tables**, does not send network requests and does not mutate records.
 
-- **BLOCK / nonzero exit**: a missing/unpublished About, Privacy, Terms or Contact page; no currently visible offers; visible offers missing eligibility or redemption steps; visible partner links not manually reviewed in the past 90 days; invalid or non-HTTPS visible partner URLs
+- **BLOCK / nonzero exit**: a missing/unpublished **or empty** About, Privacy, Terms or Contact page; no currently visible offers; visible offers missing title/summary/description or eligibility/redemption steps; published brands, categories, current offers, articles or pages with legacy URL-unsafe slugs; visible partner links not manually reviewed in the past 90 days; invalid or non-HTTPS visible partner URLs
 - **WARN**: there are no published guides (optional for initial launch)
 - **PASS / exit 0**: automated content checks pass, **not** authorization to deploy or a claim that partner URLs work
 
