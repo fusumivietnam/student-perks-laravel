@@ -16,6 +16,12 @@ Follow the GitHub Project backlog (see `docs/GITHUB_PROJECT.md`) or canonical Is
 
 Use one canonical GitHub Project and native GitHub workflows. Avoid duplicate tracker scripts and repetitive checks. Run fast targeted checks during iteration, then full relevant PostgreSQL/test/build gates before merging. Limit CI to substantive code/config changes, cancel superseded runs and cache package downloads. Inspect real failures before re-running. Do not add schedule-based automation unless a real recurring obligation justifies it. Prefer free, built-in Laravel and Filament functionality over additional hosted services.
 
+## Codespaces preview update cost
+
+The preview launcher, checker and Codespaces watcher share `scripts/preview-image.sh`: a running image may be reused when all commits since its labeled revision only change documentation, GitHub Actions configuration, tests or host-only preview tooling. The watcher still fast-forwards clean `main` but does not repeatedly rebuild or run migrations for those revisions. Changes to app code, Blade/resources, Dockerfile/Compose, dependencies or other runtime inputs always require a rebuild. Unknown image revisions or diverged histories also force a rebuild instead of silently accepting stale source.
+
+`bash scripts/preview.sh --rebuild` remains the explicit escape hatch for uncommitted runtime edits. The preview checks compare runtime-relevant changes rather than requiring the image label to equal HEAD exactly. A successful preview HTTP check still does **not** constitute browser accessibility acceptance or release approval.
+
 ## Mandatory checks
 
 1. `composer validate --strict`
