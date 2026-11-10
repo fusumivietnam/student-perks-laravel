@@ -2,6 +2,7 @@
 # Codespaces-only background updater. Never force-resets branches or deletes volumes.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+source scripts/preview-image.sh
 
 state_dir=".git"
 pidfile="$state_dir/preview-watch.pid"
@@ -58,7 +59,7 @@ case "${1:-}" in
         fi
         if ! git merge-base --is-ancestor "$local_sha" "$remote"; then
           echo "$(date -u +%FT%TZ) Local main diverged; refusing reset."
-        elif [[ "$remote" != "$local_sha" || "$image_sha" != "$local_sha" ]]; then
+        elif [[ "$remote" != "$local_sha" ]] || ! preview_image_matches "$image_sha" "$local_sha"; then
           if [[ "$last_failed_revision" == "$remote" ]]; then
             echo "$(date -u +%FT%TZ) Skipping failed revision ${remote:0:12} until watcher restart or a new commit."
           else
