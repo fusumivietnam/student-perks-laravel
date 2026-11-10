@@ -31,7 +31,9 @@ class PageResource extends Resource
     {
         return $schema->components([
             TextInput::make('title')->required()->maxLength(255),
-            TextInput::make('slug')->required()->unique(ignoreRecord: true)->maxLength(255),
+            TextInput::make('slug')->required()->unique(ignoreRecord: true)->maxLength(255)
+                ->rule('regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
+                ->helperText('Lowercase letters, numbers and single hyphens only. Used in the public URL.'),
             Textarea::make('body')->required()->columnSpanFull(),
             Toggle::make('is_published')->default(false),
             TextInput::make('seo_title')->maxLength(255),

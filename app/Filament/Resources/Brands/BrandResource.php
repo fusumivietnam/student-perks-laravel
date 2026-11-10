@@ -35,7 +35,10 @@ class BrandResource extends Resource
                     ->required(),
                 TextInput::make('slug')
                     ->required()
-                    ->unique(ignoreRecord: true),
+                    ->unique(ignoreRecord: true)
+                    ->maxLength(255)
+                    ->rule('regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
+                    ->helperText('Lowercase letters, numbers and single hyphens only. Used in the public URL.'),
                 Textarea::make('description')
                     ->columnSpanFull(),
                 TextInput::make('website_url')
