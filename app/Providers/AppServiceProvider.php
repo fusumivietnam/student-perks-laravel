@@ -31,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
 
         View::composer('layouts.public', function ($view): void {
             $view->with('footerPages', Page::published()
-                ->whereIn('slug', ['about', 'privacy', 'terms', 'contact'])
+                ->whereIn('slug', ['about', 'privacy', 'terms', 'contact', 'disclaimer'])
                 ->pluck('slug'));
         });
     }
