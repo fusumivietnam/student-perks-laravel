@@ -73,6 +73,63 @@ class LaunchContentReadinessTest extends TestCase
         $this->assertStringContainsString('No currently visible offers', Artisan::output());
     }
 
+    public function test_published_legal_page_with_empty_body_is_a_blocker(): void
+    {
+        $this->publishLegalPages();
+        Page::where('slug', 'privacy')->update(['body' => '   ']);
+        $offer = $this->createOffer();
+        $offer->forceFill(['partner_reviewed_at' => now()])->save();
+
+        $this->assertSame(1, Artisan::call('launch:check'));
+        $this->assertStringContainsString(
+            'Published legal/information page has no content: /pages/privacy',
+            Artisan::output()
+        );
+        $this->assertSame('   ', Page::where('slug', 'privacy')->value('body'));
+    }
+
+    public function test_legacy_published_slugs_are_audited_without_rewriting_them(): void
+    {
+        $this->publishLegalPages();
+        $offer = $this->createOffer();
+        $offer->forceFill(['partner_reviewed_at' => now()])->save();
+        $offer->brand->update(['slug' => 'brand with spaces']);
+        $offer->category->update(['slug' => 'category/invalid']);
+        Page::create([
+            'title' => 'Old page',
+            'slug' => 'OLD_PAGE',
+            'body' => 'Archived content',
+            'is_published' => true,
+        ]);
+        Article::create([
+            'title' => 'Old article',
+            'slug' => 'article with spaces',
+            'summary' => 'Editorial summary',
+            'body' => 'Editorial content',
+            'is_published' => true,
+        ]);
+        $offer->update(['slug' => 'Offer_Invalid']);
+
+        $this->assertSame(1, Artisan::call('launch:check'));
+        $output = Artisan::output();
+        foreach (['brands', 'categories', 'offers', 'articles', 'pages'] as $type) {
+            $this->assertStringContainsString("published {$type} have invalid public URL slugs", $output);
+        }
+        $this->assertSame('Offer_Invalid', $offer->fresh()->slug);
+        $this->assertSame('brand with spaces', $offer->brand->fresh()->slug);
+    }
+
+    public function test_visible_offer_with_empty_summary_or_description_is_a_blocker(): void
+    {
+        $this->publishLegalPages();
+        $offer = $this->createOffer(['summary' => ' ', 'description' => '']);
+        $offer->forceFill(['partner_reviewed_at' => now()])->save();
+
+        $this->assertSame(1, Artisan::call('launch:check'));
+        $this->assertStringContainsString('visible offers have empty title, summary or description', Artisan::output());
+        $this->assertSame(' ', $offer->fresh()->summary);
+    }
+
     private function publishLegalPages(): void
     {
         foreach (['about', 'privacy', 'terms', 'contact'] as $slug) {
