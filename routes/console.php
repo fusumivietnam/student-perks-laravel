@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\Article;
+use App\Models\Brand;
+use App\Models\Category;
 use App\Models\Offer;
 use App\Models\Page;
 use Illuminate\Foundation\Inspiring;
@@ -20,8 +22,32 @@ Artisan::command('launch:check', function (): int {
     $this->info('Student Perks Hub — content readiness (read-only)');
 
     foreach (['about', 'privacy', 'terms', 'contact'] as $slug) {
-        if (! Page::published()->where('slug', $slug)->exists()) {
+        $page = Page::published()->where('slug', $slug)->first(['slug', 'body']);
+
+        if (! $page) {
             $this->error("[BLOCK] Published legal/information page missing: /pages/{$slug}");
+            $blockers++;
+        } elseif (trim((string) $page->body) === '') {
+            $this->error("[BLOCK] Published legal/information page has no content: /pages/{$slug}");
+            $blockers++;
+        }
+    }
+
+    // Legacy/seeded records may predate the route-safe Filament slug validation.
+    foreach ([
+        'brands' => Brand::where('is_published', true),
+        'categories' => Category::where('is_published', true),
+        'offers' => Offer::current(),
+        'articles' => Article::published(),
+        'pages' => Page::published(),
+    ] as $type => $query) {
+        $invalidSlugs = $query->pluck('slug')->filter(
+            fn ($slug): bool => ! is_string($slug)
+                || preg_match('/\\A[a-z0-9]+(?:-[a-z0-9]+)*\\z/D', $slug) !== 1
+        )->count();
+
+        if ($invalidSlugs > 0) {
+            $this->error("[BLOCK] {$invalidSlugs} published {$type} have invalid public URL slugs");
             $blockers++;
         }
     }
@@ -33,6 +59,16 @@ Artisan::command('launch:check', function (): int {
         $blockers++;
     } else {
         $this->info("[OK] {$liveOffers} publicly visible offers");
+    }
+
+    $missingOfferCopy = Offer::current()->get(['title', 'summary', 'description'])->filter(
+        fn (Offer $offer): bool => trim((string) $offer->title) === ''
+            || trim((string) $offer->summary) === ''
+            || trim((string) $offer->description) === ''
+    )->count();
+    if ($missingOfferCopy > 0) {
+        $this->error("[BLOCK] {$missingOfferCopy} visible offers have empty title, summary or description");
+        $blockers++;
     }
 
     $incomplete = Offer::current()->needsEditorialReview()->count();
