@@ -64,12 +64,23 @@ case "${1:-}" in
             echo "$(date -u +%FT%TZ) Skipping failed revision ${remote:0:12} until watcher restart or a new commit."
           else
             echo "$(date -u +%FT%TZ) Updating preview to ${remote:0:12}."
-            if git merge --ff-only "$remote" && bash scripts/preview.sh; then
-              last_failed_revision=""
-              echo "$(date -u +%FT%TZ) Preview updated and checks passed."
+            if git merge --ff-only "$remote"; then
+              # No runtime input changed: verify the already running preview
+              # without compose up, database migrations or Docker rebuild.
+              # A failed health/asset check falls back to the normal launcher.
+              if preview_image_matches "$image_sha" "$remote" && bash scripts/preview-check.sh; then
+                last_failed_revision=""
+                echo "$(date -u +%FT%TZ) Non-runtime update fast-forwarded; healthy preview reused."
+              elif bash scripts/preview.sh; then
+                last_failed_revision=""
+                echo "$(date -u +%FT%TZ) Preview updated and checks passed."
+              else
+                last_failed_revision="$remote"
+                echo "$(date -u +%FT%TZ) Preview update failed; see this log. Not retrying the same revision in a loop."
+              fi
             else
               last_failed_revision="$remote"
-              echo "$(date -u +%FT%TZ) Update failed; see this log. Not retrying the same revision in a loop."
+              echo "$(date -u +%FT%TZ) Git fast-forward failed; preview untouched."
             fi
           fi
         fi
