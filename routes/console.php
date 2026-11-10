@@ -21,7 +21,7 @@ Artisan::command('launch:check', function (): int {
 
     $this->info('Student Perks Hub — content readiness (read-only)');
 
-    foreach (['about', 'privacy', 'terms', 'contact'] as $slug) {
+    foreach (['about', 'privacy', 'terms', 'contact', 'disclaimer'] as $slug) {
         $page = Page::published()->where('slug', $slug)->first(['slug', 'body']);
 
         if (! $page) {
