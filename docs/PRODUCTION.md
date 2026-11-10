@@ -14,6 +14,16 @@ CI builds and tests images but **does not deploy**. Deploy to a VPS only after c
 6. Populate reviewed Brands/Categories/Offers and legal Pages (privacy, terms, contact, about) in Filament before launch. Test their public routes, outbound HTTPS links, robots and sitemap.
 7. Smoke-check `/up`, `/`, `/offers`, `/articles`, `/admin/login` and media URLs over the final HTTPS domain. Test desktop/mobile and keyboard access manually; CI HTTP checks alone do not verify visual accessibility.
 
+## Read-only content readiness audit
+
+Once editorial content is populated, run `docker compose exec -T app php artisan launch:check` on a preview/staging environment with the intended content database. This command **only reads CMS tables**, does not send network requests and does not mutate records.
+
+- **BLOCK / nonzero exit**: a missing/unpublished About, Privacy, Terms or Contact page; no currently visible offers; visible offers missing eligibility or redemption steps; visible partner links not manually reviewed in the past 90 days; invalid or non-HTTPS visible partner URLs
+- **WARN**: there are no published guides (optional for initial launch)
+- **PASS / exit 0**: automated content checks pass, **not** authorization to deploy or a claim that partner URLs work
+
+Before launch, a human still must review the actual legal copy, offer claims and outbound partner destinations; audit timestamps only represent prior human confirmation. Separately verify responsive/keyboard browser behavior, real media uploads, final HTTPS/TLS/DNS, an out-of-host backup and isolated restore rehearsal. Do not add `launch:check` as an unconditional CI gate against CI's intentionally empty seeded database.
+
 ## Safe repeatable release
 
 Before any migration or application image replacement, make a **verified recoverable** database and media backup; maintain at least one out-of-host copy. For a small deployment, a manual dump is acceptable initially:
