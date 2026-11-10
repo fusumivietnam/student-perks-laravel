@@ -2,12 +2,35 @@
 
 namespace Tests\Feature;
 
+use App\Models\Page;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class PublicNavigationAccessibilityTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_disclaimer_link_is_only_visible_when_its_page_is_published(): void
+    {
+        $disclaimer = Page::create([
+            'title' => 'Disclaimer',
+            'slug' => 'disclaimer',
+            'body' => 'Partners determine eligibility and terms.',
+            'is_published' => false,
+        ]);
+
+        $this->get('/')->assertOk()->assertDontSee('href="'.route('pages.show', 'disclaimer').'"', false);
+        $this->get('/pages/disclaimer')->assertNotFound();
+        $this->get('/sitemap.xml')->assertDontSee('/pages/disclaimer');
+
+        $disclaimer->update(['is_published' => true]);
+
+        $this->get('/')->assertOk()
+            ->assertSee('href="'.route('pages.show', 'disclaimer').'"', false)
+            ->assertSee('Disclaimer');
+        $this->get('/pages/disclaimer')->assertOk()->assertSee('Partners determine eligibility and terms.');
+        $this->get('/sitemap.xml')->assertSee('/pages/disclaimer');
+    }
 
     public function test_public_navigation_marks_only_the_current_destination(): void
     {
