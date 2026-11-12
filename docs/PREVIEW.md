@@ -11,7 +11,7 @@ Run the **actual Laravel 13 / Filament 5 / PostgreSQL 18 / Nginx** stack before 
    ```
 3. Open the **Ports** panel and open the forwarded **8080** link. Keep **Port Visibility = Private**; GitHub authenticates the creator of a private Codespace port.
 4. Check `/`, `/offers`, `/brands`, `/search`, `/articles` and `/admin`. Start with empty data; create sample content through Filament to test publishing.
-5. The Codespaces `postStartCommand` starts a background auto-sync watcher on Codespace startup/resume. It checks `origin/main` every 5 minutes and **only rebuilds when a new fast-forward commit is available**. To force an immediate one-time update: `bash scripts/preview.sh --update`; to rebuild uncommitted source edits: `bash scripts/preview.sh --rebuild`.
+5. The Codespaces `postStartCommand` starts a watcher on startup/resume. Every five minutes it checks clean `main`, fast-forwards when needed and compares runtime-relevant Git changes with the running Docker image. Docs/CI/test-only updates use a **read-only preview health check**, without Docker rebuild, Compose restart or migration. Runtime changes use the normal launcher. Use `bash scripts/preview.sh --update` only for an immediate update; `--rebuild` is an explicit override for uncommitted runtime changes.
 
 **Admin account:** run `docker compose exec app php artisan make:filament-user`, then promote only the intended account using `docker compose exec app php artisan tinker` and `App\\Models\\User::where('email', 'YOUR_EMAIL')->update(['is_admin' => true]);`. There is no default admin password or public registration.
 
@@ -19,7 +19,7 @@ Run the **actual Laravel 13 / Filament 5 / PostgreSQL 18 / Nginx** stack before 
 
 ## Codespaces auto-sync: zero repeated commands
 
-The GitHub Codespaces configuration starts `scripts/preview-watch.sh` after startup (no new paid service, no GitHub PAT, no scheduled GitHub Actions). Once enabled, it updates only a **clean checked-out `main`** by `git fetch` + fast-forward and runs both preview startup and the acceptance check. It **does not** switch branches, reset local changes, delete data or run the demo seeder automatically. Do not commit secrets.
+The GitHub Codespaces configuration starts `scripts/preview-watch.sh` after startup (no new paid service, no GitHub PAT, no scheduled GitHub Actions). Once enabled, it updates only a **clean checked-out `main`** by `git fetch` + fast-forward. It reuses the existing healthy image after docs/CI/test-only commits and only runs the full launcher for runtime changes or recovery. It **does not** switch branches, reset local changes, delete data or run the demo seeder automatically. Do not commit secrets.
 
 **One-time activation in an existing running Codespace** (its new `postStartCommand` will also activate on the next Codespace restart):
 
@@ -28,7 +28,7 @@ git pull --ff-only
 bash scripts/preview-watch.sh start
 ```
 
-The watcher processes the current commit and thereafter new commits while the Codespace is running. Check or disable it without touching the application:
+The watcher checks the checked-out commit and thereafter new commits while the Codespace is running. **If the watcher was already running before PR #46, restart it once after the source update** using `bash scripts/preview-watch.sh stop && bash scripts/preview-watch.sh start` so the running Bash process loads the new logic. Check or disable it without touching the application:
 
 ```bash
 bash scripts/preview-watch.sh status
@@ -39,6 +39,18 @@ bash scripts/preview-watch.sh stop
 The process skips a dirty working tree or a feature branch. A failed application build for a given commit is reported in the log and not retried on every poll; restart the watcher after resolving the cause. Codespaces stopping or being deleted stops the watcher: it is not a continuously hosted staging environment. To re-enable after stopping, run `start` or restart the Codespace.
 
 **Cache behavior:** `PREVIEW_SOURCE_SHA` is applied as image metadata *after* dependency and extension build steps, preserving cache when only Laravel/Blade/Tailwind source changes. First rebuild after Dockerfile changes may still recompile once; subsequent commits should reuse expensive PHP layers. Docker Buildx GitHub Actions cache is separate from Codespaces-local Docker cache.
+
+## Single-pass M2 preview acceptance (no rebuild loop)
+
+Once the private Codespaces preview is running, complete the following **on the existing Codespace**. The watcher performs source updates automatically; do not manually `git pull` or force `--rebuild` after each merged PR. If it is paused, resume the Codespace first.
+
+1. Inspect the existing read-only server check: `bash scripts/preview-check.sh`. It validates database connectivity, source/image compatibility, Laravel health, public navigation and delivered CSS/JS without modifying volumes or running migrations.
+2. After publishing **real reviewed** CMS content, run `docker compose exec -T app php artisan launch:check` once. A BLOCK is an editorial task, **not** a reason to reset data, rebuild, seed fictional discounts or publish placeholder legal text. PASS is a content-only gate, not deployment approval.
+3. Using the **private** forwarded port 8080 in an authenticated browser, check desktop width and mobile width: homepage, offer cards, search/filter/pagination, offer detail, brand/category pages, article and all five policy pages. Confirm drafts stay private; check the browser's network requests for CSS and images.
+4. Sign in to `/admin` with the existing admin and exercise a disposable article cover and brand logo through the Filament UI, public rendering, draft preview/publish/unpublish and keyboard-only focus/labels. Do not create demo users or paste real credentials into issues/chat.
+5. Record concrete evidence in [M2 issue #2](https://github.com/fusumivietnam/student-perks-laravel/issues/2): browser/device and viewport widths, pages/actions checked, defects with URL and screenshot (redact private data). Keep any untested row marked **not verified**. [M4 issue #4](https://github.com/fusumivietnam/student-perks-laravel/issues/4) remains open for final-domain TLS, VPS deployment approval and off-host backup/isolated restore.
+
+**Evidence boundary:** GitHub CI and the existing integration tests do not exercise the owner's private Codespace browser. The GitHub repository connector cannot read the Codespace's private browser session or current Docker/volume state, and there is no automated Production deployment. No extra CI workflow or manual rebuild cycle is required for this acceptance checklist.
 
 ## Laptop with Docker
 
@@ -74,7 +86,7 @@ The check does **not** modify `.env`, run migrations, restart containers, or del
 
 If the check fails at database health, first inspect `docker compose logs db --tail=80`. A PostgreSQL process reporting *ready to accept connections* does not guarantee that authentication and queries finish; check `docker compose exec -T -u postgres db sh -c 'timeout 12s psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atqc "SELECT 1"'`. Avoid `down -v`, database resets, and repeated rebuilds for a database connection issue. On returning to a stopped Codespace, confirm the DB is healthy before running `bash scripts/preview.sh --rebuild` for the PHP code.
 
-The check also compares the Git workspace commit with the revision embedded in the running Laravel Docker image. An older image now fails with a clear instruction to run `bash scripts/preview.sh`, instead of reporting a misleading all-PASS result. A green check confirms server-side delivery only; manually inspect browser layout, mobile breakpoints, keyboard navigation and Filament login.
+The check also compares the Git workspace commit with the revision embedded in the running Laravel Docker image. An image built from an older commit is accepted only if every intervening committed change is outside the runtime inputs (such as docs, CI or tests). Otherwise the diagnostic fails with a clear instruction to run `bash scripts/preview.sh`; it never silently accepts runtime-stale images. A green check confirms server-side delivery only; manually inspect browser layout, mobile breakpoints, keyboard navigation and Filament login.
 
 ## Troubleshooting: unstyled page / links to localhost
 
@@ -87,7 +99,7 @@ git pull --ff-only
 bash scripts/preview.sh
 ```
 
-The launcher detects when the Docker image was built from an older Git revision and rebuilds automatically; the first execution after this change will rebuild once because existing images lack the revision label. It keeps PostgreSQL, admin users and uploaded media in the existing named Docker volumes. Never use `down -v`.
+The launcher detects changes to runtime inputs between the image's labeled Git revision and local `HEAD` and rebuilds only when necessary. An image without a valid revision label will be rebuilt once; docs-only updates do not force another rebuild. It keeps PostgreSQL, admin users and uploaded media in the existing named Docker volumes. Never use `down -v`.
 
 Hard refresh the forwarded port page. The generated `/build/assets/*.css`, `/build/assets/*.js` and navigation links should use the same `https://...app.github.dev` origin as the browser, not localhost. Do **not** switch the port to Public just to fix missing styles.
 
