@@ -107,7 +107,7 @@ class PartnerReviewLaunchGateJourneyTest extends TestCase
         $this->assertSame(1, Artisan::call('launch:check'));
         $this->assertStringContainsString('visible partner links need manual review', Artisan::output());
 
-        Livewire::test(ListOffers::class)        $this->get('/offers/student-learning')->assertOk()
+        $this->get('/offers/student-learning')->assertOk()
             ->assertSee('awaiting editorial review')
             ->assertDontSee('href="https://example.org/learning"', false);
 
@@ -116,7 +116,8 @@ class PartnerReviewLaunchGateJourneyTest extends TestCase
             ->assertHasNoTableActionErrors();
 
         $this->assertSame(0, Artisan::call('launch:check'));
-    }
-}        $this->get('/offers/student-learning')->assertOk()
+        $this->get('/offers/student-learning')->assertOk()
             ->assertSee('href="https://example.org/learning"', false);
+    }
+}
 
