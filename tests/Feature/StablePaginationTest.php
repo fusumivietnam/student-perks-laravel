@@ -56,6 +56,39 @@ class StablePaginationTest extends TestCase
         }
     }
 
+    public function test_ending_soon_sort_puts_deadlines_before_offers_without_expiry_and_shows_dates(): void
+    {
+        $this->travelTo(now()->startOfSecond());
+
+        $brand = Brand::create(['name' => 'Study Partner', 'slug' => 'study-partner', 'is_published' => true]);
+        $category = Category::create(['name' => 'Education', 'slug' => 'education', 'is_published' => true]);
+
+        foreach ([
+            ['slug' => 'no-expiry', 'title' => 'No expiry', 'ends_at' => null],
+            ['slug' => 'ends-later', 'title' => 'Ends later', 'ends_at' => now()->addDays(12)],
+            ['slug' => 'ends-tomorrow', 'title' => 'Ends tomorrow', 'ends_at' => now()->addDay()],
+        ] as $data) {
+            Offer::create([
+                'brand_id' => $brand->id,
+                'category_id' => $category->id,
+                'summary' => 'Student benefit',
+                'description' => 'Terms apply',
+                'partner_url' => 'https://example.org/student',
+                'is_published' => true,
+            ] + $data);
+        }
+
+        foreach (['/offers?sort=ending', '/search?sort=ending'] as $url) {
+            $this->get($url)->assertOk()
+                ->assertSeeInOrder(['Ends tomorrow', 'Ends later', 'No expiry'])
+                ->assertSee('<time datetime="'.now()->addDay()->toDateString().'">', false)
+                ->assertSee('<time datetime="'.now()->addDays(12)->toDateString().'">', false);
+        }
+
+        $this->get('/offers')->assertOk()
+            ->assertSeeInOrder(['Ends tomorrow', 'Ends later', 'No expiry']);
+    }
+
     public function test_article_listing_has_stable_pagination_for_identical_publish_dates(): void
     {
         $this->travelTo(now()->startOfSecond());
