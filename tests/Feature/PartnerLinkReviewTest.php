@@ -115,8 +115,10 @@ class PartnerLinkReviewTest extends TestCase
             ->assertSee('Ready');
 
         Livewire::test(ListOffers::class)
-            ->callTableAction('confirmPartnerReview', $invalid)
-            ->assertHasNoTableActionErrors();
+            ->assertTableActionHidden('confirmPartnerReview', $invalid)
+            ->assertTableActionHidden('confirmPartnerReview', $reviewed)
+            ->assertTableActionVisible('confirmPartnerReview', $pending)
+            ->assertTableActionVisible('confirmPartnerReview', $stale);
 
         $this->assertNull($invalid->fresh()->partner_reviewed_at);
         $this->get('/offers/invalid-link')->assertOk()
