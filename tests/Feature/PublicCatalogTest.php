@@ -174,7 +174,7 @@ class PublicCatalogTest extends TestCase
         $directory->assertOk()
             ->assertSee('action="'.route('offers.index').'"', false)
             ->assertSee('href="'.route('offers.index').'"', false)
-            ->assertDontSee('Search student offers');
+            ->assertSee('<title>Student offers · Student Perks Hub</title>', false);
     }
 
     public function test_offer_search_shows_active_filters_and_can_reset_them(): void
