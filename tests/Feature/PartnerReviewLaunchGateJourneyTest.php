@@ -50,6 +50,9 @@ class PartnerReviewLaunchGateJourneyTest extends TestCase
         $this->assertSame(1, Artisan::call('launch:check'));
         $this->assertStringContainsString('visible partner links need manual review', Artisan::output());
         $this->assertNull($offer->fresh()->partner_reviewed_at);
+        $this->get('/offers/verified-student-offer')->assertOk()
+            ->assertSee('awaiting editorial review')
+            ->assertDontSee('href="https://example.org/education"', false);
 
         // This action records an explicit human confirmation, not an HTTP link check.
         Livewire::test(ListOffers::class)
@@ -59,6 +62,9 @@ class PartnerReviewLaunchGateJourneyTest extends TestCase
         $this->assertNotNull($offer->fresh()->partner_reviewed_at);
         $this->assertSame(0, Artisan::call('launch:check'));
         $this->assertStringContainsString('CONTENT GATE PASSED', Artisan::output());
+        $this->get('/offers/verified-student-offer')->assertOk()
+            ->assertSee('href="https://example.org/education"', false)
+            ->assertDontSee('awaiting editorial review');
 
         Livewire::test(EditOffer::class, ['record' => $offer->getRouteKey()])
             ->fillForm(['partner_url' => 'https://example.org/new-education'])
@@ -66,6 +72,9 @@ class PartnerReviewLaunchGateJourneyTest extends TestCase
             ->assertHasNoFormErrors();
 
         $this->assertSame('https://example.org/new-education', $offer->fresh()->partner_url);
+        $this->get('/offers/verified-student-offer')->assertOk()
+            ->assertSee('awaiting editorial review')
+            ->assertDontSee('href="https://example.org/new-education"', false);
         $this->assertNull($offer->fresh()->partner_reviewed_at);
         $this->assertSame(1, Artisan::call('launch:check'));
         $this->assertStringContainsString('visible partner links need manual review', Artisan::output());
@@ -98,10 +107,16 @@ class PartnerReviewLaunchGateJourneyTest extends TestCase
         $this->assertSame(1, Artisan::call('launch:check'));
         $this->assertStringContainsString('visible partner links need manual review', Artisan::output());
 
+        Livewire::test(ListOffers::class)        $this->get('/offers/student-learning')->assertOk()
+            ->assertSee('awaiting editorial review')
+            ->assertDontSee('href="https://example.org/learning"', false);
+
         Livewire::test(ListOffers::class)
             ->callTableAction('confirmPartnerReview', $offer)
             ->assertHasNoTableActionErrors();
 
         $this->assertSame(0, Artisan::call('launch:check'));
     }
-}
+}        $this->get('/offers/student-learning')->assertOk()
+            ->assertSee('href="https://example.org/learning"', false);
+
