@@ -90,6 +90,40 @@ class PartnerLinkReviewTest extends TestCase
         $this->get('/offers/reviewed')->assertOk();
     }
 
+    public function test_partner_cta_status_matches_public_visibility_and_invalid_urls_cannot_be_reviewed(): void
+    {
+        $pending = $this->offer('pending');
+        $reviewed = $this->offer('already-reviewed');
+        $invalid = $this->offer('invalid-link', ['partner_url' => 'javascript:alert(1)']);
+        $stale = $this->offer('old-review');
+
+        $reviewed->forceFill(['partner_reviewed_at' => now()])->save();
+        $stale->forceFill(['partner_reviewed_at' => now()->subDays(91)])->save();
+
+        $this->assertSame('Review due', $pending->partnerCtaStatus());
+        $this->assertSame('Ready', $reviewed->fresh()->partnerCtaStatus());
+        $this->assertSame('Invalid URL', $invalid->partnerCtaStatus());
+        $this->assertSame('Review due', $stale->fresh()->partnerCtaStatus());
+        $this->assertFalse($invalid->hasReviewedPartnerDestination());
+
+        $this->actingAs(User::factory()->create(['is_admin' => true]));
+
+        Livewire::test(ListOffers::class)
+            ->assertSee('Partner CTA')
+            ->assertSee('Invalid URL')
+            ->assertSee('Review due')
+            ->assertSee('Ready');
+
+        Livewire::test(ListOffers::class)
+            ->callTableAction('confirmPartnerReview', $invalid)
+            ->assertHasNoTableActionErrors();
+
+        $this->assertNull($invalid->fresh()->partner_reviewed_at);
+        $this->get('/offers/invalid-link')->assertOk()
+            ->assertSee('Partner link is temporarily unavailable')
+            ->assertDontSee('href="javascript:', false);
+    }
+
     public function test_non_admin_cannot_access_partner_review_workflow(): void
     {
         $this->actingAs(User::factory()->create(['is_admin' => false]));
