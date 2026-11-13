@@ -32,6 +32,30 @@ class PublicNavigationAccessibilityTest extends TestCase
         $this->get('/sitemap.xml')->assertSee('/pages/disclaimer');
     }
 
+    public function test_mobile_navigation_is_scrollable_without_hiding_keyboard_links(): void
+    {
+        $response = $this->get(route('search'));
+
+        $response->assertOk()
+            ->assertSee('name="viewport" content="width=device-width, initial-scale=1"', false)
+            ->assertSee('aria-label="Main navigation"', false)
+            ->assertSee('overflow-x-auto', false)
+            ->assertSee('whitespace-nowrap', false)
+            ->assertSee('overscroll-x-contain', false);
+
+        $html = $response->getContent();
+        preg_match('/<nav aria-label="Main navigation"[^>]*>(.*?)<\\/nav>/s', $html, $matches);
+        $this->assertCount(2, $matches, 'Expected the public navigation landmark.');
+        $nav = $matches[1];
+
+        foreach (['offers.index', 'brands.index', 'search', 'articles.index'] as $route) {
+            $this->assertStringContainsString('href="'.route($route).'"', $nav);
+        }
+
+        $this->assertSame(4, substr_count($nav, 'min-h-11'));
+        $this->assertSame(1, substr_count($nav, 'aria-current="page"'));
+    }
+
     public function test_public_navigation_marks_only_the_current_destination(): void
     {
         $destinations = [
