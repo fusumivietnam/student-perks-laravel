@@ -7,7 +7,10 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Carbon\Carbon;
+use Closure;
 
 class OfferForm
 {
@@ -62,9 +65,23 @@ class OfferForm
                     ->helperText('Only visible when enabled, its brand and category are published, and all scheduled dates permit it.'),
                 DateTimePicker::make('starts_at'),
                 DateTimePicker::make('ends_at')
-                    ->after('starts_at'),
+                    ->after('starts_at')
+                    ->rules([
+                        fn (Get $get): Closure => function (string $attribute, mixed $value, Closure $fail) use ($get): void {
+                            $publishedAt = $get('published_at');
+
+                            if (blank($value) || blank($publishedAt)) {
+                                return;
+                            }
+
+                            if (Carbon::parse($value)->lessThanOrEqualTo(Carbon::parse($publishedAt))) {
+                                $fail('The offer must end after its scheduled publication time.');
+                            }
+                        },
+                    ])
+                    ->helperText('Optional. Must be later than both the start time and scheduled publication time when provided.'),
                 DateTimePicker::make('published_at')
-                    ->helperText('Optional: keep the offer hidden until this time, even when Published is enabled.'),
+                    ->helperText('Optional: keep the offer hidden until this time, even when Published is enabled. Must be earlier than the offer end time.'),
                 TextInput::make('seo_title')
                     ->maxLength(255),
                 Textarea::make('seo_description')
