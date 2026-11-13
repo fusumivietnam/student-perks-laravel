@@ -16,16 +16,16 @@
 <body class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
     <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:p-3 focus:text-indigo-800 focus:shadow-lg">Skip to content</a>
     <header class="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur">
-        <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-4 px-4 py-4 sm:px-6">
-            <a href="{{ route('home') }}" class="inline-flex min-h-11 items-center gap-3 rounded-lg font-extrabold tracking-tight text-indigo-800 focus-visible:outline-2 focus-visible:outline-indigo-700">
+        <div class="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-6 sm:py-4">
+            <a href="{{ route('home') }}" class="inline-flex min-h-11 w-fit items-center gap-3 rounded-lg font-extrabold tracking-tight text-indigo-800 focus-visible:outline-2 focus-visible:outline-indigo-700">
                 <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-700 text-sm font-black text-white" aria-hidden="true">SP</span>
                 <span>Student Perks Hub</span>
             </a>
-            <nav aria-label="Main navigation" class="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm font-semibold text-slate-700">
-                <a class="inline-flex min-h-10 items-center rounded-md px-1 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('offers.index') }}" @if(request()->routeIs('offers.index')) aria-current="page" @endif>All offers</a>
-                <a class="inline-flex min-h-10 items-center rounded-md px-1 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('brands.index') }}" @if(request()->routeIs('brands.index')) aria-current="page" @endif>Brands</a>
-                <a class="inline-flex min-h-10 items-center rounded-md px-1 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('search') }}" @if(request()->routeIs('search')) aria-current="page" @endif>Search</a>
-                <a class="inline-flex min-h-10 items-center rounded-md px-1 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('articles.index') }}" @if(request()->routeIs('articles.index')) aria-current="page" @endif>Guides</a>
+            <nav aria-label="Main navigation" class="-mx-4 flex min-w-0 items-center gap-5 overflow-x-auto overscroll-x-contain px-4 text-sm font-semibold whitespace-nowrap text-slate-700 sm:mx-0 sm:flex-wrap sm:justify-end sm:overflow-visible sm:px-0">
+                <a class="inline-flex min-h-11 shrink-0 items-center rounded-md px-1 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700 aria-[current=page]:text-indigo-800 aria-[current=page]:underline aria-[current=page]:underline-offset-8" href="{{ route('offers.index') }}" @if(request()->routeIs('offers.index')) aria-current="page" @endif>All offers</a>
+                <a class="inline-flex min-h-11 shrink-0 items-center rounded-md px-1 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700 aria-[current=page]:text-indigo-800 aria-[current=page]:underline aria-[current=page]:underline-offset-8" href="{{ route('brands.index') }}" @if(request()->routeIs('brands.index')) aria-current="page" @endif>Brands</a>
+                <a class="inline-flex min-h-11 shrink-0 items-center rounded-md px-1 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700 aria-[current=page]:text-indigo-800 aria-[current=page]:underline aria-[current=page]:underline-offset-8" href="{{ route('search') }}" @if(request()->routeIs('search')) aria-current="page" @endif>Search</a>
+                <a class="inline-flex min-h-11 shrink-0 items-center rounded-md px-1 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700 aria-[current=page]:text-indigo-800 aria-[current=page]:underline aria-[current=page]:underline-offset-8" href="{{ route('articles.index') }}" @if(request()->routeIs('articles.index')) aria-current="page" @endif>Guides</a>
             </nav>
         </div>
     </header>
