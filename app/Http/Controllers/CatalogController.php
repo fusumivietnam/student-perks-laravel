@@ -53,7 +53,8 @@ class CatalogController extends Controller
             : $query->latest()->orderByDesc('id');
 
         return view('catalog.offers', [
-            'title' => 'Student offers',
+            'title' => $request->routeIs('search') ? 'Search student offers' : 'Student offers',
+            'filterAction' => $request->routeIs('search') ? route('search') : route('offers.index'),
             'offers' => $query->paginate(12)->withQueryString(),
             'brands' => Brand::where('is_published', true)->orderBy('name')->get(),
             'categories' => Category::where('is_published', true)->orderBy('name')->get(),
