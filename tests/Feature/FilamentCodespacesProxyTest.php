@@ -10,6 +10,25 @@ class FilamentCodespacesProxyTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_codespaces_admin_intended_url_is_https_even_without_forwarded_headers(): void
+    {
+        config()->set('app.env', 'local');
+        config()->set('app.url', 'https://sample-8080.app.github.dev');
+
+        $this->withServerVariables([
+            'REMOTE_ADDR' => '172.18.0.5',
+            'HTTP_HOST' => 'localhost:8080',
+        ]);
+
+        $this->get('/admin')
+            ->assertRedirect('https://sample-8080.app.github.dev/admin/login');
+
+        $this->assertSame(
+            'https://sample-8080.app.github.dev/admin',
+            session('url.intended'),
+        );
+    }
+
     public function test_admin_login_redirect_and_intended_destination_use_forwarded_codespaces_https_host(): void
     {
         config()->set('app.env', 'local');
