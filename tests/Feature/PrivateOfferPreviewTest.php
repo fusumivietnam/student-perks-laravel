@@ -58,7 +58,7 @@ class PrivateOfferPreviewTest extends TestCase
     {
         $brand = Brand::create(['name' => 'Public Brand', 'slug' => 'public-brand', 'is_published' => true]);
         $category = Category::create(['name' => 'Public Category', 'slug' => 'public-category', 'is_published' => true]);
-        Offer::create([
+        $offer = Offer::create([
             'brand_id' => $brand->id,
             'category_id' => $category->id,
             'title' => 'Public student offer',
@@ -69,6 +69,7 @@ class PrivateOfferPreviewTest extends TestCase
             'partner_url' => 'https://example.org/student',
             'is_published' => true,
         ]);
+        $offer->forceFill(['partner_reviewed_at' => now()])->save();
 
         $this->get('/offers/public-student-offer')->assertOk()
             ->assertSee('href="'.route('brands.show', $brand->slug).'"', false)

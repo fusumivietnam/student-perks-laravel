@@ -96,10 +96,12 @@
             </dl>
             @if($isPreview ?? false)
                 <p class="mt-6 rounded-xl bg-amber-50 p-4 text-sm font-semibold text-amber-950">External redemption links are disabled in preview.</p>
-            @elseif(filter_var($offer->partner_url, FILTER_VALIDATE_URL) && parse_url($offer->partner_url, PHP_URL_SCHEME) === 'https')
+            @elseif($offer->hasReviewedPartnerDestination())
                 <a href="{{ $offer->partner_url }}" target="_blank" rel="noopener noreferrer sponsored" class="mt-6 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-indigo-700 px-4 py-3 text-center text-sm font-extrabold text-white transition hover:bg-indigo-800 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-indigo-700">Visit official partner <span aria-hidden="true">↗</span></a>
+            @elseif(!filter_var($offer->partner_url, FILTER_VALIDATE_URL) || parse_url($offer->partner_url, PHP_URL_SCHEME) !== 'https')
+                <p role="status" class="mt-6 rounded-xl bg-rose-50 p-4 text-sm font-semibold text-rose-800">Partner link is temporarily unavailable. Please check again later.</p>
             @else
-                <p class="mt-6 rounded-xl bg-rose-50 p-4 text-sm font-semibold text-rose-800">Partner link is temporarily unavailable. Please check again later.</p>
+                <p role="status" class="mt-6 rounded-xl bg-amber-50 p-4 text-sm font-semibold text-amber-950">Partner destination is awaiting editorial review. The link will be available after it has been verified.</p>
             @endif
             <p class="mt-4 text-sm leading-relaxed text-slate-600">You'll leave Student Perks Hub. The partner verifies eligibility and handles redemption. Terms and availability may change.</p>
             <a href="{{ route('offers.index') }}" class="mt-5 inline-flex min-h-10 items-center rounded-md text-sm font-bold text-indigo-700 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">← Browse more offers</a>

@@ -114,7 +114,7 @@ class OffersTable
                     ->color('info')
                     ->requiresConfirmation()
                     ->modalHeading('Confirm manual partner-link review')
-                    ->modalDescription('Only confirm after independently opening the official partner URL and checking its terms. This does not perform an automated HTTP health check.')
+                    ->modalDescription('Only confirm after independently opening the official partner URL and checking its terms. This unlocks the public partner button for 90 days. Changing the URL revokes the review. No automated HTTP health check is performed.')
                     ->action(function (Offer $record): void {
                         $record->refresh();
                         $record->forceFill(['partner_reviewed_at' => now()])->save();

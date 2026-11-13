@@ -23,7 +23,7 @@ class PublicCatalogTest extends TestCase
 
     private function offer(Brand $brand, Category $category, string $slug, array $extra = []): Offer
     {
-        return Offer::create(array_merge([
+        $offer = Offer::create(array_merge([
             'brand_id' => $brand->id,
             'category_id' => $category->id,
             'title' => 'Acme student discount',
@@ -33,6 +33,11 @@ class PublicCatalogTest extends TestCase
             'partner_url' => 'https://partner.example/offer',
             'is_published' => true,
         ], $extra));
+
+        // Public CTA expectations use an explicitly reviewed fixture.
+        $offer->forceFill(['partner_reviewed_at' => now()])->save();
+
+        return $offer;
     }
 
     public function test_codespaces_https_preview_uses_forwarded_origin_for_links_and_assets(): void

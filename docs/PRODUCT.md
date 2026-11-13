@@ -22,7 +22,7 @@ An editorial catalog enabling students to discover genuine education discounts, 
 
 Minimum fields: title, unique slug, brand, category, summary, full detail, offer type/value, eligibility statement, redemption steps, official HTTPS partner destination, verification/update timestamp, publish status, validity start/end (nullable), SEO title/description. Display expired status and avoid presenting expired offers as current. Correct affiliate/sponsored disclosure where applicable.
 
-Publish only after admin review; hide drafts and disabled items. Slugs stable where practical; add 301 redirects when changing live URLs. Search result pages and canonical URLs must avoid duplicate indexing.
+Publish only after admin review; hide drafts and disabled items. A visible offer whose partner link is unreviewed, changed or older than 90 days remains discoverable but must **not** render a clickable partner destination until explicitly reviewed again in Filament. This does not claim the target is available. Slugs stable where practical; add 301 redirects when changing live URLs. Search result pages and canonical URLs must avoid duplicate indexing.
 
 ## Essential admin
 
