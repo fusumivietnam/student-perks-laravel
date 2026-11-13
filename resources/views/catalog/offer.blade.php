@@ -98,7 +98,7 @@
                 <p class="mt-6 rounded-xl bg-amber-50 p-4 text-sm font-semibold text-amber-950">External redemption links are disabled in preview.</p>
             @elseif($offer->hasReviewedPartnerDestination())
                 <a href="{{ $offer->partner_url }}" target="_blank" rel="noopener noreferrer sponsored" class="mt-6 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-indigo-700 px-4 py-3 text-center text-sm font-extrabold text-white transition hover:bg-indigo-800 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-indigo-700">Visit official partner <span aria-hidden="true">↗</span></a>
-            @elseif(!filter_var($offer->partner_url, FILTER_VALIDATE_URL) || parse_url($offer->partner_url, PHP_URL_SCHEME) !== 'https')
+            @elseif(! $offer->hasValidPartnerDestination())
                 <p role="status" class="mt-6 rounded-xl bg-rose-50 p-4 text-sm font-semibold text-rose-800">Partner link is temporarily unavailable. Please check again later.</p>
             @else
                 <p role="status" class="mt-6 rounded-xl bg-amber-50 p-4 text-sm font-semibold text-amber-950">Partner destination is awaiting editorial review. The link will be available after it has been verified.</p>

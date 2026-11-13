@@ -133,11 +133,24 @@ class Offer extends Model
             || $this->partner_reviewed_at->lte(now()->subDays(90));
     }
 
+    public function hasValidPartnerDestination(): bool
+    {
+        return (bool) filter_var($this->partner_url, FILTER_VALIDATE_URL)
+            && parse_url($this->partner_url, PHP_URL_SCHEME) === 'https';
+    }
+
     public function hasReviewedPartnerDestination(): bool
     {
-        return ! $this->needsPartnerReview()
-            && filter_var($this->partner_url, FILTER_VALIDATE_URL)
-            && parse_url($this->partner_url, PHP_URL_SCHEME) === 'https';
+        return $this->hasValidPartnerDestination() && ! $this->needsPartnerReview();
+    }
+
+    public function partnerCtaStatus(): string
+    {
+        if (! $this->hasValidPartnerDestination()) {
+            return 'Invalid URL';
+        }
+
+        return $this->needsPartnerReview() ? 'Review due' : 'Ready';
     }
 
     public function scopePartnerReviewDue(Builder $query): Builder

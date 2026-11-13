@@ -37,6 +37,15 @@ class OffersTable
                     ->searchable(),
                 TextColumn::make('partner_url')
                     ->searchable(),
+                TextColumn::make('partner_cta_status')
+                    ->label('Partner CTA')
+                    ->getStateUsing(fn (Offer $record): string => $record->partnerCtaStatus())
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Ready' => 'success',
+                        'Review due' => 'warning',
+                        default => 'danger',
+                    }),
                 TextColumn::make('partner_reviewed_at')
                     ->label('Link last reviewed')
                     ->dateTime()
@@ -115,8 +124,14 @@ class OffersTable
                     ->requiresConfirmation()
                     ->modalHeading('Confirm manual partner-link review')
                     ->modalDescription('Only confirm after independently opening the official partner URL and checking its terms. This unlocks the public partner button for 90 days. Changing the URL revokes the review. No automated HTTP health check is performed.')
+                    ->visible(fn (Offer $record): bool => $record->hasValidPartnerDestination() && $record->needsPartnerReview())
                     ->action(function (Offer $record): void {
                         $record->refresh();
+
+                        if (! $record->hasValidPartnerDestination() || ! $record->needsPartnerReview()) {
+                            return;
+                        }
+
                         $record->forceFill(['partner_reviewed_at' => now()])->save();
                     }),
                 Action::make('publish')
