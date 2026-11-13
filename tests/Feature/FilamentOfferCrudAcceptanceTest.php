@@ -83,6 +83,9 @@ class FilamentOfferCrudAcceptanceTest extends TestCase
     {
         $this->actingAs(User::factory()->create());
 
-        Livewire::test(CreateOffer::class)->assertForbidden();
+        // Direct Livewire::test() bypasses the Filament panel's HTTP
+        // authentication middleware. Verify the actual protected route instead.
+        $this->get(route('filament.admin.resources.offers.create'))
+            ->assertForbidden();
     }
 }
