@@ -49,7 +49,7 @@ class CatalogController extends Controller
             ->when($type !== '', fn (Builder $query) => $query->where('offer_type', $type));
 
         $sort === 'ending'
-            ? $query->orderBy('ends_at')->orderBy('id')
+            ? $query->orderByRaw('ends_at ASC NULLS LAST')->orderBy('id')
             : $query->latest()->orderByDesc('id');
 
         return view('catalog.offers', [

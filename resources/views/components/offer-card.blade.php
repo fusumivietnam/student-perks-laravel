@@ -12,6 +12,9 @@
             <a class="rounded-sm outline-offset-4 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-600" href="{{ route('offers.show', $offer->slug) }}">{{ $offer->title }}</a>
         </h3>
         <p class="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-slate-600">{{ $offer->summary }}</p>
+        @if($offer->ends_at)
+            <p class="mt-4 text-sm font-semibold text-slate-700">Ends <time datetime="{{ $offer->ends_at->toDateString() }}">{{ $offer->ends_at->format('j M Y') }}</time></p>
+        @endif
         <div class="mt-6 border-t border-slate-100 pt-4">
             <a class="inline-flex min-h-10 items-center gap-2 rounded-md text-sm font-bold text-indigo-700 outline-offset-4 group-hover:gap-3 hover:text-indigo-900 focus-visible:outline-2 focus-visible:outline-indigo-600" href="{{ route('offers.show', $offer->slug) }}">View offer details <span aria-hidden="true">→</span></a>
         </div>
