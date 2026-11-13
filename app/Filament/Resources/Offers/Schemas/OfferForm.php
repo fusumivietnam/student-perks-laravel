@@ -55,7 +55,8 @@ class OfferForm
                     ->maxLength(2048)
                     ->url()
                     ->rule('starts_with:https://')
-                    ->required(),
+                    ->required()
+                    ->helperText('After saving, open the official destination and use “Mark link reviewed” in the Offers list. The public partner button remains disabled until reviewed; changing this URL clears the previous review.'),
                 Toggle::make('is_published')
                     ->default(false)
                     ->helperText('Only visible when enabled, its brand and category are published, and all scheduled dates permit it.'),
