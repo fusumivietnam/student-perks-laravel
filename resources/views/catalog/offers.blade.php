@@ -17,9 +17,9 @@
         <section aria-labelledby="offer-filters-title" class="mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <h2 id="offer-filters-title" class="text-lg font-extrabold tracking-tight">Find the right offer</h2>
-                <a href="{{ route('offers.index') }}" class="inline-flex min-h-10 items-center text-sm font-bold text-indigo-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">Clear filters</a>
+                <a href="{{ ($filterAction ?? route('offers.index')) }}" class="inline-flex min-h-10 items-center text-sm font-bold text-indigo-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">Clear filters</a>
             </div>
-            <form method="GET" action="{{ route('offers.index') }}" role="search" class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+            <form method="GET" action="{{ ($filterAction ?? route('offers.index')) }}" role="search" class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
                 <div class="sm:col-span-2 lg:col-span-3">
                     <label for="q" class="mb-2 block text-sm font-bold text-slate-700">Search offers</label>
                     <input id="q" type="search" name="q" value="{{ $term }}" maxlength="100" placeholder="Title, brand or keyword" class="min-h-12 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-500 focus-visible:border-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-500">
@@ -80,7 +80,7 @@
                 @if($sort === 'ending')
                     <span class="rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-800">Ending soon</span>
                 @endif
-                <a href="{{ route('offers.index') }}" class="inline-flex min-h-9 items-center rounded-md px-2 text-xs font-bold text-indigo-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">Reset all</a>
+                <a href="{{ ($filterAction ?? route('offers.index')) }}" class="inline-flex min-h-9 items-center rounded-md px-2 text-xs font-bold text-indigo-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">Reset all</a>
             </div>
         @endif
     @endunless
@@ -96,7 +96,7 @@
             <div class="mt-6 rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
                 <h3 class="text-xl font-extrabold">No offers found</h3>
                 <p class="mx-auto mt-3 max-w-md text-sm leading-relaxed text-slate-600">Try another keyword, remove a filter, or browse all current offers.</p>
-                <a class="mt-6 inline-flex min-h-11 items-center rounded-xl bg-indigo-700 px-6 py-3 text-sm font-bold text-white transition hover:bg-indigo-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700" href="{{ route('offers.index') }}">See all offers</a>
+                <a class="mt-6 inline-flex min-h-11 items-center rounded-xl bg-indigo-700 px-6 py-3 text-sm font-bold text-white transition hover:bg-indigo-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700" href="{{ ($filterAction ?? route('offers.index')) }}">See all offers</a>
             </div>
         @else
             <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
