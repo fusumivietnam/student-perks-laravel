@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\TrustCodespacesForwarding;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,27 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Forwarded HTTPS information is trusted only for this private preview.
-        // Unlike URL::useOrigin(), this also corrects session intended URLs.
-        $appUrl = (string) config('app.url');
-        $host = parse_url($appUrl, PHP_URL_HOST);
-
-        if (config('app.env') === 'local'
-            && parse_url($appUrl, PHP_URL_SCHEME) === 'https'
-            && is_string($host)
-            && str_ends_with($host, '.app.github.dev')) {
-            $middleware->trustProxies(
-                at: '*',
-                headers: Request::HEADER_X_FORWARDED_HOST
-                    | Request::HEADER_X_FORWARDED_PROTO
-                    | Request::HEADER_X_FORWARDED_PORT,
-            );
-            $middleware->trustHosts(at: [
-                '^'.preg_quote($host, '/').'\z',
-                '^localhost\z',
-                '^127\.0\.0\.1\z',
-            ], subdomains: false);
-        }
+        // Run after Laravel's default TrustProxies middleware, which resets the
+        // trusted-proxy list. Only the configured private Codespace may opt in.
+        $middleware->append(TrustCodespacesForwarding::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
