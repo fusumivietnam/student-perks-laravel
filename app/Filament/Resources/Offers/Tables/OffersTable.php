@@ -37,6 +37,15 @@ class OffersTable
                     ->searchable(),
                 TextColumn::make('partner_url')
                     ->searchable(),
+                TextColumn::make('partner_cta_status')
+                    ->label('Partner CTA')
+                    ->getStateUsing(fn (Offer $record): string => $record->partnerCtaStatus())
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Ready' => 'success',
+                        'Review due' => 'warning',
+                        default => 'danger',
+                    }),
                 TextColumn::make('partner_reviewed_at')
                     ->label('Link last reviewed')
                     ->dateTime()
