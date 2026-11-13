@@ -66,9 +66,17 @@ class LaunchAcceptanceJourneyTest extends TestCase
         $this->get('/offers/verified-student-plan')->assertOk()
             ->assertSee('Eligible students')
             ->assertSee('Verify eligibility with the partner')
-            ->assertSee('rel="noopener noreferrer sponsored"', false)
-            ->assertSee('href="https://example.org/education"', false)
+            ->assertSee('awaiting editorial review')
+            ->assertDontSee('href="https://example.org/education"', false)
             ->assertSee('rel="canonical"', false);
+
+        Livewire::test(ListOffers::class)
+            ->callTableAction('confirmPartnerReview', $offer)
+            ->assertHasNoTableActionErrors();
+
+        $this->get('/offers/verified-student-plan')->assertOk()
+            ->assertSee('rel="noopener noreferrer sponsored"', false)
+            ->assertSee('href="https://example.org/education"', false);
         $this->get('/sitemap.xml')->assertSee('/offers/verified-student-plan');
 
         Livewire::test(EditOffer::class, ['record' => $offer->getRouteKey()])
