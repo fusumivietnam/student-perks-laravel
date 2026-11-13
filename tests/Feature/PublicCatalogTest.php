@@ -149,6 +149,34 @@ class PublicCatalogTest extends TestCase
             ->assertSee('href="'.route('offers.index').'"', false);
     }
 
+    public function test_search_route_retains_its_context_during_filtering_and_reset(): void
+    {
+        [$brand, $category] = $this->catalog();
+        $this->offer($brand, $category, 'search-context');
+
+        $search = $this->get('/search?q=Acme&brand=acme&category=software&sort=ending');
+        $search->assertOk()
+            ->assertSee('<h1', false)
+            ->assertSee('Search student offers')
+            ->assertSee('Acme student discount')
+            ->assertSee('content="noindex,follow"', false)
+            ->assertSee('action="'.route('search').'"', false)
+            ->assertSee('href="'.route('search').'"', false)
+            ->assertSee('Search: Acme')
+            ->assertSee('Brand: Acme Learning');
+
+        $this->get('/search?q=not-found')
+            ->assertOk()
+            ->assertSee('No offers found')
+            ->assertSee('href="'.route('search').'"', false);
+
+        $directory = $this->get('/offers?brand=acme');
+        $directory->assertOk()
+            ->assertSee('action="'.route('offers.index').'"', false)
+            ->assertSee('href="'.route('offers.index').'"', false)
+            ->assertDontSee('Search student offers');
+    }
+
     public function test_offer_search_shows_active_filters_and_can_reset_them(): void
     {
         [$brand, $category] = $this->catalog();
