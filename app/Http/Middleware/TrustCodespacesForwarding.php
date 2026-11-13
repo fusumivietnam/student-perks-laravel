@@ -12,21 +12,24 @@ class TrustCodespacesForwarding
     {
         $url = (string) config('app.url');
         $expectedHost = parse_url($url, PHP_URL_HOST);
+        $incomingHost = $request->getHost();
 
-        // The private HTTPS forwarding host is configured by preview.sh. Only
-        // accept its exact value; do not trust arbitrary forwarded host headers.
+        // Only a private Codespaces preview may normalize the internal HTTP
+        // request to its configured public HTTPS origin. Ignore arbitrary
+        // forwarded host values and never apply this to Production.
         if (config('app.env') === 'local'
             && parse_url($url, PHP_URL_SCHEME) === 'https'
             && is_string($expectedHost)
             && str_ends_with($expectedHost, '.app.github.dev')
-            && $request->headers->get('X-Forwarded-Host') === $expectedHost
-            && $request->headers->get('X-Forwarded-Proto') === 'https') {
-            $request::setTrustedProxies(
-                [$request->server->get('REMOTE_ADDR')],
-                Request::HEADER_X_FORWARDED_HOST
-                    | Request::HEADER_X_FORWARDED_PROTO
-                    | Request::HEADER_X_FORWARDED_PORT,
-            );
+            && (in_array($incomingHost, [$expectedHost, 'localhost', '127.0.0.1'], true)
+                || $request->headers->get('X-Forwarded-Host') === $expectedHost)) {
+            // Redirector::guest() stores Request::fullUrl() in the session.
+            // URL::useOrigin() fixes generated links, but not that intended URL.
+            // This also covers Codespaces forwards without X-Forwarded-* headers.
+            $request->headers->set('host', $expectedHost);
+            $request->server->set('HTTP_HOST', $expectedHost);
+            $request->server->set('HTTPS', 'on');
+            $request->server->set('SERVER_PORT', '443');
         }
 
         return $next($request);
