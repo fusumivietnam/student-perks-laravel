@@ -72,8 +72,7 @@ class CategoryResource extends Resource
                 EditAction::make(),
                 DeleteAction::make()
                     ->visible(fn (Category $record): bool => ! $record->offers()->exists()),
-            ])
-            ;
+            ]);
     }
 
     public static function getPages(): array
