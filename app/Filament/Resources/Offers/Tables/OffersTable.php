@@ -26,17 +26,23 @@ class OffersTable
                 TextColumn::make('brand.name')
                     ->searchable(),
                 TextColumn::make('category.name')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('title')
-                    ->searchable(),
+                    ->searchable()
+                    ->wrap(),
                 TextColumn::make('slug')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('offer_type')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('offer_value')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('partner_url')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('partner_cta_status')
                     ->label('Partner CTA')
                     ->getStateUsing(fn (Offer $record): string => $record->partnerCtaStatus())
@@ -51,7 +57,7 @@ class OffersTable
                     ->dateTime()
                     ->sortable()
                     ->placeholder('Never reviewed')
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('publication_status')
                     ->label('Public status')
                     ->getStateUsing(fn (Offer $record): string => $record->publicationStatus())
@@ -71,18 +77,23 @@ class OffersTable
                     ->falseColor('success'),
                 IconColumn::make('is_published')
                     ->boolean()
-                    ->label('Enabled'),
+                    ->label('Enabled')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('starts_at')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('ends_at')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('published_at')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('seo_title')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -118,6 +129,17 @@ class OffersTable
             ])
             ->recordActions([
                 EditAction::make(),
+                Action::make('preview')
+                    ->label('Preview')
+                    ->icon('heroicon-o-eye')
+                    ->url(fn (Offer $record): string => route('offers.preview', ['offer' => $record->getKey()]))
+                    ->openUrlInNewTab(),
+                Action::make('viewLive')
+                    ->label('View public')
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->url(fn (Offer $record): string => route('offers.show', ['slug' => $record->slug]))
+                    ->openUrlInNewTab()
+                    ->visible(fn (Offer $record): bool => $record->publicationStatus() === 'Live'),
                 Action::make('confirmPartnerReview')
                     ->label('Mark link reviewed')
                     ->color('info')
