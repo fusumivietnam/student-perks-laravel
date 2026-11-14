@@ -25,7 +25,11 @@ Artisan::command('launch:check', function (): int {
         $page = Page::published()->where('slug', $slug)->first(['slug', 'body']);
 
         if (! $page) {
+            $draftExists = Page::where('slug', $slug)->exists();
             $this->error("[BLOCK] Published legal/information page missing: /pages/{$slug}");
+            $this->line($draftExists
+                ? "       Action: review the existing draft in Filament → Pages, then publish when approved."
+                : "       Action: create /pages/{$slug} in Filament → Pages, review its content, then publish.");
             $blockers++;
         } elseif (trim((string) $page->body) === '') {
             $this->error("[BLOCK] Published legal/information page has no content: /pages/{$slug}");
@@ -80,6 +84,16 @@ Artisan::command('launch:check', function (): int {
     $unreviewed = Offer::partnerReviewDue()->count();
     if ($unreviewed > 0) {
         $this->error("[BLOCK] {$unreviewed} visible partner links need manual review (never reviewed or older than 90 days)");
+        foreach (Offer::partnerReviewDue()->with('brand')->orderBy('id')->get() as $offer) {
+            $this->line(sprintf(
+                '       Offer #%d | %s | %s | %s',
+                $offer->id,
+                $offer->brand?->name ?? 'Unknown brand',
+                $offer->title,
+                route('offers.show', $offer->slug),
+            ));
+        }
+        $this->line('       Action: open each official partner URL, verify current terms, then use "Mark link reviewed" in Filament → Offers. Never confirm unverified links.');
         $blockers++;
     }
 
