@@ -3,12 +3,12 @@
         <div class="absolute -right-8 -top-12 h-40 w-40 rounded-full border-[22px] border-white/60" aria-hidden="true"></div>
         <x-brand-mark :brand="$offer->brand" class="relative h-16 w-16" text-class="text-xl" />
         @if($offer->offer_value)
-            <span class="relative max-w-40 rounded-full bg-white px-3 py-1.5 text-right text-xs font-bold text-indigo-800 shadow-sm">{{ $offer->offer_value }}</span>
+            <span class="relative max-w-40 break-words rounded-full bg-white px-3 py-1.5 text-right text-xs font-bold text-indigo-800 shadow-sm">{{ $offer->offer_value }}</span>
         @endif
     </div>
     <div class="flex flex-1 flex-col p-6">
-        <p class="text-xs font-bold uppercase tracking-wider text-indigo-600">{{ $offer->brand->name }} <span class="mx-1 text-slate-300" aria-hidden="true">·</span> {{ $offer->category->name }}</p>
-        <h3 class="mt-3 text-xl font-bold leading-snug tracking-tight text-slate-950">
+        <p class="break-words text-xs font-bold uppercase tracking-wider text-indigo-600">{{ $offer->brand->name }} <span class="mx-1 text-slate-300" aria-hidden="true">·</span> {{ $offer->category->name }}</p>
+        <h3 class="mt-3 break-words text-xl font-bold leading-snug tracking-tight text-slate-950">
             <a class="rounded-sm outline-offset-4 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-600" href="{{ route('offers.show', $offer->slug) }}">{{ $offer->title }}</a>
         </h3>
         <p class="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-slate-600">{{ $offer->summary }}</p>
