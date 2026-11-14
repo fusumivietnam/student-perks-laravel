@@ -14,6 +14,11 @@ class Page extends Model
         return ['is_published' => 'boolean'];
     }
 
+    public function publicationStatus(): string
+    {
+        return $this->is_published ? 'Live' : 'Draft';
+    }
+
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('is_published', true);
