@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
 @section('title', $title)
-@if(!($hideFilters ?? false) && (request()->routeIs('search') || request()->hasAny(['q', 'brand', 'category', 'type', 'sort', 'page']))) || $offers->currentPage() > 1
+@if(!($hideFilters ?? false) && (request()->routeIs('search') || request()->hasAny(['q', 'brand', 'category', 'type', 'sort', 'page']))) || $offers->currentPage() > 1)
     @section('robots', 'noindex,follow')
 @endif
 @section('description', filled($description ?? null) ? $description : 'Explore current education benefits and official partner offers.')
