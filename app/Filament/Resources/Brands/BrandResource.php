@@ -90,8 +90,7 @@ class BrandResource extends Resource
                 EditAction::make(),
                 DeleteAction::make()
                     ->visible(fn (Brand $record): bool => ! $record->offers()->exists()),
-            ])
-            ;
+            ]);
     }
 
     public static function getPages(): array
