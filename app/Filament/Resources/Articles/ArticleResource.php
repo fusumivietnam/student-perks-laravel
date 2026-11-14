@@ -59,13 +59,29 @@ class ArticleResource extends Resource
                 ImageColumn::make('cover_path')->label('Cover')->disk('public')->square(),
                 TextColumn::make('title')->searchable()->sortable(),
                 TextColumn::make('slug')->searchable(),
-                IconColumn::make('is_published')->boolean(),
+                TextColumn::make('publication_status')
+                    ->label('Public status')
+                    ->getStateUsing(fn (Article $record): string => $record->publicationStatus())
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Live' => 'success',
+                        'Scheduled' => 'warning',
+                        default => 'gray',
+                    }),
+                TextColumn::make('published_at')->label('Scheduled at')->dateTime()->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')->dateTime()->sortable(),
             ])
             ->filters([TernaryFilter::make('is_published')])
             ->recordActions([
                 EditAction::make(),
                 Action::make('preview')->label('Preview saved')->url(fn (Article $record): string => route('articles.preview', $record))->openUrlInNewTab(),
+                Action::make('viewPublic')
+                    ->label('View public')
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->url(fn (Article $record): string => route('articles.show', $record->slug))
+                    ->openUrlInNewTab()
+                    ->visible(fn (Article $record): bool => $record->publicationStatus() === 'Live'),
                 DeleteAction::make(),
             ]);
     }
