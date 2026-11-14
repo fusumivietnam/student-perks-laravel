@@ -1,6 +1,9 @@
 @extends('layouts.public')
 
 @section('title', 'Brands')
+@if($brands->currentPage() > 1)
+    @section('robots', 'noindex,follow')
+@endif
 
 @section('content')
     <div class="max-w-3xl">
