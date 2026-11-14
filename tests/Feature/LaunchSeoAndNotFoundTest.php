@@ -90,8 +90,8 @@ class LaunchSeoAndNotFoundTest extends TestCase
             ], $attributes));
         }
 
-        Article::create(['title' => 'Public Guide', 'slug' => 'public-guide', 'body' => 'Public content', 'is_published' => true]);
-        Article::create(['title' => 'Future Guide', 'slug' => 'future-guide', 'body' => 'Future content', 'is_published' => true, 'published_at' => now()->addDay()]);
+        Article::create(['title' => 'Public Guide', 'slug' => 'public-guide', 'summary' => 'Published guide summary', 'body' => 'Public content', 'is_published' => true]);
+        Article::create(['title' => 'Future Guide', 'slug' => 'future-guide', 'summary' => 'Future guide summary', 'body' => 'Future content', 'is_published' => true, 'published_at' => now()->addDay()]);
         Page::create(['title' => 'Terms', 'slug' => 'terms', 'body' => 'Terms', 'is_published' => true]);
         Page::create(['title' => 'Hidden Legal Page', 'slug' => 'hidden-legal', 'body' => 'Draft', 'is_published' => false]);
 
