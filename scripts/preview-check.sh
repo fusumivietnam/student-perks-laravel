@@ -4,6 +4,14 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 source scripts/preview-image.sh
 
+launch_gate=false
+for arg in "$@"; do
+  case "$arg" in
+    --launch) launch_gate=true ;;
+    *) echo "Usage: bash scripts/preview-check.sh [--launch]" >&2; exit 2 ;;
+  esac
+done
+
 fail() { echo "FAIL: $*" >&2; exit 1; }
 command -v docker >/dev/null || fail "Docker is not installed."
 command -v curl >/dev/null || fail "curl is not installed."
@@ -67,4 +75,34 @@ for extension in css js; do
   echo "PASS: $extension asset has the right origin and HTTP 200."
 done
 
+# Cover critical routes missing from the basic homepage/asset checks.
+for route in /offers /brands /articles /search /admin/login; do
+  curl -fsS --connect-timeout 3 --max-time 15 -o /dev/null "$local_url$route" \
+    || fail "Critical public/admin route unavailable: $route"
+done
+echo "PASS: Public catalog, search, guides and Filament login routes return HTTP 200."
+
+sitemap="$(curl -fsS --connect-timeout 3 --max-time 15 "$local_url/sitemap.xml")" \
+  || fail "Sitemap request failed."
+[[ "$sitemap" == *'<urlset '* && "$sitemap" == *'<loc>'* ]] \
+  || fail "Sitemap does not contain a valid URL listing."
+echo "PASS: Sitemap renders URL entries."
+
+for missing in /offers/preview-check-missing-offer /pages/preview-check-missing-page; do
+  response_code="$(curl -sS --connect-timeout 3 --max-time 15 -o /dev/null -w '%{http_code}' "$local_url$missing")" \
+    || fail "Missing-route check failed: $missing"
+  [[ "$response_code" == 404 ]] || fail "$missing unexpectedly returned HTTP $response_code (expected 404)."
+done
+echo "PASS: Missing Offer/Page URLs return HTTP 404."
+
+if [[ "$launch_gate" == true ]]; then
+  echo "Running read-only published-content readiness gate..."
+  docker compose exec -T app php artisan launch:check \
+    || fail "Published CMS content is not launch-ready. Resolve blocker groups in Filament; do not reset or reseed the database."
+  echo "PASS: Published CMS content launch gate."
+fi
+
 echo "PASS: Private preview checks complete. Manually inspect responsive layout and /admin in the browser."
+if [[ "$launch_gate" == false ]]; then
+  echo "To audit published content before launch: bash scripts/preview-check.sh --launch"
+fi
