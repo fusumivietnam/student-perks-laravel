@@ -76,6 +76,30 @@ class LaunchContentReadinessTest extends TestCase
         $this->assertSame('http://invalid.example/student', $offer->fresh()->partner_url);
     }
 
+    public function test_content_gate_identifies_existing_draft_pages_and_unreviewed_offer_records_without_writing(): void
+    {
+        $this->publishLegalPages();
+        Page::where('slug', 'privacy')->update(['is_published' => false]);
+        Page::where('slug', 'contact')->delete();
+
+        $offer = $this->createOffer();
+        $this->assertNull($offer->partner_reviewed_at);
+
+        $this->assertSame(1, Artisan::call('launch:check'));
+        $output = Artisan::output();
+
+        $this->assertStringContainsString('review the existing draft in Filament', $output);
+        $this->assertStringContainsString('create /pages/contact in Filament', $output);
+        $this->assertStringContainsString('Offer #'.$offer->id, $output);
+        $this->assertStringContainsString($offer->title, $output);
+        $this->assertStringContainsString(route('offers.show', $offer->slug), $output);
+        $this->assertStringContainsString('Never confirm unverified links', $output);
+
+        $this->assertFalse(Page::where('slug', 'privacy')->firstOrFail()->is_published);
+        $this->assertNull(Page::where('slug', 'contact')->first());
+        $this->assertNull($offer->fresh()->partner_reviewed_at);
+    }
+
     public function test_expired_or_draft_offers_do_not_satisfy_live_requirement(): void
     {
         $this->publishLegalPages();
