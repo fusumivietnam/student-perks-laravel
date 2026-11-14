@@ -13,6 +13,41 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 /**
+ * Explicit, non-destructive bootstrap of editorial drafts. Never runs during
+ * app startup, preview updates or migrations.
+ */
+Artisan::command('launch:prepare-pages', function (): int {
+    $created = 0;
+    $skipped = 0;
+
+    foreach (config('launch-pages', []) as $slug => $template) {
+        if (Page::where('slug', $slug)->exists()) {
+            $this->line("[SKIP] /pages/{$slug} already exists; existing content and publication state are unchanged.");
+            $skipped++;
+
+            continue;
+        }
+
+        Page::create([
+            'title' => $template['title'],
+            'slug' => $slug,
+            'body' => $template['body'],
+            'seo_description' => $template['seo_description'],
+            'is_published' => false,
+        ]);
+
+        $this->info("[DRAFT] /pages/{$slug} created (unpublished).");
+        $created++;
+    }
+
+    $this->info("Editorial templates: {$created} created, {$skipped} preserved.");
+    $this->warn('Review and replace [BRACKETED FIELDS], verify legal/business facts, and approve content in Filament → Pages before publishing.');
+    $this->warn('Partner URLs are not modified or marked reviewed.');
+
+    return 0;
+})->purpose('Create only missing unpublished editorial/legal page drafts; preserve all existing content');
+
+/**
  * Read-only content gate. Browser, TLS, media durability and backup checks are separate.
  */
 Artisan::command('launch:check', function (): int {
