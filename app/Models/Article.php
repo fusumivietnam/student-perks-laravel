@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Article extends Model
 {
@@ -15,6 +16,22 @@ class Article extends Model
     protected function casts(): array
     {
         return ['is_published' => 'boolean', 'published_at' => 'datetime'];
+    }
+
+    protected static function booted(): void
+    {
+        static::updated(function (self $record): void {
+            if (! $record->wasChanged('slug') || ! $record->getOriginal('is_published')) {
+                return;
+            }
+
+            DB::table('article_slug_redirects')->insert([
+                'article_id' => $record->id,
+                'slug' => $record->getOriginal('slug'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        });
     }
 
     public function publicationStatus(): string
