@@ -8,6 +8,8 @@ use App\Models\Category;
 use App\Models\Offer;
 use App\Models\Page;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
 
@@ -20,18 +22,36 @@ class EditorialController extends Controller
         ]);
     }
 
-    public function article(string $slug): View
+    public function article(string $slug): View|RedirectResponse
     {
-        return view('editorial.article', [
-            'article' => Article::published()->where('slug', $slug)->firstOrFail(),
-        ]);
+        $article = Article::published()->where('slug', $slug)->first();
+
+        if ($article) {
+            return view('editorial.article', ['article' => $article]);
+        }
+
+        $articleId = DB::table('article_slug_redirects')->where('slug', $slug)->value('article_id');
+        abort_unless($articleId, 404);
+
+        $currentArticle = Article::published()->findOrFail($articleId);
+
+        return redirect()->route('articles.show', $currentArticle->slug, 301);
     }
 
-    public function page(string $slug): View
+    public function page(string $slug): View|RedirectResponse
     {
-        return view('editorial.page', [
-            'page' => Page::published()->where('slug', $slug)->firstOrFail(),
-        ]);
+        $page = Page::published()->where('slug', $slug)->first();
+
+        if ($page) {
+            return view('editorial.page', ['page' => $page]);
+        }
+
+        $pageId = DB::table('page_slug_redirects')->where('slug', $slug)->value('page_id');
+        abort_unless($pageId, 404);
+
+        $currentPage = Page::published()->findOrFail($pageId);
+
+        return redirect()->route('pages.show', $currentPage->slug, 301);
     }
 
     public function previewArticle(Request $request, Article $article): Response
