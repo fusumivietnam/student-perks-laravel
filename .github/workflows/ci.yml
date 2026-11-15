@@ -162,3 +162,15 @@ jobs:
           curl --fail --silent --show-error --retry 12 --retry-delay 3 --retry-connrefused http://127.0.0.1:18080/             | grep -F 'href="https://ci-preview-8080.app.github.dev/offers"'
           curl --fail --silent --show-error http://127.0.0.1:18080/             | grep -E 'href="https://ci-preview-8080.app.github.dev/build/assets/[^"]+\.css"'
           curl --fail --silent --show-error -I http://127.0.0.1:18080/build/manifest.json >/dev/null
+
+          # Run real Chromium E2E against this disposable CI Compose stack only.
+          # Revert the forwarded HTTPS test origin before driving browser links.
+          export APP_URL=http://127.0.0.1:18080
+          docker compose up -d --no-build app
+          curl --fail --silent --show-error --retry 12 --retry-delay 3 --retry-connrefused http://127.0.0.1:18080/up >/dev/null
+          # Explicit fictional fixtures; never seed the developer's Codespace or production.
+          docker compose exec -T app php artisan db:seed --class=PreviewDemoSeeder --force
+          python3 -m venv /tmp/student-perks-browser-venv
+          /tmp/student-perks-browser-venv/bin/python -m pip install --disable-pip-version-check 'playwright==1.56.0'
+          /tmp/student-perks-browser-venv/bin/python -m playwright install --with-deps chromium
+          E2E_BASE_URL=http://127.0.0.1:18080 /tmp/student-perks-browser-venv/bin/python -m unittest discover -s tests/browser -p 'test_*.py' -v
