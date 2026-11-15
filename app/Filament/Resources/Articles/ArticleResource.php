@@ -34,7 +34,8 @@ class ArticleResource extends Resource
             TextInput::make('title')->required()->maxLength(255),
             TextInput::make('slug')->required()->unique(ignoreRecord: true)->maxLength(255)
                 ->rule('regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
-                ->helperText('Lowercase letters, numbers and single hyphens only. Used in the public URL.'),
+                ->rule('unique:article_slug_redirects,slug')
+                ->helperText('Lowercase letters, numbers and single hyphens only. Previously published URLs are reserved for redirects.'),
             Textarea::make('summary')->required()->columnSpanFull(),
             FileUpload::make('cover_path')
                 ->image()
