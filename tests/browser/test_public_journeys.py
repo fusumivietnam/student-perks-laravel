@@ -5,6 +5,7 @@ Runs only against an explicitly configured disposable test URL.
 """
 
 import os
+import re
 import unittest
 
 from playwright.sync_api import sync_playwright, expect
@@ -47,7 +48,7 @@ class PublicBrowserJourneysTest(unittest.TestCase):
         page.get_by_label("Category", exact=True).select_option("demo-software")
         page.get_by_role("button", name="Apply filters").click()
 
-        expect(page).to_have_url_containing("brand=demo-cloud-studio")
+        expect(page).to_have_url(re.compile(r"brand=demo-cloud-studio"))
         expect(page.get_by_text("1 offer found")).to_be_visible()
         page.get_by_role("link", name="Student Design Kit — DEMO").first.click()
         expect(page.get_by_role("heading", name="Student Design Kit — DEMO")).to_be_visible()
