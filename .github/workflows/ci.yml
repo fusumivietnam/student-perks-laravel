@@ -170,6 +170,7 @@ jobs:
           curl --fail --silent --show-error --retry 12 --retry-delay 3 --retry-connrefused http://127.0.0.1:18080/up >/dev/null
           # Explicit fictional fixtures; never seed the developer's Codespace or production.
           docker compose exec -T app php artisan db:seed --class=PreviewDemoSeeder --force
+          docker compose exec -T -e E2E_TEST_STACK=1 app php artisan db:seed --class=BrowserCiAdminSeeder --force
           python3 -m venv /tmp/student-perks-browser-venv
           /tmp/student-perks-browser-venv/bin/python -m pip install --disable-pip-version-check 'playwright==1.56.0'
           /tmp/student-perks-browser-venv/bin/python -m playwright install --with-deps chromium
