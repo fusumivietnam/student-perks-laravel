@@ -78,9 +78,15 @@ class CmsRouteAuthorizationMatrixTest extends TestCase
             $this->get($url)->assertOk();
         }
         foreach ($previewRoutes as $url) {
-            $this->get($url)->assertOk()
-                ->assertHeader('X-Robots-Tag', 'noindex, nofollow, noarchive')
-                ->assertHeader('Cache-Control', 'private, no-store, no-cache, must-revalidate');
+            $response = $this->get($url);
+            $response->assertOk()
+                ->assertHeader('X-Robots-Tag', 'noindex, nofollow, noarchive');
+
+            // Symfony may reorder Cache-Control directives; assert meaning, not order.
+            $cacheControl = (string) $response->headers->get('Cache-Control');
+            foreach (['private', 'no-store', 'no-cache', 'must-revalidate'] as $directive) {
+                $this->assertContains($directive, array_map('trim', explode(',', $cacheControl)));
+            }
         }
     }
 
