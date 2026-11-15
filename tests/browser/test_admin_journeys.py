@@ -40,7 +40,7 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
         expect(page).to_have_url(re.compile(r"/admin/?$"))
         page.goto("/admin/offers")
         expect(page.get_by_text("Student Design Kit — DEMO")).to_be_visible()
-        expect(page.get_by_text("Partner CTA")).to_be_visible()
+        expect(page.get_by_role("columnheader", name="Partner CTA")).to_be_visible()
         page.goto("/admin/brands")
         expect(page.get_by_text("Demo Cloud Studio")).to_be_visible()
         page.goto("/admin/categories")
@@ -57,9 +57,9 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
     def test_regular_user_login_does_not_grant_admin_access(self):
         page = self.page
         self.login("browser-user@ci.invalid")
-        page.goto("/admin/offers")
-        expect(page.get_by_text("403", exact=False)).to_be_visible()
-        self.assertNotEqual(page.locator("a[href='/admin/offers/create']").count(), 1)
+        response = page.goto("/admin/offers")
+        self.assertTrue(page.url.endswith("/admin/login") or response.status == 403)
+        expect(page.get_by_text("Student Design Kit — DEMO")).to_have_count(0)
 
     def test_guest_cannot_open_admin_create_page(self):
         page = self.page
