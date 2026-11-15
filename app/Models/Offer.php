@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
+use DomainException;
 
 class Offer extends Model
 {
@@ -28,6 +29,15 @@ class Offer extends Model
 
     protected static function booted(): void
     {
+        static::saving(function (self $record): void {
+            // Filament form validation is not enough: imports, jobs and direct
+            // Eloquent saves must not take over previously published URLs.
+            if ($record->isDirty('slug')
+                && DB::table('offer_slug_redirects')->where('slug', $record->slug)->exists()) {
+                throw new DomainException('This URL slug is reserved for a previously published offer.');
+            }
+        });
+
         static::updating(function (self $offer): void {
             if ($offer->isDirty('partner_url')) {
                 $offer->partner_reviewed_at = null;
