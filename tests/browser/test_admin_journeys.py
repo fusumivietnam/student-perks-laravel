@@ -50,9 +50,9 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
         page.goto("/admin/pages")
         expect(page.get_by_role("heading", name=re.compile("Pages"))).to_be_visible()
         page.goto("/admin/offers/create")
-        expect(page.get_by_label("Title", exact=True)).to_be_visible()
-        expect(page.get_by_label("Slug", exact=True)).to_be_visible()
-        expect(page.get_by_label("Partner URL")).to_be_visible()
+        expect(page.locator('input[id$=".title"]')).to_be_visible()
+        expect(page.locator('input[id$=".slug"]')).to_be_visible()
+        expect(page.locator('input[id$=".partner_url"]')).to_be_visible()
 
     def test_regular_user_login_does_not_grant_admin_access(self):
         page = self.page
