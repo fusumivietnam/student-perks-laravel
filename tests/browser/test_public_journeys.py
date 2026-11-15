@@ -74,7 +74,7 @@ class PublicBrowserJourneysTest(unittest.TestCase):
 
         page.goto("/admin/login")
         expect(page.get_by_label("Email address")).to_be_visible()
-        expect(page.get_by_label("Password")).to_be_visible()
+        expect(page.locator('input[type="password"]')).to_be_visible()
 
     def test_mobile_navigation_keyboard_and_no_page_horizontal_overflow(self):
         page = self.page
