@@ -12,8 +12,8 @@
     <div class="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         @forelse($articles as $article)
             <article class="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-indigo-200 hover:shadow-md focus-within:ring-2 focus-within:ring-indigo-300">
-                @if($article->cover_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($article->cover_path))
-                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($article->cover_path) }}" alt="" loading="lazy" class="aspect-video w-full object-cover">
+                @if($coverUrl = \App\Support\PublicCmsImage::url($article->cover_path, 'articles'))
+                    <img src="{{ $coverUrl }}" alt="" loading="lazy" class="aspect-video w-full object-cover">
                 @endif
                 <div class="flex flex-1 flex-col p-6">
                 <p class="text-sm text-slate-500">{{ ($article->published_at ?? $article->created_at)->format('j M Y') }}</p>
