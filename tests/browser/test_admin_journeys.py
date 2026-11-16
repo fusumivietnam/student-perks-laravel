@@ -54,6 +54,56 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
         expect(page.locator('input[id$=".slug"]')).to_be_visible()
         expect(page.locator('input[id$=".partner_url"]')).to_be_visible()
 
+    def test_offer_draft_edit_publish_and_unpublish_through_real_browser(self):
+        page = self.page
+        self.login("browser-admin@ci.invalid")
+        expect(page).to_have_url(re.compile(r"/admin/?$"))
+
+        page.goto("/admin/offers")
+        draft_row = page.get_by_role("row").filter(has_text="Browser CI Draft Offer")
+        expect(draft_row).to_be_visible()
+        draft_row.locator('a[href$="/edit"]').first.click()
+        edit_url = page.url
+        expect(page.locator('input[id$=".title"]')).to_have_value("Browser CI Draft Offer")
+        toggle = page.get_by_role("switch", name=re.compile("Published", re.I))
+        expect(toggle).not_to_be_checked()
+
+        # Saving a draft must preserve the public 404.
+        page.locator('input[id$=".title"]').fill("Browser CI Edited Offer")
+        page.get_by_role("button", name="Save changes").click()
+        expect(page.get_by_text("Saved", exact=False)).to_be_visible()
+        page.goto("/offers/browser-e2e-draft-offer")
+        expect(page.get_by_role("heading", name="We couldn't find that page")).to_be_visible()
+
+        # Reload the edit route from the server, not browser-back cache.
+        page.goto(edit_url)
+        expect(page.locator('input[id$=".title"]')).to_have_value("Browser CI Edited Offer")
+        toggle = page.get_by_role("switch", name=re.compile("Published", re.I))
+        toggle.click()
+        expect(toggle).to_be_checked()
+        # Filament entangles this Alpine switch to Livewire state asynchronously.
+        page.wait_for_timeout(600)
+        page.get_by_role("button", name="Save changes").click()
+        page.wait_for_timeout(900)
+        page.reload()
+        expect(page.get_by_role("switch", name=re.compile("Published", re.I))).to_be_checked()
+        page.goto("/offers/browser-e2e-draft-offer")
+        expect(page.get_by_role("heading", name="Browser CI Edited Offer")).to_be_visible()
+
+        # Restore this isolated CI-only draft using the same real form.
+        page.goto(edit_url)
+        toggle = page.get_by_role("switch", name=re.compile("Published", re.I))
+        expect(toggle).to_be_checked()
+        toggle.click()
+        expect(toggle).not_to_be_checked()
+        page.wait_for_timeout(600)
+        page.get_by_role("button", name="Save changes").click()
+        page.wait_for_timeout(900)
+        page.reload()
+        expect(page.get_by_role("switch", name=re.compile("Published", re.I))).not_to_be_checked()
+        page.goto("/offers/browser-e2e-draft-offer")
+        expect(page.get_by_role("heading", name="We couldn't find that page")).to_be_visible()
+
     def test_regular_user_login_does_not_grant_admin_access(self):
         page = self.page
         self.login("browser-user@ci.invalid")

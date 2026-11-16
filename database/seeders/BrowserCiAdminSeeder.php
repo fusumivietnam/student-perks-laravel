@@ -3,6 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Offer;
+use App\Models\Brand;
+use App\Models\Category;
 use Illuminate\Database\Seeder;
 use RuntimeException;
 
@@ -33,6 +36,22 @@ class BrowserCiAdminSeeder extends Seeder
         );
         $regular->forceFill(['is_admin' => false])->save();
 
-        $this->command?->info('Disposable CI browser accounts created. Never use for real users or deployment.');
+        Offer::firstOrCreate(
+            ['slug' => 'browser-e2e-draft-offer'],
+            [
+                'brand_id' => Brand::where('slug', 'demo-learning-lab')->firstOrFail()->id,
+                'category_id' => Category::where('slug', 'demo-learning')->firstOrFail()->id,
+                'title' => 'Browser CI Draft Offer',
+                'summary' => 'A fictional draft exclusively used for browser write-flow acceptance.',
+                'description' => 'No real offer is issued by this CI-only fixture.',
+                'offer_type' => 'discount',
+                'eligibility' => 'This is a browser-only test.',
+                'redemption_steps' => 'This is a browser-only test.',
+                'partner_url' => 'https://example.org/',
+                'is_published' => false,
+            ],
+        );
+
+        $this->command?->info('Disposable CI browser accounts and draft fixture created. Never use in real deployments.');
     }
 }
