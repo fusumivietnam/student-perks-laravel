@@ -60,38 +60,43 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
         expect(page).to_have_url(re.compile(r"/admin/?$"))
 
         page.goto("/admin/offers")
-        draft_row = page.get_by_role("row").filter(has_text="Draft Offer — DEMO")
+        draft_row = page.get_by_role("row").filter(has_text="Browser CI Draft Offer")
         expect(draft_row).to_be_visible()
         draft_row.locator('a[href$="/edit"]').first.click()
-        expect(page.locator('input[id$=".title"]')).to_have_value("Draft Offer — DEMO")
-        title = page.locator('input[id$=".title"]')
+        edit_url = page.url
+        expect(page.locator('input[id$=".title"]')).to_have_value("Browser CI Draft Offer")
         toggle = page.get_by_role("switch", name=re.compile("Published", re.I))
         expect(toggle).not_to_be_checked()
 
-        # Edit the draft without making it public first.
-        title.fill("Browser Edited Offer — DEMO")
+        # Saving a draft must preserve the public 404.
+        page.locator('input[id$=".title"]').fill("Browser CI Edited Offer")
         page.get_by_role("button", name="Save changes").click()
         expect(page.get_by_text("Saved", exact=False)).to_be_visible()
-        page.goto("/offers/demo-unpublished-offer")
+        page.goto("/offers/browser-e2e-draft-offer")
         expect(page.get_by_role("heading", name="We couldn't find that page")).to_be_visible()
 
-        page.go_back()
-        expect(page.locator('input[id$=".title"]')).to_have_value("Browser Edited Offer — DEMO")
+        # Reload the edit route from the server, not browser-back cache.
+        page.goto(edit_url)
+        expect(page.locator('input[id$=".title"]')).to_have_value("Browser CI Edited Offer")
         toggle = page.get_by_role("switch", name=re.compile("Published", re.I))
         toggle.click()
+        expect(toggle).to_be_checked()
         page.get_by_role("button", name="Save changes").click()
         expect(page.get_by_text("Saved", exact=False)).to_be_visible()
-        page.goto("/offers/demo-unpublished-offer")
-        expect(page.get_by_role("heading", name="Browser Edited Offer — DEMO")).to_be_visible()
+        page.reload()
+        expect(page.get_by_role("switch", name=re.compile("Published", re.I))).to_be_checked()
+        page.goto("/offers/browser-e2e-draft-offer")
+        expect(page.get_by_role("heading", name="Browser CI Edited Offer")).to_be_visible()
 
-        # Restore the draft in the disposable CI DB so other browser flows
-        # continue to see the original four public fixture offers.
-        page.go_back()
+        # Restore this isolated CI-only draft using the same real form.
+        page.goto(edit_url)
         toggle = page.get_by_role("switch", name=re.compile("Published", re.I))
+        expect(toggle).to_be_checked()
         toggle.click()
+        expect(toggle).not_to_be_checked()
         page.get_by_role("button", name="Save changes").click()
         expect(page.get_by_text("Saved", exact=False)).to_be_visible()
-        page.goto("/offers/demo-unpublished-offer")
+        page.goto("/offers/browser-e2e-draft-offer")
         expect(page.get_by_role("heading", name="We couldn't find that page")).to_be_visible()
 
     def test_regular_user_login_does_not_grant_admin_access(self):
