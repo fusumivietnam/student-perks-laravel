@@ -174,4 +174,5 @@ jobs:
           python3 -m venv /tmp/student-perks-browser-venv
           /tmp/student-perks-browser-venv/bin/python -m pip install --disable-pip-version-check 'playwright==1.56.0'
           /tmp/student-perks-browser-venv/bin/python -m playwright install --with-deps chromium
-          E2E_BASE_URL=http://127.0.0.1:18080 /tmp/student-perks-browser-venv/bin/python -m unittest discover -s tests/browser -p 'test_*.py' -v
+          E2E_BASE_URL=http://127.0.0.1:18080 /tmp/student-perks-browser-venv/bin/python -m unittest discover -s tests/browser -p 'test_public_*.py' -v
+          E2E_BASE_URL=http://127.0.0.1:18080 /tmp/student-perks-browser-venv/bin/python -m unittest discover -s tests/browser -p 'test_admin_*.py' -v
