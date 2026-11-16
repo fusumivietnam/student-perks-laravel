@@ -104,6 +104,44 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
         page.goto("/offers/browser-e2e-draft-offer")
         expect(page.get_by_role("heading", name="We couldn't find that page")).to_be_visible()
 
+
+    def test_create_offer_validates_input_and_saves_private_draft(self):
+        page = self.page
+        self.login("browser-admin@ci.invalid")
+        expect(page).to_have_url(re.compile(r"/admin/?$"))
+        page.goto("/admin/offers/create")
+
+        # Empty submission must not create a record or navigate away.
+        page.get_by_role("button", name="Create", exact=True).click()
+        expect(page).to_have_url(re.compile(r"/admin/offers/create$"))
+        expect(page.locator('input[id$=".title"]')).to_be_visible()
+
+        # Relationship selects can render as native selects or Filament
+        # accessible comboboxes depending on the chosen widget.
+        def choose_relationship(field, label):
+            control = page.locator('[id="form.' + field + '"]')
+            expect(control).to_be_visible()
+            if control.evaluate("(element) => element.tagName === 'SELECT'"):
+                control.select_option(label=label)
+            else:
+                control.click()
+                page.get_by_role("option", name=label, exact=True).click()
+
+        choose_relationship("brand_id", "Demo Learning Lab")
+        choose_relationship("category_id", "Learning (Demo)")
+        page.locator('input[id$=".title"]').fill("Browser Created Draft Offer")
+        page.locator('input[id$=".slug"]').fill("browser-created-draft-offer")
+        page.locator('textarea[id$=".summary"]').fill("Private draft created through Chromium.")
+        page.locator('textarea[id$=".description"]').fill("Not a real partner offer.")
+        page.locator('input[id$=".partner_url"]').fill("https://example.org/")
+        page.get_by_role("button", name="Create", exact=True).click()
+
+        expect(page).to_have_url(re.compile(r"/admin/offers/\\d+/edit$"))
+        expect(page.locator('input[id$=".title"]')).to_have_value("Browser Created Draft Offer")
+        expect(page.get_by_role("switch", name=re.compile("Published", re.I))).not_to_be_checked()
+        page.goto("/offers/browser-created-draft-offer")
+        expect(page.get_by_role("heading", name="We couldn't find that page")).to_be_visible()
+
     def test_regular_user_login_does_not_grant_admin_access(self):
         page = self.page
         self.login("browser-user@ci.invalid")
