@@ -65,7 +65,7 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
         draft_row.locator('a[href$="/edit"]').first.click()
         expect(page.locator('input[id$=".title"]')).to_have_value("Draft Offer — DEMO")
         title = page.locator('input[id$=".title"]')
-        toggle = page.locator('input[type="checkbox"][id$=".is_published"]')
+        toggle = page.get_by_role("switch", name=re.compile("Published", re.I))
         expect(toggle).not_to_be_checked()
 
         # Edit the draft without making it public first.
@@ -77,8 +77,8 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
 
         page.go_back()
         expect(page.locator('input[id$=".title"]')).to_have_value("Browser Edited Offer — DEMO")
-        toggle = page.locator('input[type="checkbox"][id$=".is_published"]')
-        toggle.check(force=True)
+        toggle = page.get_by_role("switch", name=re.compile("Published", re.I))
+        toggle.click()
         page.get_by_role("button", name="Save changes").click()
         expect(page.get_by_text("Saved", exact=False)).to_be_visible()
         page.goto("/offers/demo-unpublished-offer")
@@ -87,8 +87,8 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
         # Restore the draft in the disposable CI DB so other browser flows
         # continue to see the original four public fixture offers.
         page.go_back()
-        toggle = page.locator('input[type="checkbox"][id$=".is_published"]')
-        toggle.uncheck(force=True)
+        toggle = page.get_by_role("switch", name=re.compile("Published", re.I))
+        toggle.click()
         page.get_by_role("button", name="Save changes").click()
         expect(page.get_by_text("Saved", exact=False)).to_be_visible()
         page.goto("/offers/demo-unpublished-offer")
