@@ -136,7 +136,7 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
         page.locator('input[id$=".partner_url"]').fill("https://example.org/")
         page.get_by_role("button", name="Create", exact=True).click()
 
-        expect(page).to_have_url(re.compile(r"/admin/offers/\\d+/edit$"))
+        expect(page).to_have_url(re.compile(r"/admin/offers/\d+/edit$"))
         expect(page.locator('input[id$=".title"]')).to_have_value("Browser Created Draft Offer")
         expect(page.get_by_role("switch", name=re.compile("Published", re.I))).not_to_be_checked()
         page.goto("/offers/browser-created-draft-offer")
