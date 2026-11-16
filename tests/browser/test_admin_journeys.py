@@ -54,6 +54,46 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
         expect(page.locator('input[id$=".slug"]')).to_be_visible()
         expect(page.locator('input[id$=".partner_url"]')).to_be_visible()
 
+    def test_offer_draft_edit_publish_and_unpublish_through_real_browser(self):
+        page = self.page
+        self.login("browser-admin@ci.invalid")
+        expect(page).to_have_url(re.compile(r"/admin/?$"))
+
+        page.goto("/admin/offers")
+        draft_row = page.get_by_role("row").filter(has_text="Draft Offer — DEMO")
+        expect(draft_row).to_be_visible()
+        draft_row.locator('a[href$="/edit"]').first.click()
+        expect(page.locator('input[id$=".title"]')).to_have_value("Draft Offer — DEMO")
+        title = page.locator('input[id$=".title"]')
+        toggle = page.locator('input[type="checkbox"][id$=".is_published"]')
+        expect(toggle).not_to_be_checked()
+
+        # Edit the draft without making it public first.
+        title.fill("Browser Edited Offer — DEMO")
+        page.get_by_role("button", name="Save changes").click()
+        expect(page.get_by_text("Saved", exact=False)).to_be_visible()
+        page.goto("/offers/demo-unpublished-offer")
+        expect(page.get_by_role("heading", name="We couldn't find that page")).to_be_visible()
+
+        page.go_back()
+        expect(page.locator('input[id$=".title"]')).to_have_value("Browser Edited Offer — DEMO")
+        toggle = page.locator('input[type="checkbox"][id$=".is_published"]')
+        toggle.check(force=True)
+        page.get_by_role("button", name="Save changes").click()
+        expect(page.get_by_text("Saved", exact=False)).to_be_visible()
+        page.goto("/offers/demo-unpublished-offer")
+        expect(page.get_by_role("heading", name="Browser Edited Offer — DEMO")).to_be_visible()
+
+        # Restore the draft in the disposable CI DB so other browser flows
+        # continue to see the original four public fixture offers.
+        page.go_back()
+        toggle = page.locator('input[type="checkbox"][id$=".is_published"]')
+        toggle.uncheck(force=True)
+        page.get_by_role("button", name="Save changes").click()
+        expect(page.get_by_text("Saved", exact=False)).to_be_visible()
+        page.goto("/offers/demo-unpublished-offer")
+        expect(page.get_by_role("heading", name="We couldn't find that page")).to_be_visible()
+
     def test_regular_user_login_does_not_grant_admin_access(self):
         page = self.page
         self.login("browser-user@ci.invalid")
