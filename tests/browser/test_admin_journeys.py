@@ -81,8 +81,11 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
         toggle = page.get_by_role("switch", name=re.compile("Published", re.I))
         toggle.click()
         expect(toggle).to_be_checked()
-        page.get_by_role("button", name="Save changes").click()
-        expect(page.get_by_text("Saved", exact=False)).to_be_visible()
+        # Filament entangles this Alpine switch to Livewire state asynchronously.
+        page.wait_for_timeout(600)
+        with page.expect_response(lambda response: "/livewire/update" in response.url and response.request.method == "POST") as save:
+            page.get_by_role("button", name="Save changes").click()
+        self.assertEqual(200, save.value.status)
         page.reload()
         expect(page.get_by_role("switch", name=re.compile("Published", re.I))).to_be_checked()
         page.goto("/offers/browser-e2e-draft-offer")
