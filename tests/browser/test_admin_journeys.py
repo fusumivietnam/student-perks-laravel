@@ -54,6 +54,9 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
         expect(page.locator('input[id$=".slug"]')).to_be_visible()
         expect(page.locator('input[id$=".partner_url"]')).to_be_visible()
 
+        # Reuse this authenticated CMS journey instead of exhausting the login throttle.
+        self.assert_unpublished_brand_and_category_hide_linked_published_offers()
+
     def test_offer_draft_edit_publish_and_unpublish_through_real_browser(self):
         page = self.page
         self.login("browser-admin@ci.invalid")
@@ -215,11 +218,9 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
         finally:
             guest.close()
 
-    def test_unpublished_brand_and_category_hide_linked_published_offers(self):
-        """Filament retains the parent records, but public routes and sitemap must not expose them."""
+    def assert_unpublished_brand_and_category_hide_linked_published_offers(self):
+        """Reuse an authenticated browser session; do not exhaust the login throttle."""
         page = self.page
-        self.login("browser-admin@ci.invalid")
-        expect(page).to_have_url(re.compile(r"/admin/?$"))
         page.goto("/admin/brands")
         expect(page.get_by_text("Browser CI Hidden Brand")).to_be_visible()
         page.goto("/admin/categories")
@@ -250,6 +251,43 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
             "browser-ci-hidden-category-offer",
         ]:
             self.assertNotIn(slug, sitemap.text())
+
+        # Enable each hidden parent through the Filament edit modal, then restore it.
+        for resource, name, slug, offer_slug in [
+            ("brands", "Browser CI Hidden Brand", "browser-ci-hidden-brand", "browser-ci-hidden-brand-offer"),
+            ("categories", "Browser CI Hidden Category", "browser-ci-hidden-category", "browser-ci-hidden-category-offer"),
+        ]:
+            with self.subTest(resource=resource):
+                page.goto("/admin/" + resource)
+                row = page.get_by_role("row").filter(has_text=name)
+                expect(row).to_be_visible()
+                row.get_by_text("Edit", exact=True).click()
+                field = page.locator('input[id$=".name"]')
+                expect(field).to_have_value(name)
+                toggle = page.get_by_role("switch", name=re.compile("Published", re.I))
+                expect(toggle).not_to_be_checked()
+                edited_name = name + " Edited"
+                field.fill(edited_name)
+                toggle.click()
+                expect(toggle).to_be_checked()
+                page.get_by_role("button", name="Save changes", exact=True).click()
+                expect(field).not_to_be_visible()
+                expect(page.get_by_role("row").filter(has_text=edited_name)).to_be_visible()
+                self.assertEqual(page.request.get("/" + resource + "/" + slug).status, 200)
+                self.assertEqual(page.request.get("/offers/" + offer_slug).status, 200)
+
+                page.reload()
+                row = page.get_by_role("row").filter(has_text=edited_name)
+                row.get_by_text("Edit", exact=True).click()
+                expect(field).to_have_value(edited_name)
+                expect(toggle).to_be_checked()
+                field.fill(name)
+                toggle.click()
+                expect(toggle).not_to_be_checked()
+                page.get_by_role("button", name="Save changes", exact=True).click()
+                expect(field).not_to_be_visible()
+                self.assertEqual(page.request.get("/" + resource + "/" + slug).status, 404)
+                self.assertEqual(page.request.get("/offers/" + offer_slug).status, 404)
 
     def test_regular_user_login_does_not_grant_admin_access(self):
         page = self.page
