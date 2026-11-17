@@ -142,6 +142,45 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
         page.goto("/offers/browser-created-draft-offer")
         expect(page.get_by_role("heading", name="We couldn't find that page")).to_be_visible()
 
+    def test_article_publication_and_private_preview_permissions_in_browser(self):
+        """An unpublished editorial record stays private even when an admin can preview it."""
+        page = self.page
+        self.login("browser-admin@ci.invalid")
+        expect(page).to_have_url(re.compile(r"/admin/?$"))
+
+        # Both records come from the guarded, disposable PreviewDemoSeeder.
+        page.goto("/admin/articles")
+        live_row = page.get_by_role("row").filter(has_text="How to compare student offers — DEMO")
+        draft_row = page.get_by_role("row").filter(has_text="Editorial draft — DEMO")
+        expect(live_row).to_be_visible()
+        expect(draft_row).to_be_visible()
+        expect(live_row.get_by_text("Live", exact=True)).to_be_visible()
+        expect(draft_row.get_by_text("Draft", exact=True)).to_be_visible()
+
+        # The published article is accessible to visitors, but the draft route is not.
+        page.goto("/articles/demo-how-to-compare-offers")
+        expect(page.get_by_role("heading", name="How to compare student offers — DEMO")).to_be_visible()
+        draft_public = page.request.get("/articles/demo-editorial-draft")
+        self.assertEqual(draft_public.status, 404)
+
+        # Admin preview must be private, uncached and excluded from search indexing.
+        # Obtain the real preview URL from the Filament row rather than guessing IDs.
+        page.goto("/admin/articles")
+        draft_row = page.get_by_role("row").filter(has_text="Editorial draft — DEMO")
+        preview_url = draft_row.get_by_role("link", name="Preview saved").get_attribute("href")
+        self.assertIsNotNone(preview_url)
+        preview = page.request.get(preview_url)
+        self.assertEqual(preview.status, 200)
+        self.assertIn("noindex", preview.headers.get("x-robots-tag", "").lower())
+        self.assertIn("no-store", preview.headers.get("cache-control", "").lower())
+
+        # A separate anonymous browser context cannot read the same preview URL.
+        guest = self.browser.new_context(base_url=BASE_URL)
+        try:
+            self.assertEqual(guest.request.get(preview_url).status, 403)
+        finally:
+            guest.close()
+
     def test_regular_user_login_does_not_grant_admin_access(self):
         page = self.page
         self.login("browser-user@ci.invalid")
