@@ -181,6 +181,40 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
         finally:
             guest.close()
 
+    def test_page_publication_and_preview_access_in_browser(self):
+        page = self.page
+        self.login("browser-admin@ci.invalid")
+        expect(page).to_have_url(re.compile(r"/admin/?$"))
+        page.goto("/admin/pages")
+
+        published = page.get_by_role("row").filter(has_text="Browser CI Live Page")
+        draft = page.get_by_role("row").filter(has_text="Browser CI Draft Page")
+        expect(published.get_by_text("Live", exact=True)).to_be_visible()
+        expect(draft.get_by_text("Draft", exact=True)).to_be_visible()
+
+        preview_url = draft.get_by_role("link", name="Preview saved").get_attribute("href")
+        self.assertIsNotNone(preview_url)
+        preview = page.request.get(preview_url)
+        self.assertEqual(preview.status, 200)
+        self.assertIn("Private page fixture", preview.text())
+        self.assertIn("noindex", preview.headers.get("x-robots-tag", "").lower())
+        self.assertIn("no-store", preview.headers.get("cache-control", "").lower())
+
+        page.goto("/pages/browser-ci-live-page")
+        expect(page.get_by_role("heading", name="Browser CI Live Page")).to_be_visible()
+        self.assertEqual(page.request.get("/pages/browser-ci-draft-page").status, 404)
+
+        sitemap = page.request.get("/sitemap.xml")
+        self.assertEqual(sitemap.status, 200)
+        self.assertIn("/pages/browser-ci-live-page", sitemap.text())
+        self.assertNotIn("/pages/browser-ci-draft-page", sitemap.text())
+
+        guest = self.browser.new_context(base_url=BASE_URL)
+        try:
+            self.assertEqual(guest.request.get(preview_url).status, 403)
+        finally:
+            guest.close()
+
     def test_regular_user_login_does_not_grant_admin_access(self):
         page = self.page
         self.login("browser-user@ci.invalid")
