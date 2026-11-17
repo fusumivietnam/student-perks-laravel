@@ -215,6 +215,42 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
         finally:
             guest.close()
 
+    def test_unpublished_brand_and_category_hide_linked_published_offers(self):
+        """Filament retains the parent records, but public routes and sitemap must not expose them."""
+        page = self.page
+        self.login("browser-admin@ci.invalid")
+        expect(page).to_have_url(re.compile(r"/admin/?$"))
+        page.goto("/admin/brands")
+        expect(page.get_by_text("Browser CI Hidden Brand")).to_be_visible()
+        page.goto("/admin/categories")
+        expect(page.get_by_text("Browser CI Hidden Category")).to_be_visible()
+
+        # Distinct published offers each have one unpublished parent.
+        # Public routes must enforce parent visibility, not just the offer's own flag.
+        for path in [
+            "/brands/browser-ci-hidden-brand",
+            "/categories/browser-ci-hidden-category",
+            "/offers/browser-ci-hidden-brand-offer",
+            "/offers/browser-ci-hidden-category-offer",
+        ]:
+            self.assertEqual(page.request.get(path).status, 404, path)
+
+        for path in ["/", "/offers", "/search?q=browser-ci-parent", "/brands"]:
+            content = page.request.get(path)
+            self.assertEqual(content.status, 200, path)
+            self.assertNotIn("browser-ci-hidden-brand-offer", content.text(), path)
+            self.assertNotIn("browser-ci-hidden-category-offer", content.text(), path)
+
+        sitemap = page.request.get("/sitemap.xml")
+        self.assertEqual(sitemap.status, 200)
+        for slug in [
+            "browser-ci-hidden-brand",
+            "browser-ci-hidden-category",
+            "browser-ci-hidden-brand-offer",
+            "browser-ci-hidden-category-offer",
+        ]:
+            self.assertNotIn(slug, sitemap.text())
+
     def test_regular_user_login_does_not_grant_admin_access(self):
         page = self.page
         self.login("browser-user@ci.invalid")
