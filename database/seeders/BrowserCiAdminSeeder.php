@@ -52,6 +52,24 @@ class BrowserCiAdminSeeder extends Seeder
             ],
         );
 
+        // Exclusive browser-CI Page fixtures; never alter editor-owned preview content.
+        \App\Models\Page::firstOrCreate(
+            ['slug' => 'browser-ci-draft-page'],
+            [
+                'title' => 'Browser CI Draft Page',
+                'body' => 'Private page fixture for browser acceptance.',
+                'is_published' => false,
+            ],
+        );
+        \App\Models\Page::firstOrCreate(
+            ['slug' => 'browser-ci-live-page'],
+            [
+                'title' => 'Browser CI Live Page',
+                'body' => 'Published fictional browser acceptance page.',
+                'is_published' => true,
+            ],
+        );
+
         $this->command?->info('Disposable CI browser accounts and draft fixture created. Never use in real deployments.');
     }
 }
