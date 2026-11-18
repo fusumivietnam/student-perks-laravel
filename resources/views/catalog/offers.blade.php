@@ -13,7 +13,7 @@
             <span aria-hidden="true">/</span>
             <a href="{{ request()->routeIs('brands.show') ? route('brands.index') : route('offers.index') }}" class="rounded-sm font-semibold hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700">{{ request()->routeIs('brands.show') ? 'Brands' : 'All offers' }}</a>
             <span aria-hidden="true">/</span>
-            <span aria-current="page" class="break-all">{{ $title }}</span>
+            <span aria-current="page" class="break-words">{{ $title }}</span>
         </nav>
     @endif
     <header class="max-w-3xl">
@@ -29,7 +29,7 @@
                 <a href="{{ ($filterAction ?? route('offers.index')) }}" class="inline-flex min-h-10 items-center text-sm font-bold text-indigo-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">Clear filters</a>
             </div>
             <form method="GET" action="{{ ($filterAction ?? route('offers.index')) }}" role="search" class="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-                <div class="col-span-2 lg:col-span-3">
+                <div class="col-span-2 lg:col-span-4">
                     <label for="q" class="mb-2 block text-sm font-bold text-slate-700">Search offers</label>
                     <input id="q" type="search" name="q" value="{{ $term }}" maxlength="100" placeholder="Title, brand or keyword" class="min-h-12 w-full min-w-0 rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-500 focus-visible:border-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-500">
                 </div>
