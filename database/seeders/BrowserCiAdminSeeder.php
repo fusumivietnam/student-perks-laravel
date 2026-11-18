@@ -70,6 +70,39 @@ class BrowserCiAdminSeeder extends Seeder
             ],
         );
 
+        // Published offers with unpublished parents must remain invisible in every public journey.
+        $visibleBrand = Brand::firstOrCreate(
+            ['slug' => 'browser-ci-visible-brand'],
+            ['name' => 'Browser CI Visible Brand', 'is_published' => true],
+        );
+        $hiddenBrand = Brand::firstOrCreate(
+            ['slug' => 'browser-ci-hidden-brand'],
+            ['name' => 'Browser CI Hidden Brand', 'is_published' => false],
+        );
+        $visibleCategory = Category::firstOrCreate(
+            ['slug' => 'browser-ci-visible-category'],
+            ['name' => 'Browser CI Visible Category', 'is_published' => true],
+        );
+        $hiddenCategory = Category::firstOrCreate(
+            ['slug' => 'browser-ci-hidden-category'],
+            ['name' => 'Browser CI Hidden Category', 'is_published' => false],
+        );
+
+        foreach ([
+            ['browser-ci-hidden-brand-offer', $hiddenBrand->id, $visibleCategory->id],
+            ['browser-ci-hidden-category-offer', $visibleBrand->id, $hiddenCategory->id],
+        ] as [$slug, $brandId, $categoryId]) {
+            Offer::firstOrCreate(['slug' => $slug], [
+                'brand_id' => $brandId,
+                'category_id' => $categoryId,
+                'title' => 'Browser CI Parent Visibility '.$slug,
+                'summary' => 'A fictional offer that must never appear publicly.',
+                'description' => 'Browser-only acceptance fixture.',
+                'partner_url' => 'https://example.org/',
+                'is_published' => true,
+            ]);
+        }
+
         $this->command?->info('Disposable CI browser accounts and draft fixture created. Never use in real deployments.');
     }
 }
