@@ -56,6 +56,7 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
 
         # Reuse this authenticated CMS journey instead of exhausting the login throttle.
         self.assert_unpublished_brand_and_category_hide_linked_published_offers()
+        self.assert_modal_cms_create_edit_delete()
 
     def test_offer_draft_edit_publish_and_unpublish_through_real_browser(self):
         page = self.page
@@ -288,6 +289,59 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
                 expect(field).not_to_be_visible()
                 self.assertEqual(page.request.get("/" + resource + "/" + slug).status, 404)
                 self.assertEqual(page.request.get("/offers/" + offer_slug).status, 404)
+
+    def assert_modal_cms_create_edit_delete(self):
+        """Exercise the four ManageRecords resources without another admin login."""
+        page = self.page
+        for resource, singular, field_name in [
+            ("brands", "brand", "name"),
+            ("categories", "category", "name"),
+            ("articles", "article", "title"),
+            ("pages", "page", "title"),
+        ]:
+            with self.subTest(resource=resource):
+                slug = "browser-crud-" + singular
+                name = "Browser CRUD " + singular.title()
+                page.goto("/admin/" + resource)
+                page.get_by_role("button", name=re.compile(r"^New " + singular + r"$", re.I)).click()
+                field = page.locator('input[id$=".' + field_name + '"]')
+                expect(field).to_be_visible()
+                field.fill(name)
+                page.locator('input[id$=".slug"]').fill(slug)
+                if resource == "articles":
+                    page.locator('textarea[id$=".summary"]').fill("Fictional browser test summary.")
+                if resource in ("articles", "pages"):
+                    page.locator('textarea[id$=".body"]').fill("Fictional browser test body.")
+                toggle = page.get_by_role("switch", name=re.compile("Published", re.I))
+                if toggle.get_attribute("aria-checked") == "true":
+                    toggle.click()
+                expect(toggle).not_to_be_checked()
+                page.get_by_role("button", name="Create", exact=True).click()
+                expect(field).not_to_be_visible()
+                row = page.get_by_role("row").filter(has_text=name)
+                expect(row).to_be_visible()
+                self.assertEqual(page.request.get("/" + resource + "/" + slug).status, 404)
+
+                # Reload to prove the record was persisted, then publish via Edit.
+                page.reload()
+                row = page.get_by_role("row").filter(has_text=name)
+                row.get_by_text("Edit", exact=True).click()
+                expect(field).to_have_value(name)
+                expect(toggle).not_to_be_checked()
+                toggle.click()
+                expect(toggle).to_be_checked()
+                page.get_by_role("button", name="Save changes", exact=True).click()
+                expect(field).not_to_be_visible()
+                public = page.request.get("/" + resource + "/" + slug)
+                self.assertEqual(public.status, 200)
+                self.assertIn(name, public.text())
+
+                # Delete only the newly created, unlinked CI record.
+                row = page.get_by_role("row").filter(has_text=name)
+                row.get_by_text("Delete", exact=True).click()
+                page.get_by_role("button", name="Delete", exact=True).last.click()
+                expect(row).to_have_count(0)
+                self.assertEqual(page.request.get("/" + resource + "/" + slug).status, 404)
 
     def test_regular_user_login_does_not_grant_admin_access(self):
         page = self.page
