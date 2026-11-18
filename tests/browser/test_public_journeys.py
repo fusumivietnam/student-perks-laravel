@@ -59,6 +59,37 @@ class PublicBrowserJourneysTest(unittest.TestCase):
         page.goto("/offers/demo-unpublished-offer")
         expect(page.get_by_role("heading", name="We couldn't find that page")).to_be_visible()
 
+    def test_mobile_discovery_filters_and_collection_navigation(self):
+        page = self.page
+        page.set_viewport_size({"width": 360, "height": 800})
+        page.goto("/offers")
+        brand = page.get_by_label("Brand", exact=True)
+        category = page.get_by_label("Category", exact=True)
+        self.assertAlmostEqual(brand.bounding_box()["y"], category.bounding_box()["y"], delta=2)
+        brand.select_option("demo-cloud-studio")
+        category.select_option("demo-software")
+        page.get_by_role("button", name="Apply filters").click()
+        expect(page.get_by_text("2 offers found")).to_be_visible()
+        expect(page.get_by_text("Brand: Demo Cloud Studio")).to_be_visible()
+        page.get_by_role("link", name="Reset all").click()
+        expect(page.get_by_text("4 offers found")).to_be_visible()
+
+        page.goto("/brands/demo-cloud-studio")
+        expect(page.get_by_role("navigation", name="Breadcrumb")).to_be_visible()
+        expect(page.get_by_role("heading", name="Demo Cloud Studio")).to_be_visible()
+        page.get_by_role("navigation", name="Breadcrumb").get_by_role("link", name="Brands").click()
+        expect(page.get_by_role("heading", name="Discover brands")).to_be_visible()
+
+        page.goto("/categories/demo-software")
+        expect(page.get_by_role("navigation", name="Breadcrumb")).to_be_visible()
+        page.get_by_role("navigation", name="Breadcrumb").get_by_role("link", name="All offers").click()
+        expect(page.get_by_role("heading", name="Student offers")).to_be_visible()
+
+        page.goto("/search?q=nonexistent-unique-test")
+        expect(page.get_by_role("heading", name="No offers found")).to_be_visible()
+        page.get_by_role("link", name="See all offers").click()
+        expect(page.get_by_role("heading", name="Student offers")).to_be_visible()
+
     def test_home_to_brands_guides_and_admin_login(self):
         page = self.page
         page.goto("/")
