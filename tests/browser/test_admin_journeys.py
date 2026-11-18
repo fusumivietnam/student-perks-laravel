@@ -339,7 +339,11 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
                 # Delete only the newly created, unlinked CI record.
                 row = page.get_by_role("row").filter(has_text=name)
                 row.get_by_text("Delete", exact=True).click()
-                page.get_by_role("button", name="Delete", exact=True).last.click()
+                # Scope confirmation to the visible modal, not another table row.
+                dialog = page.locator(".fi-modal-window-ctn:visible")
+                confirm = dialog.get_by_role("button", name="Delete", exact=True)
+                expect(confirm).to_be_visible()
+                confirm.click()
                 expect(row).to_have_count(0)
                 self.assertEqual(page.request.get("/" + resource + "/" + slug).status, 404)
 
