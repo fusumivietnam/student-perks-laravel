@@ -19,20 +19,20 @@
             <a href="{{ route('brands.show', $offer->brand->slug) }}" class="rounded-sm hover:text-indigo-700 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">{{ $offer->brand->name }}</a>
         @endif
         <span aria-hidden="true">/</span>
-        <span class="max-w-full truncate font-medium text-slate-700" aria-current="page">{{ $offer->title }}</span>
+        <span class="max-w-full wrap-anywhere font-medium text-slate-700" aria-current="page">{{ $offer->title }}</span>
     </nav>
 
     <article class="grid min-w-0 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-x-10">
         <div class="min-w-0 lg:col-start-1 lg:row-start-1">
             <header class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-                <div class="relative flex min-h-44 items-center justify-between overflow-hidden bg-gradient-to-br from-indigo-100 via-violet-50 to-sky-100 px-7 py-8 sm:px-10">
+                <div class="relative flex min-h-36 items-center justify-between gap-3 overflow-hidden sm:min-h-44 bg-gradient-to-br from-indigo-100 via-violet-50 to-sky-100 px-5 py-6 sm:px-10 sm:py-8">
                     <div class="absolute -right-16 -top-24 h-64 w-64 rounded-full border-[32px] border-white/50" aria-hidden="true"></div>
                     <x-brand-mark :brand="$offer->brand" class="relative h-20 w-20" text-class="text-2xl" />
                     @if($offer->offer_value)
                         <span class="relative max-w-44 break-words rounded-full bg-white px-4 py-2 text-center text-sm font-extrabold text-indigo-800 shadow-sm">{{ $offer->offer_value }}</span>
                     @endif
                 </div>
-                <div class="px-6 py-8 sm:px-10 sm:py-10">
+                <div class="px-5 py-6 sm:px-10 sm:py-10">
                     <div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-bold text-indigo-700">
                         @if($isPreview ?? false)
                             <span>{{ $offer->brand->name }}</span>
@@ -44,8 +44,7 @@
                             <a class="rounded-sm hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('categories.show', $offer->category->slug) }}">{{ $offer->category->name }}</a>
                         @endif
                     </div>
-                    <h1 class="mt-4 break-words text-3xl font-extrabold leading-tight tracking-tight text-slate-950 sm:text-4xl">{{ $offer->title }}</h1>
-                    <p class="mt-5 text-base leading-relaxed text-slate-600 sm:text-lg">{{ $offer->summary }}</p>
+                    <x-public-page-heading class="mt-4" :title="$offer->title" :description="$offer->summary" />
                 </div>
             </header>
         </div>
@@ -57,16 +56,16 @@
             <dl class="mt-5 divide-y divide-slate-100 border-y border-slate-100 text-sm">
                 <div class="flex items-start justify-between gap-3 py-3">
                     <dt class="text-slate-500">Brand</dt>
-                    <dd class="text-right font-semibold text-slate-900">{{ $offer->brand->name }}</dd>
+                    <dd class="min-w-0 wrap-anywhere text-right font-semibold text-slate-900">{{ $offer->brand->name }}</dd>
                 </div>
                 <div class="flex items-start justify-between gap-3 py-3">
                     <dt class="text-slate-500">Category</dt>
-                    <dd class="text-right font-semibold text-slate-900">{{ $offer->category->name }}</dd>
+                    <dd class="min-w-0 wrap-anywhere text-right font-semibold text-slate-900">{{ $offer->category->name }}</dd>
                 </div>
                 @if($offer->ends_at)
                     <div class="flex items-start justify-between gap-3 py-3">
                         <dt class="text-slate-500">Offer ends</dt>
-                        <dd class="text-right font-semibold text-slate-900"><time datetime="{{ $offer->ends_at->toDateString() }}">{{ $offer->ends_at->format('j M Y') }}</time></dd>
+                        <dd class="min-w-0 wrap-anywhere text-right font-semibold text-slate-900"><time datetime="{{ $offer->ends_at->toDateString() }}">{{ $offer->ends_at->format('j M Y') }}</time></dd>
                     </div>
                 @endif
             </dl>
@@ -80,7 +79,7 @@
                 <p role="status" class="mt-6 rounded-xl bg-amber-50 p-4 text-sm font-semibold text-amber-950">Partner destination is awaiting editorial review. The link will be available after it has been verified.</p>
             @endif
             <p class="mt-4 text-sm leading-relaxed text-slate-600">You'll leave Student Perks Hub. The partner verifies eligibility and handles redemption. Terms and availability may change.</p>
-            <a href="{{ route('offers.index') }}" class="mt-5 inline-flex min-h-10 items-center rounded-md text-sm font-bold text-indigo-700 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">← Browse more offers</a>
+            <a href="{{ route('offers.index') }}" class="mt-5 inline-flex min-h-11 items-center rounded-md text-sm font-bold text-indigo-700 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">← Browse more offers</a>
         </aside>
         <div class="min-w-0 lg:col-start-1 lg:row-start-2">
             <div class="space-y-6">
