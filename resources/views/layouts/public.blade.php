@@ -29,7 +29,7 @@
             </nav>
         </div>
     </header>
-    <main id="main" class="mx-auto min-h-[65vh] max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+    <main id="main" tabindex="-1" class="scroll-mt-32 mx-auto min-h-[65vh] max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
         @yield('content')
     </main>
     <footer class="mt-16 border-t border-slate-200 bg-white">

@@ -28,9 +28,23 @@ class EditorialMobileAccessibilityTest extends TestCase
             ->assertSee('break-words', false);
 
         $this->get(route('articles.show', $article->slug))->assertOk()
+            ->assertSee('data-ui="public-reading-panel"', false)
+            ->assertSee('data-ui="public-page-heading"', false)
             ->assertSee('break-words text-3xl', false)
             ->assertSee('whitespace-pre-line break-words', false)
             ->assertSee('focus-visible:outline-2', false);
+    }
+
+    public function test_public_index_pages_share_the_same_heading_component(): void
+    {
+        foreach (['brands.index', 'articles.index'] as $route) {
+            $this->get(route($route))->assertOk()
+                ->assertSee('data-ui="public-page-heading"', false)
+                ->assertSee('break-words text-3xl font-extrabold', false);
+        }
+        $this->get(route('articles.index'))->assertOk()
+            ->assertSee('Browse offers')
+            ->assertSee('href="'.route('offers.index').'"', false);
     }
 
     public function test_published_pages_preserve_whitespace_and_wrap_long_text(): void
@@ -44,6 +58,8 @@ class EditorialMobileAccessibilityTest extends TestCase
 
         $this->get(route('pages.show', $page->slug))->assertOk()
             ->assertSee($page->title)
+            ->assertSee('data-ui="public-reading-panel"', false)
+            ->assertSee('data-ui="public-page-heading"', false)
             ->assertSee('break-words text-3xl', false)
             ->assertSee('whitespace-pre-line break-words', false);
     }
