@@ -14,7 +14,7 @@
                     <x-brand-mark :brand="$brand" class="h-14 w-14" />
                     <h2 class="mt-5 break-words text-xl font-bold tracking-tight"><a class="rounded-sm hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('brands.show', $brand->slug) }}">{{ $brand->name }}</a></h2>
                     @if($brand->description)<p class="mt-3 line-clamp-3 flex-1 break-words text-sm leading-relaxed text-slate-600">{{ $brand->description }}</p>@endif
-                    <a class="mt-6 inline-flex min-h-11 items-center gap-2 border-t border-slate-100 pt-4 text-sm font-bold text-indigo-700 hover:text-indigo-900 focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('brands.show', $brand->slug) }}">Explore offers <span aria-hidden="true">→</span></a>
+                    <a class="mt-6 inline-flex min-h-11 items-center gap-2 border-t border-slate-100 pt-4 text-sm font-bold text-indigo-700 hover:text-indigo-900 focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('brands.show', $brand->slug) }}">Explore offers<span class="sr-only">: {{ $brand->name }}</span> <span aria-hidden="true">→</span></a>
                 </article>
             @endforeach
         </div>

@@ -22,7 +22,7 @@
                 <p class="text-sm text-slate-500">{{ ($article->published_at ?? $article->created_at)->format('j M Y') }}</p>
                 <h2 class="mt-3 break-words text-xl font-bold"><a href="{{ route('articles.show', $article->slug) }}" class="rounded-sm hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700">{{ $article->title }}</a></h2>
                 <p class="mt-3 flex-1 break-words text-sm leading-relaxed text-slate-600">{{ $article->summary }}</p>
-                <a href="{{ route('articles.show', $article->slug) }}" class="mt-5 inline-flex min-h-11 items-center self-start rounded-md font-semibold text-indigo-700 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">Read guide</a>
+                <a href="{{ route('articles.show', $article->slug) }}" class="mt-5 inline-flex min-h-11 items-center self-start rounded-md font-semibold text-indigo-700 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">Read guide<span class="sr-only">: {{ $article->title }}</span></a>
                 </div>
             </article>
         @empty

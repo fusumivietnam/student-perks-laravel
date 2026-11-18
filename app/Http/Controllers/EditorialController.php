@@ -18,7 +18,9 @@ class EditorialController extends Controller
     public function articles(): View
     {
         return view('editorial.articles', [
-            'articles' => Article::published()->orderByDesc('published_at')->latest()->orderByDesc('id')->paginate(12),
+            'articles' => Article::published()
+                ->select(['id', 'title', 'slug', 'summary', 'cover_path', 'published_at', 'created_at'])
+                ->orderByDesc('published_at')->latest()->orderByDesc('id')->paginate(12),
         ]);
     }
 

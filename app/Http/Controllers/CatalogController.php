@@ -14,10 +14,17 @@ use Illuminate\View\View;
 
 class CatalogController extends Controller
 {
+    private function offerCards(): Builder
+    {
+        return Offer::current()
+            ->select(['id', 'brand_id', 'category_id', 'title', 'slug', 'summary', 'offer_type', 'offer_value', 'ends_at'])
+            ->with(['brand:id,name,slug,logo_path', 'category:id,name,slug']);
+    }
+
     public function home(): View
     {
         return view('catalog.home', [
-            'offers' => Offer::current()->with(['brand', 'category'])->latest()->orderByDesc('id')->limit(6)->get(),
+            'offers' => $this->offerCards()->latest()->orderByDesc('id')->limit(6)->get(),
             'brands' => Brand::where('is_published', true)->orderBy('name')->orderBy('id')->limit(12)->get(),
             'categories' => Category::where('is_published', true)->orderBy('name')->orderBy('id')->get(),
         ]);
@@ -38,7 +45,7 @@ class CatalogController extends Controller
         $type = is_string($rawType) ? mb_substr($rawType, 0, 255) : '';
         $sort = $request->query('sort') === 'ending' ? 'ending' : 'latest';
 
-        $query = Offer::current()->with(['brand', 'category'])
+        $query = $this->offerCards()
             ->when($term !== '', fn (Builder $query) => $query->where(
                 fn (Builder $query) => $query->whereLike('title', $searchPattern)
                     ->orWhereLike('summary', $searchPattern)
@@ -56,8 +63,8 @@ class CatalogController extends Controller
             'title' => $request->routeIs('search') ? 'Search student offers' : 'Student offers',
             'filterAction' => $request->routeIs('search') ? route('search') : route('offers.index'),
             'offers' => $query->paginate(12)->withQueryString(),
-            'brands' => Brand::where('is_published', true)->orderBy('name')->get(),
-            'categories' => Category::where('is_published', true)->orderBy('name')->get(),
+            'brands' => Brand::where('is_published', true)->orderBy('name')->get(['name', 'slug']),
+            'categories' => Category::where('is_published', true)->orderBy('name')->get(['name', 'slug']),
             'types' => Offer::current()->whereNotNull('offer_type')->where('offer_type', '<>', '')
                 ->distinct()->orderBy('offer_type')->pluck('offer_type'),
             'term' => $term,
@@ -112,7 +119,7 @@ class CatalogController extends Controller
         return view('catalog.offers', [
             'title' => $brand->name,
             'description' => $brand->description,
-            'offers' => Offer::current()->with(['brand', 'category'])->whereBelongsTo($brand)->latest()->orderByDesc('id')->paginate(12),
+            'offers' => $this->offerCards()->whereBelongsTo($brand)->latest()->orderByDesc('id')->paginate(12),
             'brands' => collect(),
             'categories' => collect(),
             'term' => '',
@@ -130,7 +137,7 @@ class CatalogController extends Controller
         return view('catalog.offers', [
             'title' => $category->name,
             'description' => $category->description,
-            'offers' => Offer::current()->with(['brand', 'category'])->whereBelongsTo($category)->latest()->orderByDesc('id')->paginate(12),
+            'offers' => $this->offerCards()->whereBelongsTo($category)->latest()->orderByDesc('id')->paginate(12),
             'brands' => collect(),
             'categories' => collect(),
             'term' => '',
