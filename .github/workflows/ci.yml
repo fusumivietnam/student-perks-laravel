@@ -74,6 +74,11 @@ jobs:
         run: composer validate --strict
       - name: Install PHP dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
+      - name: Inspect PHP formatting baseline
+        run: vendor/bin/pint --test
+        continue-on-error: true
+      - name: Audit locked PHP dependencies
+        run: composer audit --locked --no-interaction
       - name: Test PostgreSQL migrations and application
         env:
           DB_CONNECTION: pgsql
