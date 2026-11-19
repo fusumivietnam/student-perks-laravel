@@ -100,7 +100,7 @@ class PublicBrowserJourneysTest(unittest.TestCase):
         expect(page.get_by_role("heading", level=1)).to_be_visible()
 
         page.goto("/articles")
-        page.get_by_role("link", name="How to compare student offers — DEMO").click()
+        page.get_by_role("link", name="How to compare student offers — DEMO", exact=True).click()
         expect(page.get_by_role("heading", name="How to compare student offers — DEMO")).to_be_visible()
 
         page.goto("/admin/login")
