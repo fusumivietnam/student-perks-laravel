@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\Articles\ArticleResource;
+use App\Filament\Resources\Pages\PageResource;
 use App\Models\Article;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Offer;
 use App\Models\Page;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -90,8 +93,8 @@ class EditorialSeoTest extends TestCase
 
     public function test_editorial_admin_resources_are_registered(): void
     {
-        $panel = \Filament\Facades\Filament::getPanel('admin');
-        $this->assertContains(\App\Filament\Resources\Articles\ArticleResource::class, $panel->getResources());
-        $this->assertContains(\App\Filament\Resources\Pages\PageResource::class, $panel->getResources());
+        $panel = Filament::getPanel('admin');
+        $this->assertContains(ArticleResource::class, $panel->getResources());
+        $this->assertContains(PageResource::class, $panel->getResources());
     }
 }

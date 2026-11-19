@@ -2,10 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\Offer;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Offer;
+use App\Models\Page;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use RuntimeException;
 
@@ -53,7 +54,7 @@ class BrowserCiAdminSeeder extends Seeder
         );
 
         // Exclusive browser-CI Page fixtures; never alter editor-owned preview content.
-        \App\Models\Page::firstOrCreate(
+        Page::firstOrCreate(
             ['slug' => 'browser-ci-draft-page'],
             [
                 'title' => 'Browser CI Draft Page',
@@ -61,7 +62,7 @@ class BrowserCiAdminSeeder extends Seeder
                 'is_published' => false,
             ],
         );
-        \App\Models\Page::firstOrCreate(
+        Page::firstOrCreate(
             ['slug' => 'browser-ci-live-page'],
             [
                 'title' => 'Browser CI Live Page',

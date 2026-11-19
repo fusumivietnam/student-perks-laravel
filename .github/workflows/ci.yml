@@ -74,9 +74,14 @@ jobs:
         run: composer validate --strict
       - name: Install PHP dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
-      - name: Inspect PHP formatting baseline
-        run: vendor/bin/pint --test
-        continue-on-error: true
+      - name: Enforce PHP coding standards
+        run: |
+          if ! vendor/bin/pint --test; then
+            # Print the exact formatter-generated patch; never write back to GitHub.
+            vendor/bin/pint
+            git diff --no-color -- app bootstrap config database routes tests
+            exit 1
+          fi
       - name: Audit locked PHP dependencies
         run: composer audit --locked --no-interaction
       - name: Test PostgreSQL migrations and application

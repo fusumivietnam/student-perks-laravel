@@ -6,6 +6,8 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Offer;
 use App\Models\User;
+use Filament\Facades\Filament;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -46,7 +48,7 @@ class OfferCatalogTest extends TestCase
     public function test_only_explicit_administrators_can_access_filament(): void
     {
         $user = User::factory()->create();
-        $panel = \Filament\Facades\Filament::getPanel('admin');
+        $panel = Filament::getPanel('admin');
 
         $this->assertFalse($user->canAccessPanel($panel));
         $user->forceFill(['is_admin' => true])->save();
@@ -56,7 +58,7 @@ class OfferCatalogTest extends TestCase
     public function test_brand_and_offer_slugs_are_unique_in_postgresql(): void
     {
         Brand::create(['name' => 'One', 'slug' => 'same']);
-        $this->expectException(\Illuminate\Database\UniqueConstraintViolationException::class);
+        $this->expectException(UniqueConstraintViolationException::class);
         Brand::create(['name' => 'Two', 'slug' => 'same']);
     }
 }

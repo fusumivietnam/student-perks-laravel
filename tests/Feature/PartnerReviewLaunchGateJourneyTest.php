@@ -120,4 +120,3 @@ class PartnerReviewLaunchGateJourneyTest extends TestCase
             ->assertSee('href="https://example.org/learning"', false);
     }
 }
-

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Providers\AppServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -33,7 +34,7 @@ class FilamentCodespacesProxyTest extends TestCase
     {
         config()->set('app.env', 'local');
         config()->set('app.url', 'https://sample-8080.app.github.dev');
-        (new \App\Providers\AppServiceProvider($this->app))->boot();
+        (new AppServiceProvider($this->app))->boot();
 
         $this->withServerVariables([
             'REMOTE_ADDR' => '172.18.0.5',
