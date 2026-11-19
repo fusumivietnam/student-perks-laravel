@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Brands')
-@if($brands->currentPage() > 1)
+@if((request()->has('page') || $brands->currentPage() > 1))
     @section('robots', 'noindex,follow')
 @endif
 

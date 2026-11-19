@@ -102,7 +102,7 @@ class StablePaginationTest extends TestCase
                 ->assertOk()
                 ->assertSee('data-ui="pagination-recovery"', false)
                 ->assertSee('href="'.$first.'"', false)
-                ->assertSee('noindex,follow');
+                ->assertSee('<meta name="robots" content="noindex,follow">', false);
         }
     }
 

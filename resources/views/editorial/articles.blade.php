@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Student guides and news')
-@if($articles->currentPage() > 1)
+@if((request()->has('page') || $articles->currentPage() > 1))
     @section('robots', 'noindex,follow')
 @endif
 @section('description', 'Helpful guides, student resources and education news.')
