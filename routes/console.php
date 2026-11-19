@@ -148,6 +148,7 @@ Artisan::command('launch:check', function (): int {
 
     if ($blockers > 0) {
         $this->error("CONTENT GATE FAILED: {$blockers} blocker groups, {$warnings} warnings.");
+
         return 1;
     }
 
