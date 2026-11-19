@@ -86,6 +86,13 @@ class CatalogFilteredPaginationTest extends TestCase
             ->assertSee('Search: Learning')
             ->assertSee('Ending soon');
 
+        $recovery = $this->get(route('search', array_merge($query, ['page' => 99])));
+        $recovery->assertOk()
+            ->assertSee('14 offers found')
+            ->assertSee('Back to first page')
+            ->assertDontSee('No offers found')
+            ->assertSee('href="'.e(route('search', array_merge($query, ['page' => 1]))).'"', false);
+
         $this->get(route('offers.index', array_merge($query, ['page' => 2])))
             ->assertOk()
             ->assertSee('Learning benefit 13')

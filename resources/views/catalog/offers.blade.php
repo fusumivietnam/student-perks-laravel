@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
 @section('title', $title)
-@if(!($hideFilters ?? false) && (request()->routeIs('search') || request()->hasAny(['q', 'brand', 'category', 'type', 'sort', 'page']))) || $offers->currentPage() > 1)
+@if(request()->has('page') || $offers->currentPage() > 1 || (!($hideFilters ?? false) && (request()->routeIs('search') || request()->hasAny(['q', 'brand', 'category', 'type', 'sort']))))
     @section('robots', 'noindex,follow')
 @endif
 @section('description', filled($description ?? null) ? $description : 'Explore current education benefits and official partner offers.')
@@ -97,7 +97,11 @@
                 <p class="mt-1 text-sm text-slate-600" role="status">{{ $offers->total() }} {{ \Illuminate\Support\Str::plural('offer', $offers->total()) }} found</p>
             </div>
         </div>
-        @if($offers->isEmpty())
+        @if($offers->isEmpty() && $offers->currentPage() > 1)
+            <div class="mt-6">
+                <x-public-pagination-recovery :paginator="$offers" />
+            </div>
+        @elseif($offers->isEmpty())
             <div class="mt-6 rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
                 <h3 class="text-xl font-extrabold">No offers found</h3>
                 <p class="mx-auto mt-3 max-w-md text-sm leading-relaxed text-slate-600">{{ ($hideFilters ?? false) ? 'There are no current offers in this collection. Explore the rest of the directory instead.' : 'Try another keyword, remove a filter, or browse all current offers.' }}</p>

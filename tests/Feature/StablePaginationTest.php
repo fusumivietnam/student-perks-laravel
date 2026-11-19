@@ -89,6 +89,27 @@ class StablePaginationTest extends TestCase
             ->assertSeeInOrder(['Ends tomorrow', 'Ends later', 'No expiry']);
     }
 
+    public function test_out_of_range_pages_offer_a_first_page_recovery_link(): void
+    {
+        $brand = Brand::create(['name' => 'Campus Partner', 'slug' => 'campus-partner', 'is_published' => true]);
+        $category = Category::create(['name' => 'Education', 'slug' => 'education', 'is_published' => true]);
+
+        foreach (['offers.index' => null, 'brands.index' => null, 'articles.index' => null, 'brands.show' => $brand->slug, 'categories.show' => $category->slug] as $route => $slug) {
+            $parameters = $slug === null ? [] : ['slug' => $slug];
+            $first = route($route, $parameters + ['page' => 1]);
+
+            $response = $this->get(route($route, $parameters + ['page' => 99]));
+            $response->assertOk()
+                ->assertSee('data-ui="pagination-recovery"', false)
+                ->assertSee('href="'.$first.'"', false);
+            $this->assertStringContainsString(
+                '<meta name="robots" content="noindex,follow">',
+                $response->getContent(),
+                'Unexpected robots metadata on '.$route
+            );
+        }
+    }
+
     public function test_article_listing_has_stable_pagination_for_identical_publish_dates(): void
     {
         $this->travelTo(now()->startOfSecond());

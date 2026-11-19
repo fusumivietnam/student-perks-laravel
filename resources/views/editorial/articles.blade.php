@@ -1,13 +1,18 @@
 @extends('layouts.public')
 
 @section('title', 'Student guides and news')
-@if($articles->currentPage() > 1)
+@if((request()->has('page') || $articles->currentPage() > 1))
     @section('robots', 'noindex,follow')
 @endif
 @section('description', 'Helpful guides, student resources and education news.')
 
 @section('content')
     <x-public-page-heading eyebrow="Student resources" title="Student guides and news" description="Practical advice to help you understand education offers and make informed choices." />
+    @if($articles->isEmpty() && $articles->currentPage() > 1)
+        <div class="mt-9">
+            <x-public-pagination-recovery :paginator="$articles" />
+        </div>
+    @else
     <div class="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         @forelse($articles as $article)
             <article class="flex h-full min-w-0 flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:border-indigo-200 hover:shadow-md focus-within:ring-2 focus-within:ring-indigo-300">
@@ -34,4 +39,5 @@
         @endforelse
     </div>
     <div class="mt-8">{{ $articles->links() }}</div>
+    @endif
 @endsection

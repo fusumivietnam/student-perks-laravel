@@ -1,13 +1,17 @@
 @extends('layouts.public')
 
 @section('title', 'Brands')
-@if($brands->currentPage() > 1)
+@if((request()->has('page') || $brands->currentPage() > 1))
     @section('robots', 'noindex,follow')
 @endif
 
 @section('content')
     <x-public-page-heading eyebrow="Explore providers" title="Discover brands" description="Find education offers from brands in our published directory." />
-    @if($brands->isNotEmpty())
+    @if($brands->isEmpty() && $brands->currentPage() > 1)
+        <div class="mt-9">
+            <x-public-pagination-recovery :paginator="$brands" />
+        </div>
+    @elseif($brands->isNotEmpty())
         <div class="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             @foreach($brands as $brand)
                 <article class="group flex h-full min-w-0 flex-col rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 transition motion-safe:hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg focus-within:ring-2 focus-within:ring-indigo-300">
@@ -24,5 +28,7 @@
             <p class="mt-2 text-slate-600">We’re reviewing new brands to add to the directory.</p>
         </div>
     @endif
-    <div class="mt-9">{{ $brands->links() }}</div>
+    @if($brands->isNotEmpty())
+        <div class="mt-9">{{ $brands->links() }}</div>
+    @endif
 @endsection
