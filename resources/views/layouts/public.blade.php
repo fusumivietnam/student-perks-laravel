@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="{{ $__env->yieldContent('description', 'Find current student discounts, free plans and education offers from official partners.') }}">
-    <meta name="robots" content="{{ $__env->yieldContent('robots', 'index,follow') }}">
+    <meta name="robots" content="{{ request()->has('page') && request()->routeIs('offers.index', 'search', 'brands.index', 'brands.show', 'categories.show', 'articles.index') ? 'noindex,follow' : $__env->yieldContent('robots', 'index,follow') }}">
     <link rel="canonical" href="{{ url()->current() }}">
     <meta property="og:type" content="{{ $__env->yieldContent('og_type', 'website') }}">
     <meta property="og:title" content="{{ $__env->yieldContent('title', 'Student Perks Hub') }}">

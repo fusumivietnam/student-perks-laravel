@@ -98,11 +98,15 @@ class StablePaginationTest extends TestCase
             $parameters = $slug === null ? [] : ['slug' => $slug];
             $first = route($route, $parameters + ['page' => 1]);
 
-            $this->get(route($route, $parameters + ['page' => 99]))
-                ->assertOk()
+            $response = $this->get(route($route, $parameters + ['page' => 99]));
+            $response->assertOk()
                 ->assertSee('data-ui="pagination-recovery"', false)
-                ->assertSee('href="'.$first.'"', false)
-                ->assertSee('<meta name="robots" content="noindex,follow">', false);
+                ->assertSee('href="'.$first.'"', false);
+            $this->assertStringContainsString(
+                '<meta name="robots" content="noindex,follow">',
+                $response->getContent(),
+                'Unexpected robots metadata on '.$route
+            );
         }
     }
 
