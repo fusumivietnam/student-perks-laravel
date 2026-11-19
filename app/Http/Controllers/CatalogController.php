@@ -7,9 +7,9 @@ use App\Models\Category;
 use App\Models\Offer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class CatalogController extends Controller

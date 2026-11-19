@@ -63,7 +63,7 @@ Artisan::command('launch:check', function (): int {
             $draftExists = Page::where('slug', $slug)->exists();
             $this->error("[BLOCK] Published legal/information page missing: /pages/{$slug}");
             $this->line($draftExists
-                ? "       Action: review the existing draft in Filament → Pages, then publish when approved."
+                ? '       Action: review the existing draft in Filament → Pages, then publish when approved.'
                 : "       Action: create /pages/{$slug} in Filament → Pages, review its content, then publish.");
             $blockers++;
         } elseif (trim((string) $page->body) === '') {
@@ -148,6 +148,7 @@ Artisan::command('launch:check', function (): int {
 
     if ($blockers > 0) {
         $this->error("CONTENT GATE FAILED: {$blockers} blocker groups, {$warnings} warnings.");
+
         return 1;
     }
 
