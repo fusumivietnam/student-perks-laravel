@@ -70,6 +70,7 @@ if [[ -n "${CODESPACE_NAME:-}" ]]; then
   set_env APP_URL "https://${CODESPACE_NAME}-8080.${domain}"
   echo "Codespaces: use the forwarded 8080 link in the Ports panel; keep visibility PRIVATE."
 else
+  set_env APP_URL "http://localhost:8080"
   echo "Laptop: open http://localhost:8080."
 fi
 

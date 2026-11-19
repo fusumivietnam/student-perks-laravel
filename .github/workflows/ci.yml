@@ -133,6 +133,12 @@ jobs:
           docker compose exec -T app php artisan migrate --force
           curl --fail --silent --show-error --retry 12 --retry-delay 3 --retry-connrefused http://127.0.0.1:18080/ >/dev/null
           curl --fail --silent --show-error http://127.0.0.1:18080/up >/dev/null
+          # Local preview connects to loopback while preserving the browser Host.
+          local_html="$(curl --fail --silent --show-error -H 'Host: localhost:8080' http://127.0.0.1:18080/)"
+          grep -F 'href="http://localhost:8080/offers"' <<< "$local_html"
+          grep -F 'action="http://localhost:8080/search"' <<< "$local_html"
+          grep -E 'href="http://localhost:8080/build/assets/[^"]+\.css"' <<< "$local_html"
+          grep -E 'src="http://localhost:8080/build/assets/[^"]+\.js"' <<< "$local_html"
           # Smoke the critical public routes and Filament login over real Nginx/FPM.
           for route in /offers /brands /articles /sitemap.xml '/search?q=nonexistent' /admin/login; do
             curl --fail --silent --show-error "http://127.0.0.1:18080$route" >/dev/null

@@ -50,7 +50,6 @@ if ! curl -fsS --connect-timeout 3 --max-time 15 "$local_url/up" >/dev/null; the
 fi
 echo "PASS: Laravel /up."
 
-html="$(curl -fsS --connect-timeout 3 --max-time 15 "$local_url/")" || fail "Homepage request failed."
 expected_url="$(sed -n 's/^APP_URL=//p' .env | tail -n 1)"
 expected_url="${expected_url%/}"
 [[ "$expected_url" == http://* || "$expected_url" == https://* ]] || fail "APP_URL in .env is invalid."
@@ -59,9 +58,18 @@ if [[ -n "${CODESPACE_NAME:-}" && "$expected_url" != https://*.app.github.dev ]]
   fail "Codespaces APP_URL must be its private HTTPS .app.github.dev origin; rerun bash scripts/preview.sh."
 fi
 
+# Laravel uses the request origin on ordinary hosts. Connect to loopback,
+# but send the same Host as the local browser; Codespaces must still prove
+# its forced HTTPS origin against an internal HTTP request.
+homepage_headers=()
+if [[ "$expected_url" == http://localhost:8080 ]]; then
+  homepage_headers=(-H 'Host: localhost:8080')
+fi
+html="$(curl -fsS --connect-timeout 3 --max-time 15 "${homepage_headers[@]}" "$local_url/")" || fail "Homepage request failed."
+
 for target in "href=\"$expected_url/offers\"" "action=\"$expected_url/search\""; do
   if [[ "$html" != *"$target"* ]]; then
-    fail "Navigation/search targets do not use APP_URL ($expected_url). Restart the app with the latest image: bash scripts/preview.sh --rebuild."
+    fail "Navigation/search targets do not use APP_URL ($expected_url). Check APP_URL and preview origin; run bash scripts/preview.sh before considering a rebuild."
   fi
 done
 echo "PASS: Navigation/search links use APP_URL."

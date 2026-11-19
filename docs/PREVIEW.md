@@ -62,7 +62,9 @@ cd student-perks-laravel
 bash scripts/preview.sh
 ```
 
-Open **http://localhost:8080**. The script creates untracked `.env` with random local APP_KEY and DB_PASSWORD, keeps existing secrets if already present, starts the stack, runs migrations and checks `/up`.
+Open **http://localhost:8080**. The script creates untracked `.env` with random local APP_KEY and DB_PASSWORD, keeps existing secrets if already present, sets the local APP_URL, starts the stack, runs migrations and checks `/up`. The diagnostic connects through IPv4 loopback with the browser's localhost Host header, so it does not report normal Laravel request-based URLs as stale images.
+
+If startup fails with Nginx `host not found in upstream "app"` after a port conflict, recreate only this Compose stack and its network using `docker compose down && docker compose up -d --no-build`, then run `bash scripts/preview-check.sh`. Never add `-v`; preserve the database and media volumes.
 
 ## Operational notes
 
