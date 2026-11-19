@@ -18,6 +18,6 @@ Student Perks Hub is an editorial directory, not a storefront. Use the existing 
 - Reading surface: `x-public-reading-panel` maintains max-w-3xl, responsive padding and rounded-3xl.
 - Cards: white surface, subtle border/shadow, rounded-3xl, responsive padding; media fallbacks are decorative, not fabricated logos.
 - Main navigation and CTAs: use visible keyboard focus, meaningful link text, min-h-11 where practical, and motion-safe hover transforms.
-- Keep preview notices, publication gates, partner-link review, SEO metadata and real CMS content unchanged. Filament admin retains native administrative components.
+- Keep preview notices, publication gates, partner-link review, SEO metadata and real CMS content unchanged. Filament admin retains native administrative components, with the Student Perks Hub brand name and native Indigo primary palette. Amber remains reserved for public hero accents and semantic warnings.
 
 Use these patterns when revising other public views; do not fork a new design system for each route. Complete real mobile and desktop visual review separately from automated tests.

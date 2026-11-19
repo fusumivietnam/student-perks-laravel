@@ -100,12 +100,30 @@ class PublicBrowserJourneysTest(unittest.TestCase):
         expect(page.get_by_role("heading", level=1)).to_be_visible()
 
         page.goto("/articles")
-        page.get_by_role("link", name="How to compare student offers — DEMO").click()
+        page.get_by_role("link", name="How to compare student offers — DEMO", exact=True).click()
         expect(page.get_by_role("heading", name="How to compare student offers — DEMO")).to_be_visible()
 
         page.goto("/admin/login")
         expect(page.get_by_label("Email address")).to_be_visible()
         expect(page.locator('input[type="password"]')).to_be_visible()
+
+    def test_public_heading_consistency_across_viewports(self):
+        page = self.page
+        for width in (360, 390, 768, 1024, 1440):
+            page.set_viewport_size({"width": width, "height": 900})
+            for path in ("/offers", "/search", "/brands", "/brands/demo-cloud-studio",
+                         "/categories/demo-software", "/articles",
+                         "/articles/demo-how-to-compare-offers", "/offers/demo-student-design-kit",
+                         "/pages/browser-ci-live-page"):
+                with self.subTest(width=width, path=path):
+                    response = page.goto(path)
+                    self.assertEqual(response.status, 200)
+                    expect(page.locator('main [data-ui="public-page-heading"] h1')).to_be_visible()
+                    expect(page.locator("main h1")).to_have_count(1)
+                    self.assertLessEqual(
+                        page.evaluate("document.documentElement.scrollWidth - window.innerWidth"),
+                        2, f"Horizontal overflow at {width}px on {path}",
+                    )
 
     def test_mobile_navigation_keyboard_and_no_page_horizontal_overflow(self):
         page = self.page

@@ -51,8 +51,8 @@
             </div>
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach($categories as $category)
-                    <a class="group flex min-h-24 items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('categories.show', $category->slug) }}">
-                        <span class="text-lg font-bold text-slate-900 group-hover:text-indigo-700">{{ $category->name }}</span>
+                    <a class="group flex min-h-24 items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm transition motion-safe:hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('categories.show', $category->slug) }}">
+                        <span class="min-w-0 wrap-anywhere text-lg font-bold text-slate-900 group-hover:text-indigo-700">{{ $category->name }}</span>
                         <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-50 font-bold text-indigo-700 transition group-hover:bg-indigo-700 group-hover:text-white" aria-hidden="true">→</span>
                     </a>
                 @endforeach
@@ -73,7 +73,7 @@
                 @foreach($brands as $brand)
                     <a class="group flex min-h-28 items-center gap-4 rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm transition hover:border-indigo-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('brands.show', $brand->slug) }}">
                         <x-brand-mark :brand="$brand" class="h-12 w-12" text-class="text-sm" />
-                        <span class="font-bold leading-snug text-slate-900 group-hover:text-indigo-700">{{ $brand->name }}</span>
+                        <span class="min-w-0 wrap-anywhere font-bold leading-snug text-slate-900 group-hover:text-indigo-700">{{ $brand->name }}</span>
                     </a>
                 @endforeach
             </div>

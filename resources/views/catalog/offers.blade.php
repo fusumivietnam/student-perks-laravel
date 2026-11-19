@@ -16,17 +16,13 @@
             <span aria-current="page" class="break-words">{{ $title }}</span>
         </nav>
     @endif
-    <header class="max-w-3xl">
-        <p class="text-xs font-extrabold uppercase tracking-[0.18em] text-indigo-600">Explore the directory</p>
-        <h1 class="mt-2 text-4xl font-extrabold tracking-tight text-slate-950">{{ $title }}</h1>
-        <p class="mt-3 text-base leading-relaxed text-slate-600">{{ filled($description ?? null) ? $description : (($hideFilters ?? false) ? 'Explore current student offers in this collection.' : 'Search student offers, browse by brand, and compare what is available.') }}</p>
-    </header>
+    <x-public-page-heading eyebrow="Explore the directory" :title="$title" :description="filled($description ?? null) ? $description : (($hideFilters ?? false) ? 'Explore current student offers in this collection.' : 'Search student offers, browse by brand, and compare what is available.')" />
 
     @unless($hideFilters ?? false)
         <section aria-labelledby="offer-filters-title" class="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <h2 id="offer-filters-title" class="text-lg font-extrabold tracking-tight">Find the right offer</h2>
-                <a href="{{ ($filterAction ?? route('offers.index')) }}" class="inline-flex min-h-10 items-center text-sm font-bold text-indigo-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">Clear filters</a>
+                <a href="{{ ($filterAction ?? route('offers.index')) }}" class="inline-flex min-h-11 items-center text-sm font-bold text-indigo-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">Clear filters</a>
             </div>
             <form method="GET" action="{{ ($filterAction ?? route('offers.index')) }}" role="search" class="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
                 <div class="col-span-2 lg:col-span-4">
@@ -75,21 +71,21 @@
             <div class="mt-5 flex flex-wrap items-center gap-2" aria-label="Active filters">
                 <span class="mr-1 text-sm font-semibold text-slate-600">Active filters:</span>
                 @if($term !== '')
-                    <span class="max-w-full break-all rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-800">Search: {{ $term }}</span>
+                    <span class="max-w-full wrap-anywhere rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-800">Search: {{ $term }}</span>
                 @endif
                 @if($brand !== '')
-                    <span class="max-w-full break-all rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-800">Brand: {{ $brands->firstWhere('slug', $brand)?->name ?? $brand }}</span>
+                    <span class="max-w-full wrap-anywhere rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-800">Brand: {{ $brands->firstWhere('slug', $brand)?->name ?? $brand }}</span>
                 @endif
                 @if($category !== '')
-                    <span class="max-w-full break-all rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-800">Category: {{ $categories->firstWhere('slug', $category)?->name ?? $category }}</span>
+                    <span class="max-w-full wrap-anywhere rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-800">Category: {{ $categories->firstWhere('slug', $category)?->name ?? $category }}</span>
                 @endif
                 @if($type !== '')
-                    <span class="max-w-full break-all rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-800">Type: {{ \Illuminate\Support\Str::headline($type) }}</span>
+                    <span class="max-w-full wrap-anywhere rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-800">Type: {{ \Illuminate\Support\Str::headline($type) }}</span>
                 @endif
                 @if($sort === 'ending')
-                    <span class="max-w-full break-all rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-800">Ending soon</span>
+                    <span class="max-w-full wrap-anywhere rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-800">Ending soon</span>
                 @endif
-                <a href="{{ ($filterAction ?? route('offers.index')) }}" class="inline-flex min-h-9 items-center rounded-md px-2 text-xs font-bold text-indigo-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">Reset all</a>
+                <a href="{{ ($filterAction ?? route('offers.index')) }}" class="inline-flex min-h-11 items-center rounded-md px-2 text-xs font-bold text-indigo-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">Reset all</a>
             </div>
         @endif
     @endunless
