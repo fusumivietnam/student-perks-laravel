@@ -52,33 +52,29 @@ jobs:
           bash -n tests/preview-image-selection.sh
           bash tests/preview-image-selection.sh
           python3 -m json.tool .devcontainer/devcontainer.json >/dev/null
-      - name: Detect scaffold
-        id: scaffold
-        run: echo "present=$([ -f artisan ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
-      - if: steps.scaffold.outputs.present == 'true'
-        uses: shivammathur/setup-php@v2
+      - name: Require application source
+        run: test -f artisan && test -f composer.lock && test -f package-lock.json
+      - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
           extensions: mbstring, xml, ctype, pgsql, pdo_pgsql, bcmath, fileinfo
           tools: composer:v2
           coverage: none
       - name: Get Composer cache location
-        if: steps.scaffold.outputs.present == 'true'
         id: composer-cache
         run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
       - name: Cache Composer downloads
-        if: steps.scaffold.outputs.present == 'true'
         uses: actions/cache@v5
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
           restore-keys: |
             composer-${{ runner.os }}-
+      - name: Validate Composer manifest and lock
+        run: composer validate --strict
       - name: Install PHP dependencies
-        if: steps.scaffold.outputs.present == 'true'
         run: composer install --prefer-dist --no-interaction --no-progress
       - name: Test PostgreSQL migrations and application
-        if: steps.scaffold.outputs.present == 'true'
         env:
           DB_CONNECTION: pgsql
           DB_HOST: 127.0.0.1
@@ -90,13 +86,11 @@ jobs:
         run: |
           cp .env.example .env
           php artisan key:generate
-          php artisan migrate --force
+          php artisan migrate:fresh --force
           php artisan test
       - name: Configure cached Docker Buildx
-        if: steps.scaffold.outputs.present == 'true'
         uses: docker/setup-buildx-action@v4
       - name: Build production Docker image (shared layer cache)
-        if: steps.scaffold.outputs.present == 'true'
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -108,10 +102,8 @@ jobs:
           cache-from: type=gha,scope=student-perks-app
           cache-to: type=gha,mode=max,scope=student-perks-app
       - name: Verify Docker image source revision
-        if: steps.scaffold.outputs.present == 'true'
         run: test "$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' student-perks:ci)" = ci-test-revision
       - name: Smoke-test Docker image entrypoint and public release assets
-        if: steps.scaffold.outputs.present == 'true'
         shell: bash
         run: |
           docker run --rm --entrypoint sh student-perks:ci -c 'test -f /usr/local/bin/app-entrypoint.sh && test -f /opt/app-public/index.php && test -f /opt/app-public/build/manifest.json && test -d /opt/app-public/css/filament && test -d /opt/app-public/js/filament'
@@ -119,7 +111,6 @@ jobs:
           docker run --rm --entrypoint sh student-perks:ci -c 'mkdir -p /var/www/html/public && sh /usr/local/bin/app-entrypoint.sh sh -c "test -f /var/www/html/public/index.php && test -f /var/www/html/public/build/manifest.json"'
 
       - name: Docker Compose HTTP and migration smoke test
-        if: steps.scaffold.outputs.present == 'true'
         shell: bash
         run: |
           export APP_KEY="base64:$(openssl rand -base64 32)"
