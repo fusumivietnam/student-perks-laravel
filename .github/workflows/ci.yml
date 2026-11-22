@@ -162,6 +162,36 @@ jobs:
           test "$media_sha" = "$(docker compose exec -T app sha256sum storage/app/public/brands/ci-media-persistence.png | cut -d ' ' -f1)"
           test "$media_sha" = "$(curl --fail --silent --show-error http://127.0.0.1:18080/storage/brands/ci-media-persistence.png | sha256sum | cut -d ' ' -f1)"
           docker compose exec -T -u www-data app rm storage/app/public/brands/ci-media-persistence.png
+          # Exercise the actual Nginx -> PHP-FPM -> Laravel proxy chain.
+          # Nginx forwards its original client REMOTE_ADDR to PHP-FPM.
+          # Host curl reaches Nginx through the Compose bridge gateway,
+          # not from the Nginx container IP; scope trust to that single peer.
+          proxy_gateway_ip="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.Gateway}}{{end}}' "$(docker compose ps -q web)")"
+          test -n "$proxy_gateway_ip"
+          export TRUSTED_PROXIES="$proxy_gateway_ip"
+          export APP_URL=https://student.example.test
+          docker compose up -d --no-build app
+          curl --fail --silent --show-error --retry 12 --retry-delay 3 --retry-connrefused http://127.0.0.1:18080/up >/dev/null
+          proxy_html="$(curl --fail --silent --show-error --retry 12 --retry-all-errors --retry-delay 1 \
+            -H 'Host: student.example.test' -H 'X-Forwarded-Proto: https' \
+            -H 'X-Forwarded-Port: 443' -H 'X-Forwarded-Host: injected.invalid' \
+            http://127.0.0.1:18080/)"
+          grep -F 'href="https://student.example.test/offers"' <<< "$proxy_html"
+          grep -F 'action="https://student.example.test/search"' <<< "$proxy_html"
+          grep -E 'href="https://student.example.test/build/assets/[^"]+\.css"' <<< "$proxy_html"
+          grep -E 'src="https://student.example.test/build/assets/[^"]+\.js"' <<< "$proxy_html"
+          if grep -F 'injected.invalid' <<< "$proxy_html"; then
+            echo "FAIL: Untrusted forwarded Host leaked into public HTML" >&2
+            exit 1
+          fi
+          proxy_admin_headers="$(curl --fail --silent --show-error --retry 12 --retry-all-errors --retry-delay 1 --dump-header - -o /dev/null \
+            -H 'Host: student.example.test' -H 'X-Forwarded-Proto: https' \
+            -H 'X-Forwarded-Port: 443' -H 'X-Forwarded-Host: injected.invalid' \
+            http://127.0.0.1:18080/admin)"
+          grep -i '^location: https://student.example.test/admin/login' <<< "$proxy_admin_headers"
+          # The next smoke scenarios are local/Codespaces, without proxy trust.
+          unset TRUSTED_PROXIES
+
           # Verify Codespaces forwarded-origin HTML and real CSS without another CI job.
           export APP_ENV=local
           export APP_URL=https://ci-preview-8080.app.github.dev
