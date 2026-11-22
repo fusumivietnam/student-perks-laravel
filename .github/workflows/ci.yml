@@ -163,10 +163,12 @@ jobs:
           test "$media_sha" = "$(curl --fail --silent --show-error http://127.0.0.1:18080/storage/brands/ci-media-persistence.png | sha256sum | cut -d ' ' -f1)"
           docker compose exec -T -u www-data app rm storage/app/public/brands/ci-media-persistence.png
           # Exercise the actual Nginx -> PHP-FPM -> Laravel proxy chain.
-          # Only the running Nginx container is trusted to supply TLS metadata.
-          web_proxy_ip="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$(docker compose ps -q web)")"
-          test -n "$web_proxy_ip"
-          export TRUSTED_PROXIES="$web_proxy_ip"
+          # Nginx forwards its original client REMOTE_ADDR to PHP-FPM.
+          # Host curl reaches Nginx through the Compose bridge gateway,
+          # not from the Nginx container IP; scope trust to that single peer.
+          proxy_gateway_ip="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.Gateway}}{{end}}' "$(docker compose ps -q web)")"
+          test -n "$proxy_gateway_ip"
+          export TRUSTED_PROXIES="$proxy_gateway_ip"
           export APP_URL=https://student.example.test
           docker compose up -d --no-build app
           curl --fail --silent --show-error --retry 12 --retry-delay 3 --retry-connrefused http://127.0.0.1:18080/up >/dev/null
