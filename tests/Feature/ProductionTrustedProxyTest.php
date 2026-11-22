@@ -31,7 +31,7 @@ class ProductionTrustedProxyTest extends TestCase
             'HTTP_X_FORWARDED_HOST' => 'attacker.invalid',
         ]);
 
-        $this->get('/')->assertOk()
+        $this->get('http://example.test/')->assertOk()
             ->assertSee('href="http://example.test/offers"', false)
             ->assertDontSee('attacker.invalid');
     }
@@ -49,7 +49,7 @@ class ProductionTrustedProxyTest extends TestCase
             'HTTP_X_FORWARDED_HOST' => 'attacker.invalid',
         ]);
 
-        $this->get('/')->assertOk()
+        $this->get('http://student.example.test/')->assertOk()
             ->assertSee('href="https://student.example.test/offers"', false)
             ->assertDontSee('attacker.invalid');
     }
