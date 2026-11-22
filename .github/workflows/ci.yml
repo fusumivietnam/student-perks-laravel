@@ -170,7 +170,7 @@ jobs:
           export APP_URL=https://student.example.test
           docker compose up -d --no-build app
           curl --fail --silent --show-error --retry 12 --retry-delay 3 --retry-connrefused http://127.0.0.1:18080/up >/dev/null
-          proxy_html="$(curl --fail --silent --show-error \
+          proxy_html="$(curl --fail --silent --show-error --retry 12 --retry-all-errors --retry-delay 1 \
             -H 'Host: student.example.test' -H 'X-Forwarded-Proto: https' \
             -H 'X-Forwarded-Port: 443' -H 'X-Forwarded-Host: injected.invalid' \
             http://127.0.0.1:18080/)"
@@ -182,7 +182,7 @@ jobs:
             echo "FAIL: Untrusted forwarded Host leaked into public HTML" >&2
             exit 1
           fi
-          proxy_admin_headers="$(curl --silent --show-error --dump-header - -o /dev/null \
+          proxy_admin_headers="$(curl --fail --silent --show-error --retry 12 --retry-all-errors --retry-delay 1 --dump-header - -o /dev/null \
             -H 'Host: student.example.test' -H 'X-Forwarded-Proto: https' \
             -H 'X-Forwarded-Port: 443' -H 'X-Forwarded-Host: injected.invalid' \
             http://127.0.0.1:18080/admin)"
