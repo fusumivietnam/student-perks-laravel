@@ -26,6 +26,7 @@ services:
       APP_KEY: ${APP_KEY:?Set APP_KEY in .env}
       APP_URL: ${APP_URL:-http://localhost:8080}
       TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
+      SESSION_SECURE_COOKIE: ${SESSION_SECURE_COOKIE:-false}
       DB_CONNECTION: pgsql
       DB_HOST: db
       DB_PORT: 5432
