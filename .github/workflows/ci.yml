@@ -213,3 +213,37 @@ jobs:
           /tmp/student-perks-browser-venv/bin/python -m playwright install --with-deps chromium
           E2E_BASE_URL=http://127.0.0.1:18080 /tmp/student-perks-browser-venv/bin/python -m unittest discover -s tests/browser -p 'test_public_*.py' -v
           E2E_BASE_URL=http://127.0.0.1:18080 /tmp/student-perks-browser-venv/bin/python -m unittest discover -s tests/browser -p 'test_admin_*.py' -v
+
+          # Disaster-recovery rehearsal on this disposable CI stack ONLY.
+          # Never target the source database/volume with pg_restore or extract over live media.
+          rehearsal_dir="$(mktemp -d)"
+          docker compose exec -T -u postgres db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' > "$rehearsal_dir/database.dump"
+          test -s "$rehearsal_dir/database.dump"
+          sha256sum "$rehearsal_dir/database.dump"
+          docker compose exec -T -u postgres db sh -c 'createdb -U "$POSTGRES_USER" restore_rehearsal_ci'
+          docker compose exec -T -u postgres db sh -c 'pg_restore --exit-on-error --no-owner -U "$POSTGRES_USER" -d restore_rehearsal_ci' < "$rehearsal_dir/database.dump"
+          source_offers="$(docker compose exec -T -u postgres db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atqc "SELECT COUNT(*) FROM offers"')"
+          restored_offers="$(docker compose exec -T -u postgres db sh -c 'psql -U "$POSTGRES_USER" -d restore_rehearsal_ci -Atqc "SELECT COUNT(*) FROM offers"')"
+          source_users="$(docker compose exec -T -u postgres db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atqc "SELECT COUNT(*) FROM users"')"
+          restored_users="$(docker compose exec -T -u postgres db sh -c 'psql -U "$POSTGRES_USER" -d restore_rehearsal_ci -Atqc "SELECT COUNT(*) FROM users"')"
+          test "$source_offers" -gt 0
+          test "$source_users" -gt 0
+          test "$source_offers" = "$restored_offers"
+          test "$source_users" = "$restored_users"
+          echo "PASS: isolated database restore matches $source_offers offers and $source_users users."
+
+          # Exercise the same media archive boundary documented for production.
+          docker compose exec -T -u www-data app sh -c 'mkdir -p storage/app/public/brands && printf "restore-proof-ci" > storage/app/public/brands/restore-proof-ci.txt'
+          original_media_sha="$(docker compose exec -T app sha256sum storage/app/public/brands/restore-proof-ci.txt | cut -d ' ' -f1)"
+          docker compose exec -T app tar -czf - -C /var/www/html/storage app/public > "$rehearsal_dir/media.tar.gz"
+          test -s "$rehearsal_dir/media.tar.gz"
+          tar -tzf "$rehearsal_dir/media.tar.gz" | grep -Fx 'app/public/brands/restore-proof-ci.txt'
+          sha256sum "$rehearsal_dir/media.tar.gz"
+          docker compose exec -T app sh -c 'mkdir -p /tmp/restore-rehearsal-ci && tar -xzf - -C /tmp/restore-rehearsal-ci' < "$rehearsal_dir/media.tar.gz"
+          restored_media_sha="$(docker compose exec -T app sha256sum /tmp/restore-rehearsal-ci/app/public/brands/restore-proof-ci.txt | cut -d ' ' -f1)"
+          test "$original_media_sha" = "$restored_media_sha"
+          docker compose exec -T -u www-data app rm storage/app/public/brands/restore-proof-ci.txt
+          docker compose exec -T app rm -rf /tmp/restore-rehearsal-ci
+          docker compose exec -T -u postgres db sh -c 'dropdb -U "$POSTGRES_USER" restore_rehearsal_ci'
+          rm -rf "$rehearsal_dir"
+          echo "PASS: isolated database and media backup/restore rehearsal."
