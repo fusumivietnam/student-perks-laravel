@@ -13,9 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Opt-in exact public Host allowlist. Values are literal hostnames,
-        // escaped before passing them to Laravel's regular-expression matcher.
-        // Do not apply this to private Local/Codespaces previews.
+        // Exact approved hosts are opt-in; do not permit wildcard subdomains.
         $trustedHosts = array_values(array_filter(array_map(
             'trim',
             explode(',', (string) env('TRUSTED_HOSTS', '')),
@@ -24,28 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         if ($trustedHosts !== []) {
             $middleware->trustHosts(
                 at: array_map(
-                    fn (string $host): string => '^'.preg_quote($host, '/').'        $trustedProxies = array_values(array_filter(
-            array_map('trim', explode(',', (string) env('TRUSTED_PROXIES', ''))),
-            fn (string $proxy): bool => $proxy !== '' && $proxy !== '*',
-        ));
-
-        if ($trustedProxies !== []) {
-            $middleware->trustProxies(
-                at: $trustedProxies,
-                headers: Request::HEADER_X_FORWARDED_PROTO | Request::HEADER_X_FORWARDED_PORT,
-            );
-        }
-
-        // Run after Laravel's default TrustProxies middleware, which resets the
-        // trusted-proxy list. Only the configured private Codespace may opt in.
-        $middleware->append(TrustCodespacesForwarding::class);
-    })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
-        );
-    })->create();
-,
+                    fn (string $host): string => '^'.preg_quote($host, '/').'\\z',
                     $trustedHosts,
                 ),
                 subdomains: false,
