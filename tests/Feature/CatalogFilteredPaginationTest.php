@@ -40,19 +40,18 @@ class CatalogFilteredPaginationTest extends TestCase
             ]);
         }
 
-        $countSelects = function (string $url): int {
-            $queries = [];
-            DB::listen(function ($query) use (&$queries): void {
-                if (str_starts_with(strtolower(ltrim($query->sql)), 'select')) {
-                    $queries[] = $query->sql;
-                }
-            });
+        $selectCount = 0;
+        DB::listen(function ($query) use (&$selectCount): void {
+            if (str_starts_with(strtolower(ltrim($query->sql)), 'select')) {
+                $selectCount++;
+            }
+        });
 
+        $countSelects = function (string $url) use (&$selectCount): int {
+            $before = $selectCount;
             $this->get($url)->assertOk();
 
-            // Laravel's DB::listen callbacks persist in this test; capture
-            // the queries only for this request, not prior setup or requests.
-            return count($queries);
+            return $selectCount - $before;
         };
 
         $firstPage = $countSelects('/offers');
