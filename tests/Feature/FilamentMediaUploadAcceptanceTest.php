@@ -99,6 +99,32 @@ class FilamentMediaUploadAcceptanceTest extends TestCase
         $this->assertDatabaseMissing('brands', ['slug' => 'unsafe-logo-brand']);
     }
 
+    public function test_invalid_brand_logo_edit_keeps_existing_public_media_and_record(): void
+    {
+        Storage::disk('public')->put('brands/existing-logo.png', 'original image fixture');
+
+        $brand = Brand::create([
+            'name' => 'Existing Campus Brand',
+            'slug' => 'existing-campus-brand',
+            'logo_path' => 'brands/existing-logo.png',
+            'is_published' => true,
+        ]);
+
+        Livewire::test(ManageBrands::class)
+            ->callTableAction('edit', $brand, data: [
+                'logo_path' => [UploadedFile::fake()->createWithContent(
+                    'logo.svg',
+                    '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
+                )],
+            ])
+            ->assertHasTableActionErrors(['logo_path']);
+
+        $this->assertSame('brands/existing-logo.png', $brand->fresh()->logo_path);
+        Storage::disk('public')->assertExists('brands/existing-logo.png');
+        $this->get('/brands')->assertOk()
+            ->assertSee(Storage::disk('public')->url('brands/existing-logo.png'));
+    }
+
     private function validImage(string $name): UploadedFile
     {
         // Minimal valid PNG; no GD/image-extension dependency required on PHP CI.
