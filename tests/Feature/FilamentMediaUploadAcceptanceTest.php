@@ -82,6 +82,23 @@ class FilamentMediaUploadAcceptanceTest extends TestCase
         $this->assertDatabaseCount('articles', 0);
     }
 
+    public function test_brand_logo_rejects_disallowed_svg_without_creating_a_record(): void
+    {
+        Livewire::test(ManageBrands::class)
+            ->callAction('create', data: [
+                'name' => 'Unsafe Logo Brand',
+                'slug' => 'unsafe-logo-brand',
+                'is_published' => true,
+                'logo_path' => [UploadedFile::fake()->createWithContent(
+                    'logo.svg',
+                    '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
+                )],
+            ])
+            ->assertHasFormErrors(['logo_path']);
+
+        $this->assertDatabaseMissing('brands', ['slug' => 'unsafe-logo-brand']);
+    }
+
     private function validImage(string $name): UploadedFile
     {
         // Minimal valid PNG; no GD/image-extension dependency required on PHP CI.
