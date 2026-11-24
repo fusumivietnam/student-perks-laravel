@@ -171,6 +171,7 @@ jobs:
           # not from the Nginx container IP; scope trust to that single peer.
           proxy_gateway_ip="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.Gateway}}{{end}}' "$(docker compose ps -q web)")"
           test -n "$proxy_gateway_ip"
+          export APP_ENV=production
           export TRUSTED_PROXIES="$proxy_gateway_ip"
           export TRUSTED_HOSTS=student.example.test
           export SESSION_SECURE_COOKIE=true
