@@ -6,11 +6,65 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Offer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class CatalogFilteredPaginationTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_listing_and_search_queries_do_not_grow_with_offer_card_count(): void
+    {
+        $category = Category::create([
+            'name' => 'Student resources',
+            'slug' => 'student-resources',
+            'is_published' => true,
+        ]);
+
+        for ($i = 1; $i <= 14; $i++) {
+            $brand = Brand::create([
+                'name' => sprintf('Student Partner %02d', $i),
+                'slug' => sprintf('student-partner-%02d', $i),
+                'is_published' => true,
+            ]);
+
+            Offer::create([
+                'brand_id' => $brand->id,
+                'category_id' => $category->id,
+                'title' => sprintf('Student Resource %02d', $i),
+                'slug' => sprintf('student-resource-%02d', $i),
+                'summary' => 'Student resource access',
+                'description' => 'Student eligibility terms',
+                'partner_url' => 'https://example.org/student',
+                'is_published' => true,
+            ]);
+        }
+
+        $selectCount = 0;
+        DB::listen(function ($query) use (&$selectCount): void {
+            if (str_starts_with(strtolower(ltrim($query->sql)), 'select')) {
+                $selectCount++;
+            }
+        });
+
+        $countSelects = function (string $url) use (&$selectCount): int {
+            $before = $selectCount;
+            $this->get($url)->assertOk();
+
+            return $selectCount - $before;
+        };
+
+        $firstPage = $countSelects('/offers');
+        $secondPage = $countSelects('/offers?page=2');
+        $searchPage = $countSelects('/search?q=Student');
+
+        // A request with twelve cards must not trigger one query per brand.
+        // Give the extra search predicate and rendered filters room without
+        // encoding an unstable millisecond timing threshold.
+        $this->assertLessThanOrEqual(12, $firstPage);
+        $this->assertLessThanOrEqual(12, $secondPage);
+        $this->assertLessThanOrEqual(12, $searchPage);
+    }
 
     public function test_search_retains_combined_filters_and_stable_results_across_pages(): void
     {
