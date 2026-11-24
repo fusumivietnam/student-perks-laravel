@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\RejectUntrustedHost;
 use App\Http\Middleware\TrustCodespacesForwarding;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -45,6 +46,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Run after Laravel's default TrustProxies middleware, which resets the
         // trusted-proxy list. Only the configured private Codespace may opt in.
         $middleware->append(TrustCodespacesForwarding::class);
+        $middleware->append(RejectUntrustedHost::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
