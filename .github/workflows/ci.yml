@@ -125,12 +125,15 @@ jobs:
         run: |
           export APP_KEY="base64:$(openssl rand -base64 32)"
           export DB_PASSWORD=ci_only_password
+          export LOG_LEVEL=warning
           export APP_HTTP_PORT=127.0.0.1:18080
           docker tag student-perks:ci student-perks-app
           trap 'docker compose down --remove-orphans' EXIT
           docker compose config --quiet
           docker compose up -d --no-build
           docker compose exec -T app php artisan migrate --force
+          # Runtime setting must reach PHP-FPM, not just exist in host .env.
+          docker compose exec -T app php artisan config:show logging.channels.stderr | grep -i 'warning'
           curl --fail --silent --show-error --retry 12 --retry-delay 3 --retry-connrefused http://127.0.0.1:18080/ >/dev/null
           curl --fail --silent --show-error http://127.0.0.1:18080/up >/dev/null
           # Local preview connects to loopback while preserving the browser Host.
