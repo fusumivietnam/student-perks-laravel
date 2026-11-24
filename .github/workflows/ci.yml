@@ -172,6 +172,7 @@ jobs:
           proxy_gateway_ip="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.Gateway}}{{end}}' "$(docker compose ps -q web)")"
           test -n "$proxy_gateway_ip"
           export TRUSTED_PROXIES="$proxy_gateway_ip"
+          export TRUSTED_HOSTS=student.example.test
           export SESSION_SECURE_COOKIE=true
           export APP_URL=https://student.example.test
           docker compose up -d --no-build app
@@ -180,6 +181,12 @@ jobs:
             -H 'Host: student.example.test' -H 'X-Forwarded-Proto: https' \
             -H 'X-Forwarded-Port: 443' -H 'X-Forwarded-Host: injected.invalid' \
             http://127.0.0.1:18080/)"
+          # Unknown Host values must be rejected, not reflected into absolute
+          # SEO and admin URLs. The forwarded host is intentionally ignored.
+          rejected_host_status="$(curl --silent --show-error --retry 12 --retry-all-errors --retry-delay 1 -o /dev/null -w '%{http_code}' \
+            -H 'Host: injected.invalid' -H 'X-Forwarded-Proto: https' \
+            http://127.0.0.1:18080/)"
+          test "$rejected_host_status" = 400
           grep -F 'href="https://student.example.test/offers"' <<< "$proxy_html"
           grep -F 'action="https://student.example.test/search"' <<< "$proxy_html"
           grep -E 'href="https://student.example.test/build/assets/[^"]+\.css"' <<< "$proxy_html"
@@ -201,7 +208,7 @@ jobs:
           grep -i '^set-cookie: .*; secure;' <<< "$proxy_login_headers"
           grep -i '^set-cookie: .*; httponly;' <<< "$proxy_login_headers"
           # The next smoke scenarios are local/Codespaces, without proxy trust.
-          unset TRUSTED_PROXIES SESSION_SECURE_COOKIE
+          unset TRUSTED_PROXIES TRUSTED_HOSTS SESSION_SECURE_COOKIE
 
           # Verify Codespaces forwarded-origin HTML and real CSS without another CI job.
           export APP_ENV=local
