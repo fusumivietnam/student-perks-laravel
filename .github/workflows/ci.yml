@@ -186,7 +186,12 @@ jobs:
           rejected_host_status="$(curl --silent --show-error --retry 12 --retry-all-errors --retry-delay 1 -o /dev/null -w '%{http_code}' \
             -H 'Host: injected.invalid' -H 'X-Forwarded-Proto: https' \
             http://127.0.0.1:18080/)"
-          test "$rejected_host_status" = 400
+          echo "Untrusted Host returned HTTP $rejected_host_status"
+          if test "$rejected_host_status" != 400; then
+            curl --silent --show-error --dump-header - -o /dev/null -H 'Host: injected.invalid' http://127.0.0.1:18080/ >&2
+            echo 'FAIL: expected 400 for unapproved Host' >&2
+            exit 1
+          fi
           grep -F 'href="https://student.example.test/offers"' <<< "$proxy_html"
           grep -F 'action="https://student.example.test/search"' <<< "$proxy_html"
           grep -E 'href="https://student.example.test/build/assets/[^"]+\.css"' <<< "$proxy_html"
