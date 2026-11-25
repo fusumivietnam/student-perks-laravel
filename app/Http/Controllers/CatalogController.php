@@ -59,7 +59,24 @@ class CatalogController extends Controller
             ? $query->orderByRaw('ends_at ASC NULLS LAST')->orderBy('id')
             : $query->latest()->orderByDesc('id');
 
+        // Build removal URLs only from normalized filter values. Dropping one
+        // filter must retain the others without carrying stale pagination.
+        $filterParams = array_filter([
+            'q' => $term,
+            'brand' => $brand,
+            'category' => $category,
+            'type' => $type,
+            'sort' => $sort === 'ending' ? 'ending' : '',
+        ], fn (string $value): bool => $value !== '');
+
+        $filterRoute = $request->routeIs('search') ? 'search' : 'offers.index';
+        $removeFilterUrls = [];
+        foreach (array_keys($filterParams) as $key) {
+            $removeFilterUrls[$key] = route($filterRoute, array_diff_key($filterParams, [$key => true]));
+        }
+
         return view('catalog.offers', [
+            'removeFilterUrls' => $removeFilterUrls,
             'title' => $request->routeIs('search') ? 'Search student offers' : 'Student offers',
             'filterAction' => $request->routeIs('search') ? route('search') : route('offers.index'),
             'offers' => $query->paginate(12)->withQueryString(),
