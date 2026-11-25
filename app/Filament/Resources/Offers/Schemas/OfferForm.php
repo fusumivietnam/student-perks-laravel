@@ -22,91 +22,91 @@ class OfferForm
                 Section::make('Offer details')
                     ->description('Choose the published brand and category, then describe the offer clearly.')
                     ->schema([
-                    Select::make('brand_id')
-                        ->relationship('brand', 'name')
-                        ->searchable()
-                        ->preload()
-                        ->required(),
-                    Select::make('category_id')
-                        ->relationship('category', 'name')
-                        ->searchable()
-                        ->preload()
-                        ->required(),
-                    TextInput::make('title')
-                        ->required()
-                        ->maxLength(255),
-                    TextInput::make('slug')
-                        ->required()
-                        ->maxLength(255)
-                        ->rule('regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
-                        ->unique(ignoreRecord: true)
-                        ->rule('unique:offer_slug_redirects,slug')
-                        ->helperText('Lowercase letters, numbers and hyphens only. Previously published URLs are reserved for redirects.'),
-                    Textarea::make('summary')
-                        ->required()
-                        ->columnSpanFull(),
-                    Textarea::make('description')
-                        ->required()
-                        ->columnSpanFull(),
-                    TextInput::make('offer_type')
-                        ->required()
-                        ->maxLength(255)
-                        ->default('discount'),
-                    TextInput::make('offer_value')
-                        ->maxLength(255),
+                        Select::make('brand_id')
+                            ->relationship('brand', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                        Select::make('category_id')
+                            ->relationship('category', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                        TextInput::make('title')
+                            ->required()
+                            ->maxLength(255),
+                        TextInput::make('slug')
+                            ->required()
+                            ->maxLength(255)
+                            ->rule('regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
+                            ->unique(ignoreRecord: true)
+                            ->rule('unique:offer_slug_redirects,slug')
+                            ->helperText('Lowercase letters, numbers and hyphens only. Previously published URLs are reserved for redirects.'),
+                        Textarea::make('summary')
+                            ->required()
+                            ->columnSpanFull(),
+                        Textarea::make('description')
+                            ->required()
+                            ->columnSpanFull(),
+                        TextInput::make('offer_type')
+                            ->required()
+                            ->maxLength(255)
+                            ->default('discount'),
+                        TextInput::make('offer_value')
+                            ->maxLength(255),
                     ]),
                 Section::make('Eligibility and redemption')
                     ->description('Help students understand who qualifies and what they need to do.')
                     ->schema([
-                    Textarea::make('eligibility')
-                        ->columnSpanFull(),
-                    Textarea::make('redemption_steps')
-                        ->columnSpanFull(),
+                        Textarea::make('eligibility')
+                            ->columnSpanFull(),
+                        Textarea::make('redemption_steps')
+                            ->columnSpanFull(),
                     ]),
                 Section::make('Official partner destination')
                     ->description('A saved HTTPS destination must be manually reviewed before the public CTA is enabled.')
                     ->schema([
-                    TextInput::make('partner_url')
-                        ->maxLength(2048)
-                        ->url()
-                        ->rule('starts_with:https://')
-                        ->required()
-                        ->helperText('After saving, open the official destination and use “Mark link reviewed” in the Offers list. The public partner button remains disabled until reviewed; changing this URL clears the previous review.'),
+                        TextInput::make('partner_url')
+                            ->maxLength(2048)
+                            ->url()
+                            ->rule('starts_with:https://')
+                            ->required()
+                            ->helperText('After saving, open the official destination and use “Mark link reviewed” in the Offers list. The public partner button remains disabled until reviewed; changing this URL clears the previous review.'),
                     ]),
                 Section::make('Publication and availability')
                     ->description('Control public visibility and the optional offer schedule.')
                     ->schema([
-                    Toggle::make('is_published')
-                        ->default(false)
-                        ->helperText('Only visible when enabled, its brand and category are published, and all scheduled dates permit it.'),
-                    DateTimePicker::make('starts_at'),
-                    DateTimePicker::make('ends_at')
-                        ->after('starts_at')
-                        ->rules([
-                            fn (Get $get): Closure => function (string $attribute, mixed $value, Closure $fail) use ($get): void {
-                                $publishedAt = $get('published_at');
+                        Toggle::make('is_published')
+                            ->default(false)
+                            ->helperText('Only visible when enabled, its brand and category are published, and all scheduled dates permit it.'),
+                        DateTimePicker::make('starts_at'),
+                        DateTimePicker::make('ends_at')
+                            ->after('starts_at')
+                            ->rules([
+                                fn (Get $get): Closure => function (string $attribute, mixed $value, Closure $fail) use ($get): void {
+                                    $publishedAt = $get('published_at');
 
-                                if (blank($value) || blank($publishedAt)) {
-                                    return;
-                                }
+                                    if (blank($value) || blank($publishedAt)) {
+                                        return;
+                                    }
 
-                                if (Carbon::parse($value)->lessThanOrEqualTo(Carbon::parse($publishedAt))) {
-                                    $fail('The offer must end after its scheduled publication time.');
-                                }
-                            },
-                        ])
-                        ->helperText('Optional. Must be later than both the start time and scheduled publication time when provided.'),
-                    DateTimePicker::make('published_at')
-                        ->helperText('Optional: keep the offer hidden until this time, even when Published is enabled. Must be earlier than the offer end time.'),
+                                    if (Carbon::parse($value)->lessThanOrEqualTo(Carbon::parse($publishedAt))) {
+                                        $fail('The offer must end after its scheduled publication time.');
+                                    }
+                                },
+                            ])
+                            ->helperText('Optional. Must be later than both the start time and scheduled publication time when provided.'),
+                        DateTimePicker::make('published_at')
+                            ->helperText('Optional: keep the offer hidden until this time, even when Published is enabled. Must be earlier than the offer end time.'),
                     ]),
                 Section::make('Search appearance')
                     ->description('Optional metadata shown by search engines; leave blank to use defaults.')
                     ->collapsed()
                     ->schema([
-                    TextInput::make('seo_title')
-                        ->maxLength(255),
-                    Textarea::make('seo_description')
-                        ->columnSpanFull(),
+                        TextInput::make('seo_title')
+                            ->maxLength(255),
+                        Textarea::make('seo_description')
+                            ->columnSpanFull(),
                     ]),
             ]);
     }
