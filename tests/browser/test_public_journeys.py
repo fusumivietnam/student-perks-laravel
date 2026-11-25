@@ -128,6 +128,34 @@ class PublicBrowserJourneysTest(unittest.TestCase):
                         2, f"Horizontal overflow at {width}px on {path}",
                     )
 
+    def test_public_routes_have_no_runtime_errors_or_broken_local_assets(self):
+        """Catch JS errors and failed first-party CSS/JS/images not visible in DOM assertions."""
+        base = BASE_URL.rstrip("/") + "/"
+        for path in ("/", "/offers", "/search", "/brands", "/articles",
+                     "/offers/demo-student-design-kit", "/pages/browser-ci-live-page"):
+            with self.subTest(path=path):
+                page = self.context.new_page()
+                errors = []
+                bad_assets = []
+                try:
+                    page.on("pageerror", lambda error: errors.append(str(error)))
+
+                    def check_response(response):
+                        request = response.request
+                        if (response.url.startswith(base)
+                                and request.resource_type in ("stylesheet", "script", "image")
+                                and response.status >= 400):
+                            bad_assets.append(f"{response.status} {response.url}")
+
+                    page.on("response", check_response)
+                    response = page.goto(path, wait_until="load")
+                    self.assertIsNotNone(response)
+                    self.assertEqual(response.status, 200)
+                    self.assertEqual(errors, [], f"Uncaught JavaScript errors on {path}")
+                    self.assertEqual(bad_assets, [], f"Broken first-party assets on {path}")
+                finally:
+                    page.close()
+
     def test_public_landmarks_form_labels_and_link_names_across_pages(self):
         """Flag missing structural semantics and unnamed interactive controls.
 
