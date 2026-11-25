@@ -53,6 +53,10 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
         expect(page.locator('input[id$=".title"]')).to_be_visible()
         expect(page.locator('input[id$=".slug"]')).to_be_visible()
         expect(page.locator('input[id$=".partner_url"]')).to_be_visible()
+        expect(page.get_by_text("Offer details", exact=True)).to_be_visible()
+        expect(page.get_by_text("Eligibility and redemption", exact=True)).to_be_visible()
+        expect(page.get_by_text("Official partner destination", exact=True)).to_be_visible()
+        expect(page.get_by_text("Publication and availability", exact=True)).to_be_visible()
 
         # Reuse this authenticated CMS journey instead of exhausting the login throttle.
         self.assert_unpublished_brand_and_category_hide_linked_published_offers()
@@ -75,7 +79,7 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
         # Saving a draft must preserve the public 404.
         page.locator('input[id$=".title"]').fill("Browser CI Edited Offer")
         page.get_by_role("button", name="Save changes").click()
-        expect(page.get_by_text("Saved", exact=False)).to_be_visible()
+        expect(page.get_by_text("Saved", exact=True)).to_be_visible()
         page.goto("/offers/browser-e2e-draft-offer")
         expect(page.get_by_role("heading", name="We couldn't find that page")).to_be_visible()
 
