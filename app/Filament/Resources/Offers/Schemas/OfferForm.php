@@ -9,6 +9,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
@@ -18,6 +19,9 @@ class OfferForm
     {
         return $schema
             ->components([
+                Section::make('Offer details')
+                    ->description('Choose the published brand and category, then describe the offer clearly.')
+                    ->schema([
                 Select::make('brand_id')
                     ->relationship('brand', 'name')
                     ->searchable()
@@ -50,16 +54,28 @@ class OfferForm
                     ->default('discount'),
                 TextInput::make('offer_value')
                     ->maxLength(255),
+                    ]),
+                Section::make('Eligibility and redemption')
+                    ->description('Help students understand who qualifies and what they need to do.')
+                    ->schema([
                 Textarea::make('eligibility')
                     ->columnSpanFull(),
                 Textarea::make('redemption_steps')
                     ->columnSpanFull(),
+                    ]),
+                Section::make('Official partner destination')
+                    ->description('A saved HTTPS destination must be manually reviewed before the public CTA is enabled.')
+                    ->schema([
                 TextInput::make('partner_url')
                     ->maxLength(2048)
                     ->url()
                     ->rule('starts_with:https://')
                     ->required()
                     ->helperText('After saving, open the official destination and use “Mark link reviewed” in the Offers list. The public partner button remains disabled until reviewed; changing this URL clears the previous review.'),
+                    ]),
+                Section::make('Publication and availability')
+                    ->description('Control public visibility and the optional offer schedule.')
+                    ->schema([
                 Toggle::make('is_published')
                     ->default(false)
                     ->helperText('Only visible when enabled, its brand and category are published, and all scheduled dates permit it.'),
@@ -82,10 +98,16 @@ class OfferForm
                     ->helperText('Optional. Must be later than both the start time and scheduled publication time when provided.'),
                 DateTimePicker::make('published_at')
                     ->helperText('Optional: keep the offer hidden until this time, even when Published is enabled. Must be earlier than the offer end time.'),
+                    ]),
+                Section::make('Search appearance')
+                    ->description('Optional metadata shown by search engines; leave blank to use defaults.')
+                    ->collapsed()
+                    ->schema([
                 TextInput::make('seo_title')
                     ->maxLength(255),
                 Textarea::make('seo_description')
                     ->columnSpanFull(),
+                    ]),
             ]);
     }
 }
