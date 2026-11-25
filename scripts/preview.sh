@@ -89,7 +89,8 @@ else
   docker compose up -d
 fi
 docker compose exec -T app php artisan migrate --force
-curl -fsS --retry 12 --retry-delay 2 --retry-connrefused http://127.0.0.1:8080/up >/dev/null
+# The read-only checker below owns /up and route/asset readiness checks.
+# Avoid a second, redundant HTTP probe in the launcher.
 # One command performs update, startup AND acceptance checks.
 bash scripts/preview-check.sh
 
