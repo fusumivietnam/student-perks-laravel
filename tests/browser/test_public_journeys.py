@@ -128,6 +128,68 @@ class PublicBrowserJourneysTest(unittest.TestCase):
                         2, f"Horizontal overflow at {width}px on {path}",
                     )
 
+    def test_public_landmarks_form_labels_and_link_names_across_pages(self):
+        """Flag missing structural semantics and unnamed interactive controls.
+
+        This is a deterministic smoke gate, not an automated WCAG audit.
+        """
+        page = self.page
+        for path in ("/", "/offers", "/search", "/brands", "/articles",
+                     "/offers/demo-student-design-kit", "/pages/browser-ci-live-page"):
+            with self.subTest(path=path):
+                page.goto(path)
+                issues = page.evaluate("""() => {
+                    const issues = [];
+                    const visible = el => !!(el.getClientRects().length) &&
+                        getComputedStyle(el).visibility !== 'hidden';
+                    const name = el => (
+                        el.getAttribute('aria-label') ||
+                        (el.getAttribute('aria-labelledby') || '').split(/\\s+/)
+                          .map(id => document.getElementById(id)?.textContent || '').join(' ') ||
+                        el.innerText ||
+                        el.textContent ||
+                        el.querySelector('img[alt]')?.getAttribute('alt') ||
+                        ''
+                    ).trim();
+                    if (!document.documentElement.lang.trim()) issues.push('missing html lang');
+                    if (document.querySelectorAll('main').length !== 1) issues.push('main landmark count');
+                    if (document.querySelectorAll('h1').length !== 1) issues.push('h1 count');
+                    for (const [index, el] of [...document.querySelectorAll('a, button')].entries()) {
+                        if (visible(el) && !name(el)) issues.push('unnamed link/button #' + index);
+                    }
+                    for (const el of document.querySelectorAll('input:not([type=hidden]), select, textarea')) {
+                        if (!visible(el)) continue;
+                        const id = el.id;
+                        const labelled = !!(el.getAttribute('aria-label') ||
+                            el.getAttribute('aria-labelledby') ||
+                            (id && [...document.querySelectorAll('label[for]')]
+                              .some(label => label.htmlFor === id)) ||
+                            el.closest('label'));
+                        if (!labelled) issues.push('unlabelled form control ' + (id || el.name || el.tagName));
+                    }
+                    return issues;
+                }""")
+                self.assertEqual(issues, [], f"Accessibility smoke issues on {path}: {issues}")
+
+    def test_keyboard_focus_visible_for_public_search_and_navigation(self):
+        page = self.page
+        page.goto("/")
+        page.keyboard.press("Tab")
+        expect(page.get_by_role("link", name="Skip to content")).to_be_focused()
+        page.keyboard.press("Enter")
+        self.assertEqual(page.evaluate("document.activeElement.id"), "main")
+
+        page.goto("/offers")
+        search = page.get_by_role("searchbox", name="Search offers")
+        search.focus()
+        self.assertTrue(search.evaluate("""el => {
+            const style = getComputedStyle(el);
+            return style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) > 0;
+        }"""), "Search keyboard focus must have a visible outline")
+        search.fill("Student")
+        page.keyboard.press("Enter")
+        expect(page.get_by_role("heading", name="Student offers")).to_be_visible()
+
     def test_mobile_navigation_keyboard_and_no_page_horizontal_overflow(self):
         page = self.page
         page.set_viewport_size({"width": 375, "height": 812})
