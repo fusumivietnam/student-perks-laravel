@@ -129,6 +129,18 @@ class CatalogFilteredPaginationTest extends TestCase
             ->assertSee('sort=ending', false)
             ->assertSee('action="'.route('search').'"', false);
 
+        // Each active chip removes one dimension and retains the other normalized
+        // filters, rather than resetting search or preserving a stale page=2.
+        foreach (['q', 'brand', 'category', 'type', 'sort'] as $removed) {
+            $expected = route('search', array_diff_key($query, [$removed => true]));
+            $first->assertSee('href="'.e($expected).'"', false);
+        }
+        $first->assertSee('aria-label="Remove brand filter"', false)
+            ->assertSee('aria-label="Remove category filter"', false)
+            ->assertSee('aria-label="Remove search filter"', false)
+            ->assertSee('aria-label="Remove offer type filter"', false)
+            ->assertSee('aria-label="Remove ending soon sort"', false);
+
         $second = $this->get(route('search', array_merge($query, ['page' => 2])));
 
         $second->assertOk()

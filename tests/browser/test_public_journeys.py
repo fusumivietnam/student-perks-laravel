@@ -74,6 +74,11 @@ class PublicBrowserJourneysTest(unittest.TestCase):
         page.get_by_role("button", name="Apply filters").click()
         expect(page.get_by_text("2 offers found")).to_be_visible()
         expect(page.get_by_text("Brand: Demo Cloud Studio")).to_be_visible()
+        page.get_by_role("link", name="Remove brand filter").click()
+        expect(page).to_have_url(re.compile(r"category=demo-software"))
+        self.assertNotIn("brand=", page.url)
+        expect(page.get_by_text("Category: Software (Demo)")).to_be_visible()
+        expect(page.get_by_role("link", name="Remove category filter")).to_be_visible()
         page.get_by_role("link", name="Reset all").click()
         expect(page.get_by_text("4 offers found")).to_be_visible()
 
