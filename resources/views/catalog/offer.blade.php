@@ -45,10 +45,21 @@
                         @endif
                     </div>
                     <x-public-page-heading class="mt-4" :title="$offer->title" :description="$offer->summary" />
+                    <nav aria-label="On this page" class="mt-6 flex flex-wrap items-center gap-2 text-sm">
+                        <span class="w-full font-semibold text-slate-600 sm:w-auto sm:mr-1">Jump to:</span>
+                        <a href="#about-offer-title" class="inline-flex min-h-11 items-center rounded-lg border border-slate-200 bg-slate-50 px-3 font-semibold text-indigo-700 hover:border-indigo-300 hover:bg-indigo-50 focus-visible:outline-2 focus-visible:outline-indigo-700">Overview</a>
+                        @if(filled($offer->eligibility))
+                            <a href="#offer-eligibility-title" class="inline-flex min-h-11 items-center rounded-lg border border-slate-200 bg-slate-50 px-3 font-semibold text-indigo-700 hover:border-indigo-300 hover:bg-indigo-50 focus-visible:outline-2 focus-visible:outline-indigo-700">Eligibility</a>
+                        @endif
+                        @if(filled($offer->redemption_steps))
+                            <a href="#offer-redemption-title" class="inline-flex min-h-11 items-center rounded-lg border border-slate-200 bg-slate-50 px-3 font-semibold text-indigo-700 hover:border-indigo-300 hover:bg-indigo-50 focus-visible:outline-2 focus-visible:outline-indigo-700">How to redeem</a>
+                        @endif
+                        <a href="#offer-partner" class="inline-flex min-h-11 items-center rounded-lg border border-slate-200 bg-slate-50 px-3 font-semibold text-indigo-700 hover:border-indigo-300 hover:bg-indigo-50 focus-visible:outline-2 focus-visible:outline-indigo-700">Partner link status</a>
+                    </nav>
                 </div>
             </header>
         </div>
-        <aside aria-label="Offer details and partner link" class="min-w-0 rounded-3xl border border-indigo-100 bg-white p-6 shadow-sm lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-28">
+        <aside id="offer-partner" tabindex="-1" aria-label="Offer details and partner link" class="scroll-mt-32 min-w-0 rounded-3xl border border-indigo-100 bg-white p-6 shadow-sm lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-28">
             <p class="text-xs font-extrabold uppercase tracking-[0.15em] text-indigo-600">Offer details</p>
             @if($offer->offer_value)
                 <p class="mt-3 break-words text-2xl font-extrabold tracking-tight text-slate-950">{{ $offer->offer_value }}</p>
@@ -84,20 +95,20 @@
         <div class="min-w-0 lg:col-start-1 lg:row-start-2">
             <div class="space-y-6">
                 <section aria-labelledby="about-offer-title" class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
-                    <h2 id="about-offer-title" class="text-2xl font-extrabold tracking-tight">About this offer</h2>
+                    <h2 id="about-offer-title" class="scroll-mt-32 text-2xl font-extrabold tracking-tight">About this offer</h2>
                     <div class="mt-4 whitespace-pre-line break-words leading-7 text-slate-700">{{ $offer->description }}</div>
                 </section>
 
                 @if($offer->eligibility)
                     <section aria-labelledby="offer-eligibility-title" class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
-                        <h2 id="offer-eligibility-title" class="text-2xl font-extrabold tracking-tight">Who is eligible?</h2>
+                        <h2 id="offer-eligibility-title" class="scroll-mt-32 text-2xl font-extrabold tracking-tight">Who is eligible?</h2>
                         <p class="mt-4 whitespace-pre-line break-words leading-7 text-slate-700">{{ $offer->eligibility }}</p>
                     </section>
                 @endif
 
                 @if($offer->redemption_steps)
                     <section aria-labelledby="offer-redemption-title" class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
-                        <h2 id="offer-redemption-title" class="text-2xl font-extrabold tracking-tight">How to redeem</h2>
+                        <h2 id="offer-redemption-title" class="scroll-mt-32 text-2xl font-extrabold tracking-tight">How to redeem</h2>
                         <p class="mt-4 whitespace-pre-line break-words leading-7 text-slate-700">{{ $offer->redemption_steps }}</p>
                     </section>
                 @endif
