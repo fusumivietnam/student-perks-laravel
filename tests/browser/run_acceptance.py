@@ -1,11 +1,10 @@
-"""Emit machine-readable and reviewer-friendly Chromium acceptance evidence.
+"""Emit machine-readable cross-browser acceptance evidence.
 
 Run exclusively against the disposable E2E Docker Compose CI stack. The
 runner uses Python's standard library; Playwright remains installed by CI.
 """
 import json
 import os
-import re
 import sys
 import time
 import unittest
@@ -26,7 +25,8 @@ def main():
 
     output = Path(os.environ.get("E2E_REPORT_DIR", "artifacts/acceptance"))
     output.mkdir(parents=True, exist_ok=True)
-    suite = unittest.defaultTestLoader.discover("tests/browser", pattern="test_*.py")
+    all_cases = []
+    results = []
 
     class AcceptanceResult(unittest.TextTestResult):
         def __init__(self, *args, **kwargs):
@@ -41,14 +41,14 @@ def main():
         def _record(self, test, status, detail=""):
             name = test.id()
             elapsed = round(time.monotonic() - self.started.get(name, time.monotonic()), 3)
-            case = {"name": name, "status": status, "duration_seconds": elapsed}
+            case = {"name": name, "browser": browser_name, "status": status, "duration_seconds": elapsed}
             if detail:
                 case["error"] = detail[-4000:]
             if status in {"FAIL", "ERROR"}:
                 page = getattr(test, "page", None)
                 if page is not None:
                     try:
-                        shot = output / ("failure-" + str(len(self.cases) + 1) + ".png")
+                        shot = output / ("failure-" + browser_name + "-" + str(len(all_cases) + len(self.cases) + 1) + ".png")
                         page.screenshot(path=str(shot), full_page=True, timeout=3000)
                         case["screenshot"] = shot.name
                     except Exception as exc:
@@ -73,26 +73,34 @@ def main():
             super().addSkip(test, reason)
             self._record(test, "SKIP", reason)
 
-    result = unittest.TextTestRunner(verbosity=2, resultclass=AcceptanceResult).run(suite)
-    cases = result.cases
+    # One disposable stack and one reporter; run admin journeys only in Chromium
+    # to avoid repeating write-side fixtures and login throttle checks.
+    for browser_name in ("chromium", "firefox", "webkit"):
+        os.environ["E2E_BROWSER"] = browser_name
+        pattern = "test_*.py" if browser_name == "chromium" else "test_public_*.py"
+        suite = unittest.defaultTestLoader.discover("tests/browser", pattern=pattern)
+        result = unittest.TextTestRunner(verbosity=2, resultclass=AcceptanceResult).run(suite)
+        results.append(result)
+        all_cases.extend(result.cases)
+    cases = all_cases
     counts = {s: sum(c["status"] == s for c in cases) for s in ("PASS", "FAIL", "ERROR", "SKIP")}
-    passed = result.wasSuccessful() and counts["PASS"] > 0 and counts["SKIP"] == 0
+    passed = all(result.wasSuccessful() for result in results) and counts["PASS"] > 0 and counts["SKIP"] == 0
     report = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "commit": os.environ.get("GITHUB_SHA", "local"),
         "environment": "disposable-loopback-compose",
-        "browser": "chromium",
+        "browsers": ["chromium", "firefox", "webkit"],
         "result": "PASS" if passed else "FAIL",
         "counts": counts,
         "cases": cases,
     }
     (output / "acceptance.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
 
-    root = ET.Element("testsuite", name="chromium-acceptance",
+    root = ET.Element("testsuite", name="cross-browser-acceptance",
                       tests=str(len(cases)), failures=str(counts["FAIL"]),
                       errors=str(counts["ERROR"]), skipped=str(counts["SKIP"]))
     for case in cases:
-        node = ET.SubElement(root, "testcase", name=case["name"],
+        node = ET.SubElement(root, "testcase", classname=case["browser"], name=case["name"],
                              time=str(case["duration_seconds"]))
         if case["status"] == "FAIL":
             ET.SubElement(node, "failure", message="Browser assertion failed").text = case.get("error", "")
@@ -103,7 +111,7 @@ def main():
     ET.ElementTree(root).write(output / "acceptance.xml", encoding="utf-8", xml_declaration=True)
 
     rows = [
-        "## Chromium browser acceptance — " + report["result"],
+        "## Cross-browser acceptance — " + report["result"],
         "",
         "Commit: `" + report["commit"] + "` · Disposable Compose only",
         "",
@@ -111,14 +119,14 @@ def main():
         "| ---: | ---: | ---: | ---: |",
         "| " + " | ".join(str(counts[k]) for k in ("PASS", "FAIL", "ERROR", "SKIP")) + " |",
         "",
-        "| Test | Status | Seconds | Evidence |",
-        "| --- | --- | ---: | --- |",
+        "| Browser | Test | Status | Seconds | Evidence |",
+        "| --- | --- | --- | ---: | --- |",
     ]
     for case in cases:
-        rows.append("| " + case["name"].replace("|", "\\|") + " | " + case["status"]
+        rows.append("| " + case["browser"] + " | " + case["name"].replace("|", "\\|") + " | " + case["status"]
                     + " | " + str(case["duration_seconds"]) + " | "
                     + case.get("screenshot", "—") + " |")
-    rows.extend(["", "Automated Chromium results do not certify Safari/Firefox, manual accessibility, "
+    rows.extend(["", "Playwright WebKit on Linux is not native Safari; automated browser checks do not certify manual accessibility, "
                  "legal/editorial content, or production domain/VPS acceptance.", ""])
     markdown = "\n".join(rows)
     (output / "acceptance.md").write_text(markdown, encoding="utf-8")
