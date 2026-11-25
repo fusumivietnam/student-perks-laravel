@@ -4,21 +4,21 @@
 
 **GitHub Project V2 #5 is the canonical planning, workflow and roadmap entrypoint.** Its items must link to GitHub Issues/PRs; actual implementation is established by code and green checks on `main`. Conversations are proposals only. Do not create competing Markdown roadmap generators, scheduled status synchronizers or separate project plans.
 
-Current state: The Project URL was provided by the project owner on 2026-11-03 and is registered below. The connected GitHub API does not expose Projects V2 read/edit operations; its items are now verified by GitHub Actions API logs; views, fields and native automations have **not been independently verified**.
+Current state (2026-11-25): Owner screenshots confirm five Status options (Backlog, Ready, In Progress, In Review, Done), Priority (P0/P1/P2), the built-in Milestone column, and All Items / Board / Backlog / Roadmap layouts. A real temporary issue #104 was auto-added by GitHub's Project automation and moved to Done after closure (GitHub REST issue events and owner screenshot). PR auto-add/merge workflows are enabled in UI but **not yet independently proven on a real post-configuration PR**. The connected GitHub tool can read issue event history but cannot directly edit Project V2 views or custom fields.
 
 Project URL: **https://github.com/users/fusumivietnam/projects/5** (GraphQL-access verified; six Issues imported)
 
-Owner: `fusumivietnam`; Project name: `Student Perks Hub`; repository: `fusumivietnam/student-perks-laravel`.
+Owner: `fusumivietnam`; Project name displayed in owner screenshots: `Student Perks Hub - Laravel`; repository: `fusumivietnam/student-perks-laravel`.
 
 ## Initial setup in GitHub UI
 
 1. Open the existing [Project #5](https://github.com/users/fusumivietnam/projects/5); do not create another Project. Verify its title and ownership.
 2. In project settings, add the `student-perks-laravel` repository as a linked repository if available, and configure an auto-add workflow for new repository issues/PRs where supported.
 3. Add existing milestone Issues **#5 (M0), #1 (M1), #2 (M2), #3 (M3), #4 (M4)**; do not duplicate them as draft items.
-4. Define fields: **Status** (Backlog, Ready, In Progress, In Review, Done), **Priority** (P0, P1, P2), **Milestone** (M0–M4), **Target Date** (date, optional), **Size** (XS/S/M/L, optional). Do not recreate a second status in labels.
-5. Create views: **Roadmap** (timeline by Target Date, group by Milestone); **Board** (group by Status); **Backlog** (table, sort Priority); **Milestones** (table filter issue titles [M0]–[M4]).
-6. Enable built-in workflows: auto-add matching repository issues/PRs, set new items to Backlog, move linked items to In Progress when work starts, and move to Done on issue closure/PR merge **only if their review gate is actually met**. Built-in automations vary by project configuration; verify on an example issue.
-7. The Project URL is recorded above. Once views and automations are verified, close Issue #6 with explicit evidence. Do not create any other roadmap.
+4. Use the existing **Status** (Backlog, Ready, In Progress, In Review, Done), the custom **Priority** (P0, P1, P2), and GitHub's **built-in Milestone** field. The five M0–M4 roadmap issues are identified by issue title and canonical issue number; do not create a second custom Milestone field. The owner explicitly chose not to require dates.
+5. Views verified by owner screenshots: **All Items** (unfiltered table), **Board** (columns by Status), **Backlog** (table filter `-status:Done`, sorted Priority), and **Roadmap** (timeline layout with Dates: None). Owner may optionally rename/convert Roadmap into a **Milestones** table for M0–M4; a date field is **not** a prerequisite for governance acceptance.
+6. Native workflows enabled in owner screenshots: auto-add matching repository issues/PRs (`is:issue,pr`), new items → Backlog, item closed → Done, PR linked to issue → In Progress, PR merged → Done, and auto-add sub-issues. **Auto-close issue and bidirectional Sync with issue status are OFF** to avoid prematurely closing launch Issue #4. Live issue #104 verified the auto-add/status-change and closure/status-change events; check the PR workflows on the next real PR before marking them E2E verified.
+7. Project #5 remains the sole roadmap. Close Issue #6 only after reviewing the next legitimate PR's Project auto-add and merge→Done events, or explicitly documenting any unavailable evidence. Do not fabricate dates, create duplicate roadmaps, or open PRs solely for an artificial automation probe.
 
 ## Acceptance and status semantics
 
@@ -40,7 +40,7 @@ Owner: `fusumivietnam`; Project name: `Student Perks Hub`; repository: `fusumivi
 
 ## Transition
 
-`docs/ROADMAP.md` is a historical pointer/snapshot, **not** an authoritative live roadmap. The custom `roadmap-sync.yml` and `scripts/sync-roadmap.cjs` are retired; no new custom sync is needed. Project #5 is the canonical roadmap. Six Issue memberships are verified by GitHub Actions GraphQL logs; Project fields, views and native automations still require independent verification.
+`docs/ROADMAP.md` is a historical pointer/snapshot, **not** an authoritative live roadmap. The custom `roadmap-sync.yml` and `scripts/sync-roadmap.cjs` are retired; no new custom sync is needed. Project #5 is the canonical roadmap. Six Issue memberships were imported by GitHub Actions GraphQL and are visible in Project. Owner screenshots and actual Issue #104 events verify the native Issue workflows; PR lifecycle verification remains open.
 
 ## API access — initial integration
 
@@ -57,4 +57,4 @@ Recommended initial low-friction setup:
 
 The setup script is at `scripts/setup-project-v2.cjs`. It checks GraphQL access to `user(login:"fusumivietnam"){projectV2(number:5)}`, checks current repository Issues and adds missing Project items using `addProjectV2ItemById`. It intentionally never prints the token, makes no destructive requests and does not modify issue states.
 
-Status (verified 2026-11-05): Previous run #41863901123 failed due to missing token, but the secret is now available. [Read-only validation #41992895400](https://github.com/fusumivietnam/student-perks-laravel/actions/runs/41992895400) passed; [apply run #41993142767](https://github.com/fusumivietnam/student-perks-laravel/actions/runs/41993142767) successfully **added Issues #1–#6** to Project #5. No further import runs needed. Project views, custom fields and native automations remain unverified. See [Issue #6](https://github.com/fusumivietnam/student-perks-laravel/issues/6).
+History: Previous run #41863901123 failed due to missing token. [Read-only validation #41992895400](https://github.com/fusumivietnam/student-perks-laravel/actions/runs/41992895400) and [apply run #41993142767](https://github.com/fusumivietnam/student-perks-laravel/actions/runs/41993142767) passed, importing six issues. Do not rerun the one-off import. Live workflow evidence: [Issue #104](https://github.com/fusumivietnam/student-perks-laravel/issues/104) and [Governance Issue #6](https://github.com/fusumivietnam/student-perks-laravel/issues/6). Source release candidate `a92f966b002b2842bb181f764ad345cf05fafde8` is CI-green, while production Issue #4 remains open.
