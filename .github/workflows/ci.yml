@@ -25,7 +25,7 @@ concurrency:
 jobs:
   app:
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 35
     services:
       postgres:
         image: postgres:18
@@ -234,8 +234,9 @@ jobs:
           docker compose exec -T -e E2E_TEST_STACK=1 app php artisan db:seed --class=BrowserCiAdminSeeder --force
           python3 -m venv /tmp/student-perks-browser-venv
           /tmp/student-perks-browser-venv/bin/python -m pip install --disable-pip-version-check 'playwright==1.56.0'
-          /tmp/student-perks-browser-venv/bin/python -m playwright install --with-deps chromium
-          # Aggregate public + admin journeys into JSON/JUnit/Markdown reports.
+          /tmp/student-perks-browser-venv/bin/python -m playwright install --with-deps chromium firefox webkit
+          # Chromium runs public+admin; Firefox/WebKit run public journeys only.
+          # Aggregate all engines into one JSON/JUnit/Markdown report.
           # Capture failure screenshots while the isolated browser page is open.
           E2E_TEST_STACK=1 E2E_BASE_URL=http://127.0.0.1:18080 /tmp/student-perks-browser-venv/bin/python tests/browser/run_acceptance.py
 
@@ -275,7 +276,7 @@ jobs:
 
       - name: Upload browser acceptance evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: browser-acceptance-${{ github.run_id }}
           path: artifacts/acceptance/
