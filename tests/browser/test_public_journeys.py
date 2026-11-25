@@ -56,7 +56,7 @@ class PublicBrowserJourneysTest(unittest.TestCase):
         page.get_by_role("link", name="Student Design Kit — DEMO").first.click()
         expect(page.get_by_role("heading", name="Student Design Kit — DEMO")).to_be_visible()
         expect(page.get_by_text("Who is eligible?")).to_be_visible()
-        expect(page.get_by_text("How to redeem")).to_be_visible()
+        expect(page.get_by_role("heading", name="How to redeem")).to_be_visible()
         expect(page.get_by_role("link", name="Visit official partner")).to_have_count(0)
 
         page.goto("/offers/demo-unpublished-offer")
