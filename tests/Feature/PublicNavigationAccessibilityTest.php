@@ -32,16 +32,16 @@ class PublicNavigationAccessibilityTest extends TestCase
         $this->get('/sitemap.xml')->assertSee('/pages/disclaimer');
     }
 
-    public function test_mobile_navigation_is_scrollable_without_hiding_keyboard_links(): void
+    public function test_mobile_navigation_exposes_all_keyboard_links_without_horizontal_scrolling(): void
     {
         $response = $this->get(route('search'));
 
         $response->assertOk()
             ->assertSee('name="viewport" content="width=device-width, initial-scale=1"', false)
             ->assertSee('aria-label="Main navigation"', false)
-            ->assertSee('overflow-x-auto', false)
-            ->assertSee('whitespace-nowrap', false)
-            ->assertSee('overscroll-x-contain', false);
+            ->assertSee('grid-cols-2', false)
+            ->assertSee('min-h-11', false)
+            ->assertDontSee('overflow-x-auto', false);
 
         $html = $response->getContent();
         preg_match('/<nav aria-label="Main navigation"[^>]*>(.*?)<\\/nav>/s', $html, $matches);

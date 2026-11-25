@@ -218,6 +218,29 @@ class PublicBrowserJourneysTest(unittest.TestCase):
         page.keyboard.press("Enter")
         expect(page.get_by_role("heading", name="Student offers")).to_be_visible()
 
+    def test_mobile_navigation_all_destinations_are_visible_without_horizontal_scrolling(self):
+        page = self.page
+        for width in (320, 360, 375, 390):
+            with self.subTest(width=width):
+                page.set_viewport_size({"width": width, "height": 812})
+                page.goto("/")
+                nav = page.get_by_role("navigation", name="Main navigation")
+                expect(nav).to_be_visible()
+                nav_box = nav.bounding_box()
+                self.assertIsNotNone(nav_box)
+                for label in ("All offers", "Brands", "Search", "Guides"):
+                    link = nav.get_by_role("link", name=label, exact=True)
+                    expect(link).to_be_visible()
+                    box = link.bounding_box()
+                    self.assertIsNotNone(box)
+                    self.assertGreaterEqual(box["x"], nav_box["x"] - 2)
+                    self.assertLessEqual(box["x"] + box["width"], nav_box["x"] + nav_box["width"] + 2)
+                    self.assertGreaterEqual(box["height"], 44)
+                self.assertLessEqual(
+                    page.evaluate("document.documentElement.scrollWidth - window.innerWidth"),
+                    2,
+                )
+
     def test_mobile_navigation_keyboard_and_no_page_horizontal_overflow(self):
         page = self.page
         page.set_viewport_size({"width": 375, "height": 812})
