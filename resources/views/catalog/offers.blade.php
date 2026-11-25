@@ -71,19 +71,19 @@
             <div class="mt-5 flex flex-wrap items-center gap-2" aria-label="Active filters">
                 <span class="mr-1 text-sm font-semibold text-slate-600">Active filters:</span>
                 @if($term !== '')
-                    <span class="max-w-full wrap-anywhere rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-800">Search: {{ $term }}</span>
+                    <a href="{{ $removeFilterUrls['q'] }}" aria-label="Remove search filter" class="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full bg-indigo-100 px-3 py-2 text-xs font-bold text-indigo-800 hover:bg-indigo-200 focus-visible:outline-2 focus-visible:outline-indigo-700"><span class="min-w-0 wrap-anywhere">Search: {{ $term }}</span><span aria-hidden="true" class="shrink-0 text-base">×</span></a>
                 @endif
                 @if($brand !== '')
-                    <span class="max-w-full wrap-anywhere rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-800">Brand: {{ $brands->firstWhere('slug', $brand)?->name ?? $brand }}</span>
+                    <a href="{{ $removeFilterUrls['brand'] }}" aria-label="Remove brand filter" class="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full bg-indigo-100 px-3 py-2 text-xs font-bold text-indigo-800 hover:bg-indigo-200 focus-visible:outline-2 focus-visible:outline-indigo-700"><span class="min-w-0 wrap-anywhere">Brand: {{ $brands->firstWhere('slug', $brand)?->name ?? $brand }}</span><span aria-hidden="true" class="shrink-0 text-base">×</span></a>
                 @endif
                 @if($category !== '')
-                    <span class="max-w-full wrap-anywhere rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-800">Category: {{ $categories->firstWhere('slug', $category)?->name ?? $category }}</span>
+                    <a href="{{ $removeFilterUrls['category'] }}" aria-label="Remove category filter" class="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full bg-indigo-100 px-3 py-2 text-xs font-bold text-indigo-800 hover:bg-indigo-200 focus-visible:outline-2 focus-visible:outline-indigo-700"><span class="min-w-0 wrap-anywhere">Category: {{ $categories->firstWhere('slug', $category)?->name ?? $category }}</span><span aria-hidden="true" class="shrink-0 text-base">×</span></a>
                 @endif
                 @if($type !== '')
-                    <span class="max-w-full wrap-anywhere rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-800">Type: {{ \Illuminate\Support\Str::headline($type) }}</span>
+                    <a href="{{ $removeFilterUrls['type'] }}" aria-label="Remove offer type filter" class="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full bg-indigo-100 px-3 py-2 text-xs font-bold text-indigo-800 hover:bg-indigo-200 focus-visible:outline-2 focus-visible:outline-indigo-700"><span class="min-w-0 wrap-anywhere">Type: {{ \Illuminate\Support\Str::headline($type) }}</span><span aria-hidden="true" class="shrink-0 text-base">×</span></a>
                 @endif
                 @if($sort === 'ending')
-                    <span class="max-w-full wrap-anywhere rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-bold text-indigo-800">Ending soon</span>
+                    <a href="{{ $removeFilterUrls['sort'] }}" aria-label="Remove ending soon sort" class="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full bg-indigo-100 px-3 py-2 text-xs font-bold text-indigo-800 hover:bg-indigo-200 focus-visible:outline-2 focus-visible:outline-indigo-700"><span>Ending soon</span><span aria-hidden="true" class="shrink-0 text-base">×</span></a>
                 @endif
                 <a href="{{ ($filterAction ?? route('offers.index')) }}" class="inline-flex min-h-11 items-center rounded-md px-2 text-xs font-bold text-indigo-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-indigo-700">Reset all</a>
             </div>
