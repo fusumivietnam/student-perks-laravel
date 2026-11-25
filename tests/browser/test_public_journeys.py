@@ -1,6 +1,6 @@
-"""Real Chromium acceptance checks against an isolated Docker Compose preview.
+"""Real cross-browser public acceptance checks against disposable Docker Compose.
 
-Requires: pip install playwright==1.56.0 && python -m playwright install chromium
+Requires: pip install playwright==1.56.0 && python -m playwright install chromium firefox webkit
 Runs only against an explicitly configured disposable test URL.
 """
 
@@ -19,7 +19,10 @@ class PublicBrowserJourneysTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.playwright = sync_playwright().start()
-        cls.browser = cls.playwright.chromium.launch(headless=True)
+        engine = os.environ.get("E2E_BROWSER", "chromium")
+        if engine not in ("chromium", "firefox", "webkit"):
+            raise RuntimeError("Unsupported E2E_BROWSER: " + engine)
+        cls.browser = getattr(cls.playwright, engine).launch(headless=True)
 
     @classmethod
     def tearDownClass(cls):
