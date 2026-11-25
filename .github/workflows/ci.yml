@@ -235,8 +235,9 @@ jobs:
           python3 -m venv /tmp/student-perks-browser-venv
           /tmp/student-perks-browser-venv/bin/python -m pip install --disable-pip-version-check 'playwright==1.56.0'
           /tmp/student-perks-browser-venv/bin/python -m playwright install --with-deps chromium
-          E2E_BASE_URL=http://127.0.0.1:18080 /tmp/student-perks-browser-venv/bin/python -m unittest discover -s tests/browser -p 'test_public_*.py' -v
-          E2E_BASE_URL=http://127.0.0.1:18080 /tmp/student-perks-browser-venv/bin/python -m unittest discover -s tests/browser -p 'test_admin_*.py' -v
+          # Aggregate public + admin journeys into JSON/JUnit/Markdown reports.
+          # Capture failure screenshots while the isolated browser page is open.
+          E2E_TEST_STACK=1 E2E_BASE_URL=http://127.0.0.1:18080 /tmp/student-perks-browser-venv/bin/python tests/browser/run_acceptance.py
 
           # Disaster-recovery rehearsal on this disposable CI stack ONLY.
           # Never target the source database/volume with pg_restore or extract over live media.
@@ -271,3 +272,12 @@ jobs:
           docker compose exec -T -u postgres db sh -c 'dropdb -U "$POSTGRES_USER" restore_rehearsal_ci'
           rm -rf "$rehearsal_dir"
           echo "PASS: isolated database and media backup/restore rehearsal."
+
+      - name: Upload browser acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-acceptance-${{ github.run_id }}
+          path: artifacts/acceptance/
+          if-no-files-found: ignore
+          retention-days: 14
