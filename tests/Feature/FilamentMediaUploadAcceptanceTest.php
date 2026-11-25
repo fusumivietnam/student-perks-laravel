@@ -153,6 +153,58 @@ class FilamentMediaUploadAcceptanceTest extends TestCase
             ->assertDontSee('src="'.Storage::disk('public')->url('brands/original-logo.png').'"', false);
     }
 
+    public function test_editor_can_replace_article_cover_without_deleting_original_file(): void
+    {
+        Storage::disk('public')->put('articles/original-cover.png', 'original cover fixture');
+
+        $article = Article::create([
+            'title' => 'Article with replacement cover',
+            'slug' => 'article-with-replacement-cover',
+            'summary' => 'A cover replacement test',
+            'body' => 'Editorial article body',
+            'cover_path' => 'articles/original-cover.png',
+            'is_published' => true,
+        ]);
+
+        Livewire::test(ManageArticles::class)
+            ->callTableAction('edit', $article, data: [
+                'cover_path' => [$this->validImage('new-cover.png')],
+            ])
+            ->assertHasNoTableActionErrors();
+
+        $newPath = $article->fresh()->cover_path;
+        $this->assertNotSame('articles/original-cover.png', $newPath);
+        $this->assertStringStartsWith('articles/', $newPath);
+        Storage::disk('public')->assertExists($newPath);
+        Storage::disk('public')->assertExists('articles/original-cover.png');
+
+        $this->get('/articles/'.$article->slug)->assertOk()
+            ->assertSee('src="'.Storage::disk('public')->url($newPath).'"', false)
+            ->assertDontSee('src="'.Storage::disk('public')->url('articles/original-cover.png').'"', false);
+    }
+
+    public function test_deleting_article_does_not_destructively_remove_its_uploaded_media(): void
+    {
+        Storage::disk('public')->put('articles/retained-cover.png', 'retained media fixture');
+
+        $article = Article::create([
+            'title' => 'Disposable editorial record',
+            'slug' => 'disposable-editorial-record',
+            'summary' => 'Record deletion test',
+            'body' => 'Content to remove',
+            'cover_path' => 'articles/retained-cover.png',
+            'is_published' => true,
+        ]);
+
+        Livewire::test(ManageArticles::class)
+            ->callTableAction('delete', $article)
+            ->assertHasNoTableActionErrors();
+
+        $this->assertDatabaseMissing('articles', ['id' => $article->id]);
+        Storage::disk('public')->assertExists('articles/retained-cover.png');
+        $this->get('/articles/disposable-editorial-record')->assertNotFound();
+    }
+
     private function validImage(string $name): UploadedFile
     {
         // Minimal valid PNG; no GD/image-extension dependency required on PHP CI.
