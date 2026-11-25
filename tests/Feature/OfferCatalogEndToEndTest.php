@@ -83,6 +83,35 @@ class OfferCatalogEndToEndTest extends TestCase
         $this->get(route('offers.index'))->assertDontSee($offer->title);
     }
 
+    public function test_offer_detail_jump_links_only_target_visible_sections_and_never_enable_unreviewed_destination(): void
+    {
+        $offer = $this->createOffer(['is_published' => true]);
+
+        $this->get(route('offers.show', $offer->slug))->assertOk()
+            ->assertSee('aria-label="On this page"', false)
+            ->assertSee('href="#about-offer-title"', false)
+            ->assertSee('href="#offer-eligibility-title"', false)
+            ->assertSee('href="#offer-redemption-title"', false)
+            ->assertSee('href="#offer-partner"', false)
+            ->assertSee('id="offer-partner"', false)
+            ->assertSee('awaiting editorial review')
+            ->assertDontSee('Visit official partner');
+
+        $offer->update(['eligibility' => '', 'redemption_steps' => '']);
+        $this->get(route('offers.show', $offer->slug))->assertOk()
+            ->assertDontSee('href="#offer-eligibility-title"', false)
+            ->assertDontSee('href="#offer-redemption-title"', false)
+            ->assertSee('href="#about-offer-title"', false)
+            ->assertSee('href="#offer-partner"', false);
+
+        $admin = User::factory()->create();
+        $admin->forceFill(['is_admin' => true])->save();
+        $this->actingAs($admin)->get(route('offers.preview', $offer))->assertOk()
+            ->assertSee('href="#offer-partner"', false)
+            ->assertSee('External redemption links are disabled in preview.')
+            ->assertDontSee('Visit official partner');
+    }
+
     public function test_public_catalog_respects_scheduling_and_parent_visibility(): void
     {
         $offer = $this->createOffer(['is_published' => true]);
