@@ -64,6 +64,13 @@ class AdminContentOverviewTest extends TestCase
             'is_published' => true,
         ]);
 
+        Page::create([
+            'title' => 'Terms',
+            'slug' => 'terms',
+            'body' => " \t\r\n\v",
+            'is_published' => true,
+        ]);
+
         $this->actingAs($admin);
 
         Livewire::test(ContentOverview::class)
@@ -88,7 +95,7 @@ class AdminContentOverviewTest extends TestCase
             }
         };
 
-        $this->assertSame([1, 3, 1, 1, 1, 1, 1, 4, 0, 4], $widget->values());
+        $this->assertSame([1, 3, 1, 1, 1, 2, 1, 4, 0, 4], $widget->values());
     }
 
     public function test_admin_dashboard_requires_login_and_admin_role(): void

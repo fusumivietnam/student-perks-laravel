@@ -25,7 +25,7 @@ class ContentOverview extends StatsOverviewWidget
         $missingDetails = Offer::needsEditorialReview()->count();
         $expiringSoon = Offer::expiringSoon()->count();
         $requiredPages = ['about', 'privacy', 'terms', 'contact', 'disclaimer'];
-        $readyPages = Page::published()->whereIn('slug', $requiredPages)->whereRaw("TRIM(body) <> ''")->count();
+        $readyPages = Page::published()->whereIn('slug', $requiredPages)->get(['body'])->filter(fn (Page $page): bool => trim((string) $page->body) !== '')->count();
         $missingPages = count($requiredPages) - $readyPages;
 
         return [

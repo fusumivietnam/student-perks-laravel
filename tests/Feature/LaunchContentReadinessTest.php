@@ -60,7 +60,7 @@ class LaunchContentReadinessTest extends TestCase
     {
         $this->publishLegalPages();
         $offer = $this->createOffer([
-            'eligibility' => ' ',
+            'eligibility' => " \t\r\n\v",
             'partner_url' => 'http://invalid.example/student',
         ]);
 
@@ -71,7 +71,7 @@ class LaunchContentReadinessTest extends TestCase
         $this->assertStringContainsString('invalid/non-HTTPS partner destinations', $output);
         $this->assertStringContainsString('CONTENT GATE FAILED', $output);
 
-        $this->assertSame(' ', $offer->fresh()->eligibility);
+        $this->assertSame(" \t\r\n\v", $offer->fresh()->eligibility);
         $this->assertNull($offer->fresh()->partner_reviewed_at);
         $this->assertSame('http://invalid.example/student', $offer->fresh()->partner_url);
     }
@@ -112,7 +112,7 @@ class LaunchContentReadinessTest extends TestCase
     public function test_published_legal_page_with_empty_body_is_a_blocker(): void
     {
         $this->publishLegalPages();
-        Page::where('slug', 'privacy')->update(['body' => '   ']);
+        Page::where('slug', 'privacy')->update(['body' => " \t\r\n\v"]);
         $offer = $this->createOffer();
         $offer->forceFill(['partner_reviewed_at' => now()])->save();
 
@@ -121,7 +121,7 @@ class LaunchContentReadinessTest extends TestCase
             'Published legal/information page has no content: /pages/privacy',
             Artisan::output()
         );
-        $this->assertSame('   ', Page::where('slug', 'privacy')->value('body'));
+        $this->assertSame(" \t\r\n\v", Page::where('slug', 'privacy')->value('body'));
     }
 
     public function test_legacy_published_slugs_are_audited_without_rewriting_them(): void

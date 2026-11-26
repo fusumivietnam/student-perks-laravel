@@ -131,9 +131,9 @@ class Offer extends Model
     {
         return $query->where(function (Builder $q): void {
             $q->whereNull('eligibility')
-                ->orWhereRaw("TRIM(eligibility) = ''")
+                ->orWhereRaw("BTRIM(eligibility, CHR(32) || CHR(9) || CHR(10) || CHR(13) || CHR(11)) = ''")
                 ->orWhereNull('redemption_steps')
-                ->orWhereRaw("TRIM(redemption_steps) = ''");
+                ->orWhereRaw("BTRIM(redemption_steps, CHR(32) || CHR(9) || CHR(10) || CHR(13) || CHR(11)) = ''");
         });
     }
 

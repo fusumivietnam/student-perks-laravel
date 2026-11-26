@@ -45,8 +45,8 @@ class OfferEditorialReviewTest extends TestCase
     {
         $ready = $this->offer('ready');
         $missingEligibility = $this->offer('missing-eligibility', ['eligibility' => null]);
-        $missingSteps = $this->offer('missing-steps', ['redemption_steps' => '   ']);
-        $missingBoth = $this->offer('missing-both', ['eligibility' => '', 'redemption_steps' => null]);
+        $missingSteps = $this->offer('missing-steps', ['redemption_steps' => " \t\r\n\v"]);
+        $missingBoth = $this->offer('missing-both', ['eligibility' => "\t\n", 'redemption_steps' => null]);
 
         $this->assertFalse($ready->hasMissingEditorialDetails());
         foreach ([$missingEligibility, $missingSteps, $missingBoth] as $incomplete) {
