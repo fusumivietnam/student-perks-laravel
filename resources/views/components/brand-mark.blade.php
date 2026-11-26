@@ -9,6 +9,7 @@
         <img src="{{ $logoUrl }}"
              alt=""
              loading="lazy"
+             decoding="async"
              class="h-full w-full object-contain p-1.5">
     @else
         <span class="{{ $textClass }}">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($brand->name, 0, 2)) }}</span>
