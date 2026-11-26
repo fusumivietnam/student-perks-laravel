@@ -315,6 +315,9 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
                 if resource == "articles":
                     page.locator('textarea[id$=".summary"]').fill("Fictional browser test summary.")
                 if resource in ("articles", "pages"):
+                    modal = page.locator(".fi-modal-window-ctn:visible")
+                    for heading in (singular.title() + " content", "Publication", "Search appearance"):
+                        expect(modal.get_by_text(heading, exact=True)).to_be_visible()
                     page.locator('textarea[id$=".body"]').fill("Fictional browser test body.")
                 toggle = page.get_by_role("switch", name=re.compile("Published", re.I))
                 if toggle.get_attribute("aria-checked") == "true":
