@@ -3,19 +3,23 @@
 @section('title', 'Student deals and education benefits')
 
 @section('content')
-    <section class="relative isolate overflow-hidden rounded-[2rem] bg-indigo-950 px-6 py-12 text-white sm:px-12 sm:py-16 lg:px-16">
+    <section class="relative isolate overflow-hidden rounded-[2rem] bg-indigo-950 px-5 py-8 text-white sm:px-12 sm:py-16 lg:px-16">
         <div class="pointer-events-none absolute -right-24 -top-40 h-96 w-96 rounded-full bg-violet-500/25 blur-3xl" aria-hidden="true"></div>
         <div class="pointer-events-none absolute -bottom-40 right-12 h-96 w-96 rounded-full bg-sky-400/15 blur-3xl" aria-hidden="true"></div>
         <div class="relative max-w-3xl">
             <span class="inline-flex items-center gap-2 rounded-full border border-indigo-300/30 bg-white/10 px-4 py-2 text-xs font-bold tracking-widest text-indigo-100 uppercase"><span class="h-2 w-2 rounded-full bg-amber-400" aria-hidden="true"></span> Education benefits, made easier</span>
-            <h1 class="mt-7 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">Your student status deserves <span class="text-amber-300">more.</span></h1>
-            <p class="mt-6 max-w-2xl text-base leading-relaxed text-indigo-100 sm:text-lg">Discover software, learning and lifestyle offers in one place. Compare the details, check eligibility, and continue with the partner.</p>
-            <form method="GET" action="{{ route('search') }}" role="search" class="mt-8 flex max-w-2xl flex-col gap-3 sm:flex-row">
+            <h1 class="mt-5 text-3xl font-extrabold leading-tight tracking-tight sm:mt-7 sm:text-5xl lg:text-6xl">Your student status deserves <span class="text-amber-300">more.</span></h1>
+            <p class="mt-4 max-w-2xl text-base leading-relaxed text-indigo-100 sm:text-lg">Discover software, learning and lifestyle offers in one place. Compare the details, check eligibility, and continue with the partner.</p>
+            <form method="GET" action="{{ route('search') }}" role="search" class="mt-6 flex max-w-2xl flex-col gap-3 sm:flex-row">
                 <label for="home-search" class="sr-only">Search student offers</label>
                 <input id="home-search" name="q" type="search" maxlength="100" placeholder="Search offers, brands, learning tools…" class="min-h-13 min-w-0 flex-1 rounded-xl border border-white bg-white px-5 py-3 text-base text-slate-900 placeholder:text-slate-500 focus-visible:outline-3 focus-visible:outline-amber-400" required>
                 <button type="submit" class="min-h-13 rounded-xl bg-amber-400 px-8 py-3 font-extrabold text-slate-950 transition hover:bg-amber-300 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white">Explore offers <span aria-hidden="true">→</span></button>
             </form>
-            <p class="mt-5 text-sm text-indigo-200">No account required to browse. Always verify conditions with the provider.</p>
+            <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+                <a href="{{ route('offers.index') }}" class="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-bold text-white underline decoration-indigo-300 underline-offset-4 hover:text-amber-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">Browse the full directory <span aria-hidden="true">→</span></a>
+                <a href="{{ route('brands.index') }}" class="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-bold text-white underline decoration-indigo-300 underline-offset-4 hover:text-amber-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">Find a brand <span aria-hidden="true">→</span></a>
+            </div>
+            <p class="mt-3 text-sm text-indigo-200">No account required to browse. Always verify conditions with the provider.</p>
         </div>
     </section>
 
