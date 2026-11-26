@@ -22,14 +22,13 @@
                 <span>Student Perks Hub</span>
             </a>
             <nav aria-label="Main navigation" class="grid min-w-0 grid-cols-2 gap-2 text-sm font-semibold text-slate-700 sm:flex sm:flex-wrap sm:items-center sm:justify-end sm:gap-5">
-                <a class="inline-flex min-h-11 min-w-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-3 text-center hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700 aria-[current=page]:border-indigo-300 aria-[current=page]:bg-indigo-50 aria-[current=page]:text-indigo-800 sm:shrink-0 sm:justify-start sm:rounded-md sm:border-0 sm:bg-transparent sm:px-1 sm:text-left sm:hover:bg-transparent sm:aria-[current=page]:underline sm:aria-[current=page]:underline-offset-8" href="{{ route('offers.index') }}" @if(request()->routeIs('offers.index')) aria-current="page" @endif>All offers</a>
-                <a class="inline-flex min-h-11 min-w-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-3 text-center hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700 aria-[current=page]:border-indigo-300 aria-[current=page]:bg-indigo-50 aria-[current=page]:text-indigo-800 sm:shrink-0 sm:justify-start sm:rounded-md sm:border-0 sm:bg-transparent sm:px-1 sm:text-left sm:hover:bg-transparent sm:aria-[current=page]:underline sm:aria-[current=page]:underline-offset-8" href="{{ route('brands.index') }}" @if(request()->routeIs('brands.index')) aria-current="page" @endif>Brands</a>
-                <a class="inline-flex min-h-11 min-w-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-3 text-center hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700 aria-[current=page]:border-indigo-300 aria-[current=page]:bg-indigo-50 aria-[current=page]:text-indigo-800 sm:shrink-0 sm:justify-start sm:rounded-md sm:border-0 sm:bg-transparent sm:px-1 sm:text-left sm:hover:bg-transparent sm:aria-[current=page]:underline sm:aria-[current=page]:underline-offset-8" href="{{ route('search') }}" @if(request()->routeIs('search')) aria-current="page" @endif>Search</a>
-                <a class="inline-flex min-h-11 min-w-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-3 text-center hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700 aria-[current=page]:border-indigo-300 aria-[current=page]:bg-indigo-50 aria-[current=page]:text-indigo-800 sm:shrink-0 sm:justify-start sm:rounded-md sm:border-0 sm:bg-transparent sm:px-1 sm:text-left sm:hover:bg-transparent sm:aria-[current=page]:underline sm:aria-[current=page]:underline-offset-8" href="{{ route('articles.index') }}" @if(request()->routeIs('articles.index')) aria-current="page" @endif>Guides</a>
+                @foreach(['offers.index' => 'All offers', 'brands.index' => 'Brands', 'search' => 'Search', 'articles.index' => 'Guides'] as $destination => $label)
+                    <a class="inline-flex min-h-11 min-w-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-3 text-center hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700 aria-[current=page]:border-indigo-300 aria-[current=page]:bg-indigo-50 aria-[current=page]:text-indigo-800 sm:shrink-0 sm:justify-start sm:rounded-md sm:border-0 sm:bg-transparent sm:px-1 sm:text-left sm:hover:bg-transparent sm:aria-[current=page]:underline sm:aria-[current=page]:underline-offset-8" href="{{ route($destination) }}" @if(request()->routeIs($destination)) aria-current="page" @endif>{{ $label }}</a>
+                @endforeach
             </nav>
         </div>
     </header>
-    <main id="main" tabindex="-1" class="scroll-mt-32 mx-auto min-h-[65vh] max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+    <main id="main" tabindex="-1" class="scroll-mt-48 sm:scroll-mt-32 mx-auto min-h-[65vh] max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
         @yield('content')
     </main>
     <footer class="mt-16 border-t border-slate-200 bg-white">
@@ -39,7 +38,7 @@
                 <nav aria-label="Information and policies" class="flex flex-wrap gap-x-6 gap-y-2">
                     @foreach(['about' => 'About', 'privacy' => 'Privacy', 'terms' => 'Terms', 'contact' => 'Contact', 'disclaimer' => 'Disclaimer'] as $slug => $label)
                         @if($footerPages->contains($slug))
-                            <a class="font-semibold hover:text-indigo-700 focus-visible:underline" href="{{ route('pages.show', $slug) }}">{{ $label }}</a>
+                            <a class="inline-flex min-h-11 items-center rounded-md font-semibold hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700" href="{{ route('pages.show', $slug) }}">{{ $label }}</a>
                         @endif
                     @endforeach
                 </nav>

@@ -27,7 +27,8 @@ class PublicNavigationAccessibilityTest extends TestCase
 
         $this->get('/')->assertOk()
             ->assertSee('href="'.route('pages.show', 'disclaimer').'"', false)
-            ->assertSee('Disclaimer');
+            ->assertSee('Disclaimer')
+            ->assertSee('inline-flex min-h-11 items-center rounded-md font-semibold hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-700', false);
         $this->get('/pages/disclaimer')->assertOk()->assertSee('Partners determine eligibility and terms.');
         $this->get('/sitemap.xml')->assertSee('/pages/disclaimer');
     }

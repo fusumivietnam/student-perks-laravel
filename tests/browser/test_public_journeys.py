@@ -263,6 +263,28 @@ class PublicBrowserJourneysTest(unittest.TestCase):
                     2,
                 )
 
+    def test_offer_jump_links_clear_mobile_sticky_header(self):
+        page = self.page
+        for width in (320, 375):
+            with self.subTest(width=width):
+                page.set_viewport_size({"width": width, "height": 812})
+                page.goto("/offers/demo-student-design-kit")
+                navigation = page.get_by_role("navigation", name="On this page")
+                for label, target in (
+                    ("Overview", "#about-offer-title"),
+                    ("Eligibility", "#offer-eligibility-title"),
+                    ("How to redeem", "#offer-redemption-title"),
+                ):
+                    navigation.get_by_role("link", name=label, exact=True).click()
+                    expect(page).to_have_url(re.compile(re.escape(target) + "$"))
+                    heading = page.locator(target)
+                    expect(heading).to_be_in_viewport()
+                    self.assertTrue(heading.evaluate("""el => {
+                        const header = document.querySelector('body > header');
+                        return el.getBoundingClientRect().top >=
+                            header.getBoundingClientRect().bottom - 2;
+                    }"""), f"Sticky header obscures {label} at {width}px")
+
     def test_mobile_navigation_keyboard_and_no_page_horizontal_overflow(self):
         page = self.page
         page.set_viewport_size({"width": 375, "height": 812})
