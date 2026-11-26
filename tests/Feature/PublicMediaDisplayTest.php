@@ -78,7 +78,9 @@ class PublicMediaDisplayTest extends TestCase
             ->assertDontSee('articles/draft-image.png', false);
 
         $this->get('/articles/covered-guide')->assertOk()
-            ->assertSee('articles/sample-cover.png', false);
+            ->assertSee('articles/sample-cover.png', false)
+            ->assertSee('aspect-video w-full rounded-2xl object-contain', false)
+            ->assertSee('fetchpriority="high"', false);
         $this->get('/articles/missing-cover-guide')->assertOk()
             ->assertDontSee('articles/unavailable.png', false);
         $this->get('/articles/draft-guide')->assertNotFound();
