@@ -33,6 +33,34 @@ class PublicNavigationAccessibilityTest extends TestCase
         $this->get('/sitemap.xml')->assertSee('/pages/disclaimer');
     }
 
+    public function test_configured_required_pages_drive_footer_and_launch_gate(): void
+    {
+        config(['launch-pages.accessibility' => [
+            'label' => 'Accessibility statement',
+            'title' => 'Accessibility',
+            'body' => 'Reviewed accessibility information.',
+            'seo_description' => 'Accessibility information.',
+        ]]);
+
+        $this->artisan('launch:check')
+            ->expectsOutputToContain('Published legal/information page missing: /pages/accessibility')
+            ->assertExitCode(1);
+
+        $this->get('/')->assertOk()
+            ->assertDontSee('href="'.route('pages.show', 'accessibility').'"', false);
+
+        Page::create([
+            'title' => 'Accessibility',
+            'slug' => 'accessibility',
+            'body' => 'Reviewed accessibility information.',
+            'is_published' => true,
+        ]);
+
+        $this->get('/')->assertOk()
+            ->assertSee('href="'.route('pages.show', 'accessibility').'"', false)
+            ->assertSee('Accessibility statement');
+    }
+
     public function test_mobile_navigation_exposes_all_keyboard_links_without_horizontal_scrolling(): void
     {
         $response = $this->get(route('search'));
