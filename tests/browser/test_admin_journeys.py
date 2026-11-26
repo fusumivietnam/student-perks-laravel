@@ -11,6 +11,8 @@ PASSWORD = "ci-browser-password-only"
 
 @unittest.skipUnless(BASE_URL, "E2E_BASE_URL must point to isolated CI")
 class AdminBrowserAcceptanceTest(unittest.TestCase):
+    admin_storage_state = None
+
     @classmethod
     def setUpClass(cls):
         cls.playwright = sync_playwright().start()
@@ -29,10 +31,21 @@ class AdminBrowserAcceptanceTest(unittest.TestCase):
         self.context.close()
 
     def login(self, email):
+        # Reuse only the disposable admin session across isolated browser contexts.
+        # Guest and regular-user authorization checks still use fresh sessions.
+        if email == "browser-admin@ci.invalid" and type(self).admin_storage_state is not None:
+            self.context.add_cookies(type(self).admin_storage_state["cookies"])
+            self.page.goto("/admin")
+            expect(self.page).to_have_url(re.compile(r"/admin/?$"))
+            return
+
         self.page.goto("/admin/login")
         self.page.get_by_label("Email address").fill(email)
         self.page.locator('input[type="password"]').fill(PASSWORD)
         self.page.get_by_role("button", name="Sign in").click()
+        if email == "browser-admin@ci.invalid":
+            expect(self.page).to_have_url(re.compile(r"/admin/?$"), timeout=15000)
+            type(self).admin_storage_state = self.context.storage_state()
 
     def test_admin_can_login_browse_cms_and_edit_offer_form(self):
         page = self.page

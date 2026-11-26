@@ -74,7 +74,11 @@ class AdminContentOverviewTest extends TestCase
             ->assertSee('Live articles')
             ->assertSee('Published pages')
             ->assertSee('Currently visible in the public directory')
-            ->assertSee('Draft, scheduled, expired, or hidden by taxonomy');
+            ->assertSee('Draft, scheduled, expired, or hidden by taxonomy')
+            ->assertSee('Partner reviews due')
+            ->assertSee('Offers needing details')
+            ->assertSee('Expiring within 7 days')
+            ->assertSee('Required pages not ready');
 
         $widget = new class extends ContentOverview
         {
@@ -84,7 +88,7 @@ class AdminContentOverviewTest extends TestCase
             }
         };
 
-        $this->assertSame([1, 3, 1, 1, 1, 1], $widget->values());
+        $this->assertSame([1, 3, 1, 1, 1, 1, 1, 4, 0, 4], $widget->values());
     }
 
     public function test_admin_dashboard_requires_login_and_admin_role(): void
