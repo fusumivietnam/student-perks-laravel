@@ -14,6 +14,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\ImageColumn;
@@ -30,25 +31,38 @@ class ArticleResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('title')->required()->maxLength(255),
-            TextInput::make('slug')->required()->unique(ignoreRecord: true)->maxLength(255)
-                ->rule('regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
-                ->rule('unique:article_slug_redirects,slug')
-                ->helperText('Lowercase letters, numbers and single hyphens only. Previously published URLs are reserved for redirects.'),
-            Textarea::make('summary')->required()->columnSpanFull(),
-            FileUpload::make('cover_path')
-                ->image()
-                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                ->maxSize(4096)
-                ->imagePreviewHeight('160')
-                ->disk('public')
-                ->directory('articles')
-                ->helperText('JPEG, PNG or WebP; up to 4 MB.'),
-            DateTimePicker::make('published_at'),
-            Textarea::make('body')->required()->columnSpanFull(),
-            Toggle::make('is_published')->default(false),
-            TextInput::make('seo_title')->maxLength(255),
-            Textarea::make('seo_description')->columnSpanFull(),
+            Section::make('Article content')
+                ->description('Edit the title, URL and content before publication.')
+                ->schema([
+                    TextInput::make('title')->required()->maxLength(255),
+                    TextInput::make('slug')->required()->unique(ignoreRecord: true)->maxLength(255)
+                        ->rule('regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
+                        ->rule('unique:article_slug_redirects,slug')
+                        ->helperText('Lowercase letters, numbers and single hyphens only. Previously published URLs are reserved for redirects.'),
+                    Textarea::make('summary')->required()->columnSpanFull(),
+                    FileUpload::make('cover_path')
+                        ->image()
+                        ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                        ->maxSize(4096)
+                        ->imagePreviewHeight('160')
+                        ->disk('public')
+                        ->directory('articles')
+                        ->helperText('JPEG, PNG or WebP; up to 4 MB.'),
+                    Textarea::make('body')->required()->columnSpanFull(),
+                ]),
+            Section::make('Publication')
+                ->description('Control public visibility. Use Preview saved from the list to review saved changes.')
+                ->schema([
+                    Toggle::make('is_published')->default(false)->helperText('Enable only when the saved content is ready for public access.'),
+                    DateTimePicker::make('published_at')->helperText('Optional. A future date keeps the article hidden until that time.'),
+                ]),
+            Section::make('Search appearance')
+                ->description('Optional metadata shown by search engines; leave blank to use defaults.')
+                ->collapsed()
+                ->schema([
+                    TextInput::make('seo_title')->maxLength(255),
+                    Textarea::make('seo_description')->columnSpanFull(),
+                ]),
         ]);
     }
 

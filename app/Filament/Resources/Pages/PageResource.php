@@ -12,6 +12,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -27,15 +28,28 @@ class PageResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('title')->required()->maxLength(255),
-            TextInput::make('slug')->required()->unique(ignoreRecord: true)->maxLength(255)
-                ->rule('regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
-                ->rule('unique:page_slug_redirects,slug')
-                ->helperText('Lowercase letters, numbers and single hyphens only. Previously published URLs are reserved for redirects.'),
-            Textarea::make('body')->required()->columnSpanFull(),
-            Toggle::make('is_published')->default(false),
-            TextInput::make('seo_title')->maxLength(255),
-            Textarea::make('seo_description')->columnSpanFull(),
+            Section::make('Page content')
+                ->description('Edit the title, URL and content before publication.')
+                ->schema([
+                    TextInput::make('title')->required()->maxLength(255),
+                    TextInput::make('slug')->required()->unique(ignoreRecord: true)->maxLength(255)
+                        ->rule('regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
+                        ->rule('unique:page_slug_redirects,slug')
+                        ->helperText('Lowercase letters, numbers and single hyphens only. Previously published URLs are reserved for redirects.'),
+                    Textarea::make('body')->required()->columnSpanFull(),
+                ]),
+            Section::make('Publication')
+                ->description('Control public visibility. Use Preview saved from the list to review saved changes.')
+                ->schema([
+                    Toggle::make('is_published')->default(false)->helperText('Enable only when the saved content is ready for public access.'),
+                ]),
+            Section::make('Search appearance')
+                ->description('Optional metadata shown by search engines; leave blank to use defaults.')
+                ->collapsed()
+                ->schema([
+                    TextInput::make('seo_title')->maxLength(255),
+                    Textarea::make('seo_description')->columnSpanFull(),
+                ]),
         ]);
     }
 
