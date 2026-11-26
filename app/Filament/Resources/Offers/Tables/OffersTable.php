@@ -22,6 +22,8 @@ class OffersTable
     public static function configure(Table $table): Table
     {
         return $table
+            // Publication and action callbacks need both parents even when the category column is hidden.
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['brand', 'category']))
             ->columns([
                 TextColumn::make('brand.name')
                     ->searchable(),

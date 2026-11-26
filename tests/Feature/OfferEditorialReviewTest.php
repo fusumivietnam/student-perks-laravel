@@ -65,6 +65,23 @@ class OfferEditorialReviewTest extends TestCase
             ->assertCanNotSeeTableRecords([$ready]);
     }
 
+    public function test_offer_table_loads_both_parents_for_publication_status(): void
+    {
+        $first = $this->offer('first');
+        $second = $this->offer('second');
+        $this->actingAs(User::factory()->create(['is_admin' => true]));
+
+        $component = Livewire::test(ListOffers::class)
+            ->assertCanSeeTableRecords([$first, $second]);
+
+        $records = $component->instance()->getTableRecords();
+        foreach ($records as $record) {
+            $this->assertTrue($record->relationLoaded('brand'));
+            $this->assertTrue($record->relationLoaded('category'));
+            $this->assertSame('Live', $record->publicationStatus());
+        }
+    }
+
     public function test_bulk_unpublish_does_not_delete_records_or_change_schedules(): void
     {
         $live = $this->offer('live');
