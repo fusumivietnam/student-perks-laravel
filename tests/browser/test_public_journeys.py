@@ -98,6 +98,23 @@ class PublicBrowserJourneysTest(unittest.TestCase):
         page.get_by_role("link", name="See all offers").click()
         expect(page.get_by_role("heading", name="Student offers")).to_be_visible()
 
+    def test_home_hero_direct_browse_paths_on_mobile(self):
+        page = self.page
+        for width in (320, 375):
+            with self.subTest(width=width):
+                page.set_viewport_size({"width": width, "height": 812})
+                page.goto("/")
+                for label in ("Browse the full directory", "Find a brand"):
+                    link = page.get_by_role("link", name=label)
+                    expect(link).to_be_visible()
+                    self.assertGreaterEqual(link.bounding_box()["height"], 44)
+                self.assertLessEqual(page.evaluate("document.documentElement.scrollWidth - window.innerWidth"), 2)
+        page.get_by_role("link", name="Browse the full directory").click()
+        expect(page.get_by_role("heading", name="Student offers")).to_be_visible()
+        page.goto("/")
+        page.get_by_role("link", name="Find a brand").click()
+        expect(page.get_by_role("heading", name="Discover brands")).to_be_visible()
+
     def test_home_to_brands_guides_and_admin_login(self):
         page = self.page
         page.goto("/")
