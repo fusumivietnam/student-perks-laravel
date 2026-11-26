@@ -7,6 +7,7 @@
  */
 return [
     'about' => [
+        'label' => 'About',
         'title' => 'About Student Perks Hub',
         'seo_description' => 'Learn how Student Perks Hub helps students discover and evaluate education offers.',
         'body' => <<<'COPY'
@@ -29,6 +30,7 @@ These operator details must be confirmed before this page is published.
 COPY,
     ],
     'privacy' => [
+        'label' => 'Privacy',
         'title' => 'Privacy Policy',
         'seo_description' => 'Read the privacy policy for Student Perks Hub.',
         'body' => <<<'COPY'
@@ -65,6 +67,7 @@ This is an editorial template, not a complete legal notice. All bracketed fields
 COPY,
     ],
     'terms' => [
+        'label' => 'Terms',
         'title' => 'Terms of Use',
         'seo_description' => 'Terms governing the use of Student Perks Hub.',
         'body' => <<<'COPY'
@@ -98,6 +101,7 @@ These terms are an unapproved template and must not be published without review.
 COPY,
     ],
     'contact' => [
+        'label' => 'Contact',
         'title' => 'Contact Us',
         'seo_description' => 'How to contact the Student Perks Hub team.',
         'body' => <<<'COPY'
@@ -119,6 +123,7 @@ All contact details above must be completed and verified before publication.
 COPY,
     ],
     'disclaimer' => [
+        'label' => 'Disclaimer',
         'title' => 'Disclaimer',
         'seo_description' => 'Important information about student offers and external partner listings.',
         'body' => <<<'COPY'
