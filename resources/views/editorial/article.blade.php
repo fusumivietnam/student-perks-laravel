@@ -16,7 +16,7 @@
         <x-public-page-heading class="mt-4" eyebrow="Student guide" :title="$article->title" :description="$article->summary" />
         <p class="mt-4 text-sm text-slate-500">{{ ($isPreview ?? false) ? 'Saved' : 'Published' }} {{ ($article->published_at ?? $article->created_at)->format('j M Y') }}</p>
         @if($coverUrl = \App\Support\PublicCmsImage::url($article->cover_path, 'articles'))
-            <img src="{{ $coverUrl }}" alt="" class="mt-8 w-full rounded-2xl object-cover" loading="lazy">
+            <img src="{{ $coverUrl }}" alt="" class="mt-8 aspect-video w-full rounded-2xl object-contain bg-slate-100" decoding="async" fetchpriority="high">
         @endif
         <div class="mt-8 whitespace-pre-line break-words leading-8 text-slate-700">{{ $article->body }}</div>
     </x-public-reading-panel>

@@ -17,7 +17,7 @@
         @forelse($articles as $article)
             <article class="flex h-full min-w-0 flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:border-indigo-200 hover:shadow-md focus-within:ring-2 focus-within:ring-indigo-300">
                 @if($coverUrl = \App\Support\PublicCmsImage::url($article->cover_path, 'articles'))
-                    <img src="{{ $coverUrl }}" alt="" loading="lazy" class="aspect-video w-full object-cover">
+                    <img src="{{ $coverUrl }}" alt="" loading="lazy" decoding="async" class="aspect-video w-full object-cover">
                 @else
                     <div aria-hidden="true" class="flex aspect-video items-center justify-center bg-gradient-to-br from-indigo-50 via-violet-50 to-sky-50">
                         <span class="rounded-full bg-white px-4 py-2 text-sm font-bold text-indigo-800">Student guide</span>
