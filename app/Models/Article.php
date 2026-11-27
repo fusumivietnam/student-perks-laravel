@@ -15,7 +15,7 @@ class Article extends Model
 
     protected function casts(): array
     {
-        return ['is_published' => 'boolean', 'published_at' => 'datetime'];
+        return ['is_published' => 'boolean', 'published_at' => 'datetime', 'slug_was_published' => 'boolean'];
     }
 
     public function save(array $options = [])
@@ -36,10 +36,17 @@ class Article extends Model
                 && $record->getConnection()->table('article_slug_redirects')->where('slug', $record->slug)->exists()) {
                 throw new DomainException('This URL slug is reserved for a previously published article.');
             }
+
+            // Track the current slug, not the lifetime publication status of the record.
+            if ($record->isDirty('slug')) {
+                $record->slug_was_published = (bool) $record->is_published;
+            } elseif ($record->is_published) {
+                $record->slug_was_published = true;
+            }
         });
 
         static::updated(function (self $record): void {
-            if (! $record->wasChanged('slug') || ! $record->getOriginal('is_published')) {
+            if (! $record->wasChanged('slug') || ! ($record->getOriginal('slug_was_published') || $record->getOriginal('is_published'))) {
                 return;
             }
 
