@@ -14,34 +14,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Exact approved hosts are opt-in; do not permit wildcard subdomains.
-        $trustedHosts = array_values(array_filter(array_map(
-            'trim',
-            explode(',', (string) env('TRUSTED_HOSTS', '')),
-        )));
-
-        if ($trustedHosts !== []) {
-            $middleware->trustHosts(
-                at: array_map(
-                    fn (string $host): string => '^'.preg_quote($host, '/').'\\z',
-                    $trustedHosts,
-                ),
-                subdomains: false,
-            );
-        }
-
-        // Production TLS proxies are opt-in; never trust arbitrary forwarded hosts.
-        $trustedProxies = array_values(array_filter(
-            array_map('trim', explode(',', (string) env('TRUSTED_PROXIES', ''))),
-            fn (string $proxy): bool => $proxy !== '' && $proxy !== '*',
-        ));
-
-        if ($trustedProxies !== []) {
-            $middleware->trustProxies(
-                at: $trustedProxies,
-                headers: Request::HEADER_X_FORWARDED_PROTO | Request::HEADER_X_FORWARDED_PORT,
-            );
-        }
+        // Resolve host configuration only after the application has booted.
+        $middleware->trustHosts(
+            at: fn (): array => array_map(
+                fn (string $host): string => '^'.preg_quote($host, '/').'\\z',
+                config('security.trusted_hosts', []),
+            ),
+            subdomains: false,
+        );
 
         // Run after Laravel's default TrustProxies middleware, which resets the
         // trusted-proxy list. Only the configured private Codespace may opt in.

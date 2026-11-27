@@ -14,7 +14,7 @@ class RejectUntrustedHost
         // Laravel TrustHosts configures the trusted host patterns, but host
         // validation is lazy until getHost() is invoked. Ensure even routes
         // that never generate absolute URLs reject an unapproved Host.
-        if (env('TRUSTED_HOSTS', '') !== '') {
+        if (config('security.trusted_hosts', []) !== []) {
             try {
                 $request->getHost();
             } catch (SuspiciousOperationException) {
