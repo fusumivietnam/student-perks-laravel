@@ -15,10 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         // Exact approved hosts are opt-in; do not permit wildcard subdomains.
-        $trustedHosts = array_values(array_filter(array_map(
-            'trim',
-            explode(',', (string) env('TRUSTED_HOSTS', '')),
-        )));
+        $trustedHosts = config('security.trusted_hosts', []);
 
         if ($trustedHosts !== []) {
             $middleware->trustHosts(
@@ -31,10 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
         }
 
         // Production TLS proxies are opt-in; never trust arbitrary forwarded hosts.
-        $trustedProxies = array_values(array_filter(
-            array_map('trim', explode(',', (string) env('TRUSTED_PROXIES', ''))),
-            fn (string $proxy): bool => $proxy !== '' && $proxy !== '*',
-        ));
+        $trustedProxies = config('security.trusted_proxies', []);
 
         if ($trustedProxies !== []) {
             $middleware->trustProxies(
