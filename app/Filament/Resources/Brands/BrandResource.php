@@ -43,6 +43,7 @@ class BrandResource extends Resource
                 TextInput::make('website_url')
                     ->url(),
                 FileUpload::make('logo_path')
+                    ->preventFilePathTampering()
                     ->image()
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                     ->maxSize(4096)
