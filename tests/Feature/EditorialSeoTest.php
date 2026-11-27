@@ -73,7 +73,12 @@ class EditorialSeoTest extends TestCase
             ->assertSee('/offers/active')->assertDontSee('/offers/draft')->assertDontSee('/offers/expired')
             ->assertSee('/articles/guide')->assertSee('/pages/terms')->assertDontSee('/pages/draft');
         $this->get('/search?q=Acme')->assertOk()->assertSee('noindex,follow');
-        $this->assertStringContainsString('Sitemap: /sitemap.xml', file_get_contents(public_path('robots.txt')));
+        $this->get(route('robots'))->assertOk()
+            ->assertHeader('Content-Type', 'text/plain; charset=UTF-8')
+            ->assertSee('Sitemap: '.route('sitemap'), false)
+            ->assertSee('Disallow: /admin', false)
+            ->assertSee('Disallow: /editor/previews/', false)
+            ->assertDontSee('Disallow: /search', false);
     }
 
     public function test_invalid_partner_link_is_not_rendered_as_clickable_url(): void

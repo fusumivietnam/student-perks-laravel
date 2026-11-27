@@ -18,4 +18,5 @@ Route::get('/editor/previews/pages/{page}', [EditorialController::class, 'previe
 Route::get('/articles', [EditorialController::class, 'articles'])->name('articles.index');
 Route::get('/articles/{slug}', [EditorialController::class, 'article'])->name('articles.show');
 Route::get('/pages/{slug}', [EditorialController::class, 'page'])->name('pages.show');
+Route::get('/robots.txt', [EditorialController::class, 'robots'])->name('robots');
 Route::get('/sitemap.xml', [EditorialController::class, 'sitemap'])->name('sitemap');

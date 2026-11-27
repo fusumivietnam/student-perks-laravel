@@ -79,6 +79,18 @@ class EditorialController extends Controller
         ]);
     }
 
+    public function robots(): Response
+    {
+        return response(implode("\n", [
+            'User-agent: *',
+            'Allow: /',
+            'Disallow: /admin',
+            'Disallow: /editor/previews/',
+            'Sitemap: '.route('sitemap'),
+            '',
+        ]), 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
+    }
+
     public function sitemap(): Response
     {
         $locations = collect([
