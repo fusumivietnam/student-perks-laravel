@@ -89,6 +89,55 @@ class HistoricSlugIntegrityTest extends TestCase
             ->assertRedirect(route('pages.show', 'new-information'));
     }
 
+    public function test_slug_changes_roll_back_if_redirect_insert_fails(): void
+    {
+        $brand = Brand::create(['name' => 'Partner', 'slug' => 'partner', 'is_published' => true]);
+        $category = Category::create(['name' => 'Learning', 'slug' => 'learning', 'is_published' => true]);
+        $offer = Offer::create([
+            'brand_id' => $brand->id,
+            'category_id' => $category->id,
+            'title' => 'Offer',
+            'slug' => 'old-offer',
+            'summary' => 'Summary',
+            'description' => 'Description',
+            'partner_url' => 'https://example.org/student',
+            'is_published' => true,
+        ]);
+        $article = Article::create([
+            'title' => 'Guide', 'slug' => 'old-guide',
+            'summary' => 'Summary', 'body' => 'Body', 'is_published' => true,
+        ]);
+        $page = Page::create([
+            'title' => 'Information', 'slug' => 'old-page',
+            'body' => 'Body', 'is_published' => true,
+        ]);
+
+        foreach ([
+            [$offer, 'offer_slug_redirects', 'offer_id'],
+            [$article, 'article_slug_redirects', 'article_id'],
+            [$page, 'page_slug_redirects', 'page_id'],
+        ] as [$record, $table, $foreignKey]) {
+            $oldSlug = $record->slug;
+            // Force a duplicate-key failure during redirect insertion.
+            DB::table($table)->insert([
+                $foreignKey => $record->id,
+                'slug' => $oldSlug,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            try {
+                $record->update(['slug' => 'replacement-'.$oldSlug]);
+                $this->fail('Expected redirect insert to fail.');
+            } catch (\\Illuminate\\Database\\QueryException $e) {
+                $this->assertSame('23505', (string) $e->getCode());
+            }
+
+            $this->assertSame($oldSlug, $record->fresh()->slug);
+            $this->assertSame(1, DB::table($table)->where('slug', $oldSlug)->count());
+        }
+    }
+
     private function expectHistoricSlugIsReserved(
         callable $createInvalid,
         callable $createValid,
