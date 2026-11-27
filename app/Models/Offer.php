@@ -19,6 +19,7 @@ class Offer extends Model
     {
         return [
             'is_published' => 'boolean',
+            'slug_was_published' => 'boolean',
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
             'published_at' => 'datetime',
@@ -44,6 +45,13 @@ class Offer extends Model
                 && $record->getConnection()->table('offer_slug_redirects')->where('slug', $record->slug)->exists()) {
                 throw new DomainException('This URL slug is reserved for a previously published offer.');
             }
+
+            // Track the current slug, not the lifetime publication status of the record.
+            if ($record->isDirty('slug')) {
+                $record->slug_was_published = (bool) $record->is_published;
+            } elseif ($record->is_published) {
+                $record->slug_was_published = true;
+            }
         });
 
         static::updating(function (self $offer): void {
@@ -53,7 +61,7 @@ class Offer extends Model
         });
 
         static::updated(function (self $offer): void {
-            if (! $offer->wasChanged('slug') || ! $offer->getOriginal('is_published')) {
+            if (! $offer->wasChanged('slug') || ! ($offer->getOriginal('slug_was_published') || $offer->getOriginal('is_published'))) {
                 return;
             }
 
