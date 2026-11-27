@@ -24,6 +24,8 @@ Once editorial content is populated, run `docker compose exec -T app php artisan
 
 Before launch, a human still must review the actual legal copy, offer claims and outbound partner destinations; audit timestamps only represent prior human confirmation. Separately verify responsive/keyboard browser behavior, real media uploads, final HTTPS/TLS/DNS, an out-of-host backup and isolated restore rehearsal. Do not add `launch:check` as an unconditional CI gate against CI's intentionally empty seeded database.
 
+For a read-only image-reference inventory, use `docker compose exec -T app php artisan media:audit`. Inspect missing/invalid references; unreferenced files are candidates only, not deletion instructions. See [media lifecycle](ARCHITECTURE.md#cms-media-lifecycle). This report does not replace upload or restore verification.
+
 ## Safe repeatable release
 
 Before any migration or application image replacement, make a **verified recoverable** database and media backup; maintain at least one out-of-host copy. For a small deployment, a manual dump is acceptable initially:

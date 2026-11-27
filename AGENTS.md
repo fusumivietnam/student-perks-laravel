@@ -1,6 +1,6 @@
 # Student Perks Hub — execution rules for AI coding agents
 
-Read this file before making ANY code or infrastructure change. **GitHub is the only SOT; chat is unverified input.** First read `docs/SOURCE_OF_TRUTH.md`. GitHub Projects V2 is the intended central roadmap/board (see `docs/GITHUB_PROJECT.md`); GitHub Issues/PRs are canonical work items. No manual or custom-generated Markdown roadmap. Until the Project is connected, use GitHub Issues as the live task list. `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`, and `docs/DELIVERY.md` define scope and engineering rules. Code and tests merged to `main` establish implementation truth.
+Read this file before making ANY code or infrastructure change. **GitHub is the source of truth for implementation and status; owner instructions define approved scope and permissions.** First read `docs/SOURCE_OF_TRUTH.md`. GitHub Projects V2 is the intended central roadmap/board (see `docs/GITHUB_PROJECT.md`); GitHub Issues/PRs are canonical work items. No manual or custom-generated Markdown roadmap. Until the Project is connected, use GitHub Issues as the live task list. `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`, and `docs/DELIVERY.md` define scope and engineering rules. Code and tests merged to `main` establish implementation truth.
 
 ## Mission
 
@@ -19,7 +19,7 @@ Ship a fast, SEO-friendly, maintainable PUBLIC directory of student/education of
 1. Inspect actual GitHub `main`, GitHub Project if connected, relevant issues/PRs and Actions evidence; never assume prior chat or planned features are implemented.
 2. Choose the next incomplete *vertical slice* that reaches a usable UI, not isolated infrastructure.
 3. Search Laravel/Filament/Livewire capabilities before writing custom frameworks or CRUD.
-4. Check package compatibility with Laravel 13/PHP 8.3, existing Composer lock, license, security and maintenance.
+4. Check package compatibility with Laravel 13/PHP 8.5 (Composer minimum 8.3), existing Composer lock, license, security and maintenance.
 5. Keep public URLs, content rules and acceptance criteria from `docs/PRODUCT.md` stable.
 
 ## Implementation rules
@@ -59,6 +59,6 @@ Follow the [Ponytail ladder](https://ponytail.dev/): first ask whether code is n
 
 ## Delivery
 
-Prefer one cohesive feature PR over many micro-PRs. Run relevant checks before merge; do not override failed checks. Keep main releasable. Do not alter old Next.js repository or launch DNS without explicit authorization. Production changes require backup, rollback and approval.
+Prefer one cohesive feature PR over many micro-PRs. Run relevant checks before merge; do not override failed checks. Verify the exact PR head SHA before squash merge; inspect post-merge checks when available. Keep main releasable. Group work by business outcome, and do not request preview rebuilds after each PR. Once MVP scope is satisfied, perform final audit and candidate freeze under `docs/DELIVERY.md`; thereafter fix only verified defects, security issues, data integrity issues and launch blockers. Do not alter old Next.js repository or launch DNS without explicit authorization. Production changes require backup, rollback and approval.
 
 If blocked by unavailable tools, make best possible commits, state exactly what is unverified, and provide a single concrete next manual action.

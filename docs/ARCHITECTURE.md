@@ -2,7 +2,7 @@
 
 ## Runtime and portability
 
-Application: Laravel 13 / PHP 8.5 production and CI (Composer supports PHP 8.3+) / PostgreSQL 18 / Blade + Livewire / Tailwind / Filament 5 admin. Frontend builds use Node 26 LTS.
+Application: Laravel 13 / PHP 8.5 production and CI (Composer supports PHP 8.3+) / PostgreSQL 18 / Blade + Livewire / Tailwind / Filament 5 admin. Frontend builds use Node 26.
 
 Dev and VPS: Docker Compose with separate **Nginx**, **PHP-FPM** and **PostgreSQL 18** containers. Same PHP 8.5 runtime, database family, extensions and Composer lockfile. Dev overlay mounts files and uses Vite as appropriate. Production serves a built image; no code edits on live hosts.
 
@@ -55,4 +55,4 @@ Laravel 13 skeleton and Composer/npm lockfiles are committed on main in [PR #7](
 
 ## Source dependency references
 
-See [STACK_REFERENCES.md](STACK_REFERENCES.md) for the direct dependency inventory, the authority of the two lockfiles, and links to the official vendor documentation. See [SWOT_2026-11-07.md](SWOT_2026-11-07.md) for the current engineering risks and prioritized mitigation. Neither document introduces a runtime dependency.
+See [STACK_REFERENCES.md](STACK_REFERENCES.md) for the direct dependency inventory, the authority of the two lockfiles, and links to the official vendor documentation. See [SWOT_2026-11-07.md](SWOT_2026-11-07.md) for a historical engineering risk assessment; current risks and progress belong in GitHub Issues/PRs. Neither document introduces a runtime dependency.
