@@ -74,7 +74,7 @@ class Offer extends Model
             return 'Draft';
         }
 
-        if ($this->ends_at && $this->ends_at->isPast()) {
+        if ($this->ends_at && $this->ends_at->lte(now())) {
             return 'Expired';
         }
 
