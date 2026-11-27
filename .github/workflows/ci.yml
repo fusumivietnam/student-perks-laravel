@@ -188,6 +188,10 @@ jobs:
             -H 'Host: student.example.test' -H 'X-Forwarded-Proto: https' \
             -H 'X-Forwarded-Port: 443' -H 'X-Forwarded-Host: injected.invalid' \
             http://127.0.0.1:18080/)"
+          robots_body="$(curl --fail --silent --show-error -H 'Host: student.example.test' -H 'X-Forwarded-Proto: https' -H 'X-Forwarded-Port: 443' -H 'X-Forwarded-Host: injected.invalid' http://127.0.0.1:18080/robots.txt)"
+          grep -Fx 'Sitemap: https://student.example.test/sitemap.xml' <<< "$robots_body"
+          if grep -F 'injected.invalid' <<< "$robots_body"; then exit 1; fi
+          if grep -Fx 'Disallow: /search' <<< "$robots_body"; then exit 1; fi
           # Unknown Host values must be rejected, not reflected into absolute
           # SEO and admin URLs. The forwarded host is intentionally ignored.
           rejected_host_status="$(curl --silent --show-error --retry 12 --retry-all-errors --retry-delay 1 -o /dev/null -w '%{http_code}' \
