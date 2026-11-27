@@ -32,7 +32,8 @@ class OfferDirectorySeoTest extends TestCase
         foreach ($urls as $url) {
             $this->get($url)
                 ->assertOk()
-                ->assertSee('<meta name="robots" content="noindex,follow">', false);
+                ->assertSee('<meta name="robots" content="noindex,follow">', false)
+                ->assertSee('<link rel="canonical" href="'.strtok($url, '?').'">', false);
         }
     }
 }
