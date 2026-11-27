@@ -64,6 +64,26 @@ class OfferPublicationActionsTest extends TestCase
         $this->assertFalse($offer->canPublishNow());
     }
 
+    public function test_exact_expiry_boundary_matches_public_visibility_and_admin_filter(): void
+    {
+        $this->freezeSecond();
+        $offer = $this->offer(['is_published' => true, 'ends_at' => now()->addSecond()]);
+
+        $this->assertSame('Live', $offer->publicationStatus());
+        $this->assertTrue(Offer::current()->whereKey($offer->id)->exists());
+        $this->get('/offers/student-course')->assertOk();
+
+        $this->travel(1)->second();
+
+        $this->assertSame('Expired', $offer->fresh()->publicationStatus());
+        $this->assertTrue(Offer::withPublicationStatus('expired')->whereKey($offer->id)->exists());
+        $this->assertFalse(Offer::current()->whereKey($offer->id)->exists());
+        $this->get('/offers/student-course')->assertNotFound();
+
+        $offer->update(['is_published' => false]);
+        $this->assertFalse($offer->canPublishNow());
+    }
+
     public function test_publish_and_unpublish_actions_change_public_visibility(): void
     {
         $offer = $this->offer();
