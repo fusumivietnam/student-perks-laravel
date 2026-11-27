@@ -6,7 +6,6 @@ use DomainException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\DB;
 
 class Offer extends Model
 {
@@ -27,13 +26,22 @@ class Offer extends Model
         ];
     }
 
+    public function save(array $options = [])
+    {
+        if ($this->exists && $this->isDirty('slug')) {
+            return $this->getConnection()->transaction(fn () => parent::save($options));
+        }
+
+        return parent::save($options);
+    }
+
     protected static function booted(): void
     {
         static::saving(function (self $record): void {
             // Filament form validation is not enough: imports, jobs and direct
             // Eloquent saves must not take over previously published URLs.
             if ($record->isDirty('slug')
-                && DB::table('offer_slug_redirects')->where('slug', $record->slug)->exists()) {
+                && $record->getConnection()->table('offer_slug_redirects')->where('slug', $record->slug)->exists()) {
                 throw new DomainException('This URL slug is reserved for a previously published offer.');
             }
         });
@@ -49,7 +57,7 @@ class Offer extends Model
                 return;
             }
 
-            DB::table('offer_slug_redirects')->insert([
+            $offer->getConnection()->table('offer_slug_redirects')->insert([
                 'offer_id' => $offer->id,
                 'slug' => $offer->getOriginal('slug'),
                 'created_at' => now(),
