@@ -15,14 +15,14 @@ This is a **small, source-controlled reference index**, not a new package manage
 | Containers | Docker Compose / multi-stage Dockerfile | `compose.yaml`, `Dockerfile` | https://docs.docker.com/compose/ |
 | CI/build cache | GitHub Actions, Docker Buildx | `.github/workflows/ci.yml` | https://docs.docker.com/build/ci/github-actions/cache/ |
 
-**Development-only dependencies:** Faker, Pail, Pao, Mockery, Collision and concurrently are present in the manifests; do not add new dependencies merely to document or replace them. Actual package inventory is larger than this direct-dependency table and is fully specified in the lockfiles.
+**Development-only dependencies:** Faker, Pail, Pao, Mockery, Collision concurrently and optional Laravel Multiplex are present in the manifests; do not add new dependencies merely to document or replace them. Actual package inventory is larger than this direct-dependency table and is fully specified in the lockfiles.
 
 ## Principles and acceptance rules
 
 1. Prefer native Laravel, Filament, Blade, Tailwind and browser capabilities first. An added package needs an explicit product gap, maintained upstream, license, compatible PHP/Laravel versions, tests and clear owner/maintenance cost.
 2. Use the official docs as a reference for framework behavior. Source code, lockfiles, migrations and passing CI are the evidence of **what this project actually uses**. A documentation link alone does not prove a feature was implemented.
 3. Avoid embedding bibliographic references in every ordinary source comment. For non-obvious security, data or framework workarounds, add a **brief** comment and an upstream issue/docs link where it materially explains the decision.
-4. Review `composer audit` and `npm audit --omit=dev` before production release; triage actual findings and lockfile upgrades on a dedicated PR. Network advisories, false positives and dev-only dependencies need separate judgment. Do not turn audit reports into unconditional green-pass claims.
+4. CI audits the Composer lockfile and the complete npm lockfile (including development/build dependencies) with `npm audit --package-lock-only --include=dev --audit-level=high`. The npm threshold blocks high/critical findings; lower-severity findings are still reported for triage. Build tools execute during production image construction even though Node packages are not copied into the PHP runtime. Review actual findings and use lockfile upgrades on a dedicated PR; never bypass a failed audit merely to merge. Network failures and false positives need separate judgment.
 5. No hidden dependencies in preview: `scripts/preview-watch.sh` uses Bash, Git and Docker already present in Codespaces; no paid CI action, background cloud account, database reset or new image registry.
 
 ## Explicitly not adopted

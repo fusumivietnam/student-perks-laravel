@@ -98,6 +98,11 @@ jobs:
           php artisan key:generate
           php artisan migrate:fresh --force
           php artisan test
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '26'
+      - name: Audit locked frontend build dependencies
+        run: npm audit --package-lock-only --include=dev --audit-level=high
       - name: Configure cached Docker Buildx
         uses: docker/setup-buildx-action@v4
       - name: Build production Docker image (shared layer cache)
