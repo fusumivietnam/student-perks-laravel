@@ -8,6 +8,8 @@ use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -147,12 +149,32 @@ class OffersTable
                     ->color('info')
                     ->requiresConfirmation()
                     ->modalHeading('Confirm manual partner-link review')
-                    ->modalDescription('Only confirm after independently opening the official partner URL and checking its terms. This unlocks the public partner button for 90 days. Changing the URL revokes the review. No automated HTTP health check is performed.')
+                    ->modalDescription(fn (Offer $record): string => 'Current destination: '.$record->partner_url.' — Open it independently, check its terms and paste the exact reviewed URL below. Confirmation unlocks the public partner button for 90 days. No automated HTTP health check is performed.')
+                    ->schema([
+                        TextInput::make('reviewed_url')
+                            ->label('Exact URL reviewed')
+                            ->required()
+                            ->url()
+                            ->maxLength(2048),
+                    ])
                     ->visible(fn (Offer $record): bool => $record->hasValidPartnerDestination() && $record->needsPartnerReview())
-                    ->action(function (Offer $record): void {
+                    ->action(function (Offer $record, array $data): void {
                         $record->refresh();
 
-                        $record->confirmPartnerReview();
+                        if ($record->partner_url !== $data['reviewed_url'] || ! $record->confirmPartnerReview()) {
+                            Notification::make()
+                                ->title('Review not recorded')
+                                ->body('The destination changed, is invalid or was already reviewed. Refresh the list and check the current URL.')
+                                ->warning()
+                                ->send();
+
+                            return;
+                        }
+
+                        Notification::make()
+                            ->title('Partner link reviewed')
+                            ->success()
+                            ->send();
                     }),
                 Action::make('publish')
                     ->label('Publish now')
