@@ -148,7 +148,13 @@ jobs:
           done
           test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/offers/this-offer-does-not-exist)" = 404
           test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/pages/this-page-does-not-exist)" = 404
-          curl --fail --silent --show-error -I http://127.0.0.1:18080/ | grep -i '^x-content-type-options: nosniff'
+          # Check the complete existing Nginx header policy on success and error responses.
+          for route in / /admin/login /offers/this-offer-does-not-exist; do
+            security_headers="$(curl --silent --show-error --dump-header - -o /dev/null "http://127.0.0.1:18080$route")"
+            grep -i '^x-content-type-options: nosniff' <<< "$security_headers"
+            grep -i '^x-frame-options: SAMEORIGIN' <<< "$security_headers"
+            grep -i '^referrer-policy: strict-origin-when-cross-origin' <<< "$security_headers"
+          done
           test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/.env)" = 403 -o "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/.env)" = 404
           test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/secret.php)" = 404
           docker compose restart app
