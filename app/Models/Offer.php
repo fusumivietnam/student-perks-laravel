@@ -151,6 +151,25 @@ class Offer extends Model
             || $this->partner_reviewed_at->lte(now()->subDays(90));
     }
 
+    /**
+     * Record a manual review only while the checked destination is unchanged.
+     */
+    public function confirmPartnerReview(): bool
+    {
+        if (! $this->hasValidPartnerDestination() || ! $this->needsPartnerReview()) {
+            return false;
+        }
+
+        $reviewedAt = now();
+
+        return $this->newQuery()
+            ->whereKey($this->getKey())
+            ->where('partner_url', $this->partner_url)
+            ->where(fn (Builder $query) => $query->whereNull('partner_reviewed_at')
+                ->orWhere('partner_reviewed_at', '<=', $reviewedAt->copy()->subDays(90)))
+            ->update(['partner_reviewed_at' => $reviewedAt]) === 1;
+    }
+
     public function hasValidPartnerDestination(): bool
     {
         return (bool) filter_var($this->partner_url, FILTER_VALIDATE_URL)

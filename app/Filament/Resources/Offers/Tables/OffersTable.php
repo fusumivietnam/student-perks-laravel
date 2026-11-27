@@ -152,11 +152,7 @@ class OffersTable
                     ->action(function (Offer $record): void {
                         $record->refresh();
 
-                        if (! $record->hasValidPartnerDestination() || ! $record->needsPartnerReview()) {
-                            return;
-                        }
-
-                        $record->forceFill(['partner_reviewed_at' => now()])->save();
+                        $record->confirmPartnerReview();
                     }),
                 Action::make('publish')
                     ->label('Publish now')
