@@ -5,7 +5,6 @@ namespace App\Models;
 use DomainException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 
 class Page extends Model
 {
@@ -16,13 +15,22 @@ class Page extends Model
         return ['is_published' => 'boolean'];
     }
 
+    public function save(array $options = [])
+    {
+        if ($this->exists && $this->isDirty('slug')) {
+            return $this->getConnection()->transaction(fn () => parent::save($options));
+        }
+
+        return parent::save($options);
+    }
+
     protected static function booted(): void
     {
         static::saving(function (self $record): void {
             // Filament form validation is not enough: imports, jobs and direct
             // Eloquent saves must not take over previously published URLs.
             if ($record->isDirty('slug')
-                && DB::table('page_slug_redirects')->where('slug', $record->slug)->exists()) {
+                && $record->getConnection()->table('page_slug_redirects')->where('slug', $record->slug)->exists()) {
                 throw new DomainException('This URL slug is reserved for a previously published page.');
             }
         });
@@ -32,7 +40,7 @@ class Page extends Model
                 return;
             }
 
-            DB::table('page_slug_redirects')->insert([
+            $record->getConnection()->table('page_slug_redirects')->insert([
                 'page_id' => $record->id,
                 'slug' => $record->getOriginal('slug'),
                 'created_at' => now(),
