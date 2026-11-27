@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Offer;
 use App\Models\Page;
 use DomainException;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -129,7 +130,7 @@ class HistoricSlugIntegrityTest extends TestCase
             try {
                 $record->update(['slug' => 'replacement-'.$oldSlug]);
                 $this->fail('Expected redirect insert to fail.');
-            } catch (\\Illuminate\\Database\\QueryException $e) {
+            } catch (QueryException $e) {
                 $this->assertSame('23505', (string) $e->getCode());
             }
 
