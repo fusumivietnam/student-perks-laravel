@@ -11,6 +11,7 @@ use DomainException;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class HistoricSlugIntegrityTest extends TestCase
@@ -193,6 +194,74 @@ class HistoricSlugIntegrityTest extends TestCase
                 ->assertRedirect(route($route, $newSlug));
             $this->get(route($route, $draftSlug))->assertNotFound();
             $this->get(route($route, $newSlug))->assertOk();
+        }
+    }
+
+    public function test_stale_slug_and_publication_writes_cannot_replace_current_history(): void
+    {
+        $brand = Brand::create(['name' => 'Partner', 'slug' => 'partner', 'is_published' => true]);
+        $category = Category::create(['name' => 'Learning', 'slug' => 'learning', 'is_published' => true]);
+
+        $offer = Offer::create([
+            'brand_id' => $brand->id,
+            'category_id' => $category->id,
+            'title' => 'Offer',
+            'slug' => 'public-offer',
+            'summary' => 'Summary',
+            'description' => 'Description',
+            'partner_url' => 'https://example.org/student',
+            'is_published' => true,
+        ]);
+        $article = Article::create([
+            'title' => 'Guide', 'slug' => 'public-guide',
+            'summary' => 'Summary', 'body' => 'Body', 'is_published' => true,
+        ]);
+        $page = Page::create([
+            'title' => 'Information', 'slug' => 'public-page',
+            'body' => 'Body', 'is_published' => true,
+        ]);
+
+        foreach ([
+            [$offer, 'offers.show', 'offer_slug_redirects'],
+            [$article, 'articles.show', 'article_slug_redirects'],
+            [$page, 'pages.show', 'page_slug_redirects'],
+        ] as [$record, $route, $table]) {
+            $stale = $record->fresh();
+            $stalePublication = $record->fresh();
+            $oldSlug = $record->slug;
+            $newSlug = 'new-'.$oldSlug;
+            $record->update(['slug' => $newSlug]);
+
+            foreach ([
+                [$stale, ['slug' => 'conflicting-'.$oldSlug]],
+                [$stalePublication, ['is_published' => false]],
+            ] as [$snapshot, $changes]) {
+                try {
+                    $snapshot->update($changes);
+                    $this->fail('Expected stale lifecycle write to be rejected.');
+                } catch (ValidationException $e) {
+                    $this->assertArrayHasKey('slug', $e->errors());
+                }
+            }
+
+            $this->assertSame($newSlug, $record->fresh()->slug);
+            $this->assertTrue($record->fresh()->is_published);
+            $this->assertDatabaseHas($table, ['slug' => $oldSlug]);
+            $this->get(route($route, $oldSlug))->assertStatus(301)
+                ->assertRedirect(route($route, $newSlug));
+
+            $record->update(['is_published' => false]);
+            $draft = $record->fresh();
+            $record->update(['is_published' => true]);
+
+            try {
+                $draft->update(['slug' => 'conflicting-draft-'.$oldSlug]);
+                $this->fail('Expected stale draft rename to be rejected.');
+            } catch (ValidationException $e) {
+                $this->assertArrayHasKey('slug', $e->errors());
+            }
+
+            $this->assertSame($newSlug, $record->fresh()->slug);
         }
     }
 
