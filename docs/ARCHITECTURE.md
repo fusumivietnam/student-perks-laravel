@@ -22,6 +22,8 @@ Deployment: build/test immutable application image, run migrations intentionally
 
 ## CMS media lifecycle
 
+For a read-only inventory, run `docker compose exec -T app php artisan media:audit`. It counts CMS references (including drafts), invalid paths, missing files, shared paths, stored files/bytes and unreferenced candidates in public `brands/` and `articles/`. Optional null image fields are excluded. The command does not inspect file contents, prove backups, or authorize deletion; retained media or references outside CMS image fields may be intentional. Run during a quiet editorial window for a consistent operational snapshot. It is informational, not an automatic launch gate or scheduled task.
+
 Brand logos and article covers are optional, human-reviewed uploads on Laravel's `public` filesystem disk. Filament restricts new uploads to JPEG, PNG, or WebP, at most 4 MB per file. Public pages reuse saved image paths and fall back when files are absent. Keep SVG and other active content types out of editor uploads.
 
 Docker Compose mounts a persistent `app-storage` named volume at `/var/www/html/storage` in PHP-FPM and read-only in Nginx. The app entrypoint creates `public/storage` pointing to `storage/app/public`; Nginx serves `/storage/*` without a PHP route. Uploaded images **must not** be baked into the immutable release image. The public release-assets volume is distinct, and entrypoint refreshes its assets without deleting uploads.
