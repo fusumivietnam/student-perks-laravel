@@ -24,7 +24,7 @@ class ContentOverview extends StatsOverviewWidget
         $reviewDue = Offer::partnerReviewDue()->count();
         $missingDetails = Offer::needsEditorialReview()->count();
         $expiringSoon = Offer::expiringSoon()->count();
-        $requiredPages = ['about', 'privacy', 'terms', 'contact', 'disclaimer'];
+        $requiredPages = array_keys(config('launch-pages', []));
         $readyPages = Page::published()->whereIn('slug', $requiredPages)->get(['body'])->filter(fn (Page $page): bool => trim((string) $page->body) !== '')->count();
         $missingPages = count($requiredPages) - $readyPages;
 
