@@ -73,7 +73,7 @@ class PartnerLinkReviewTest extends TestCase
         $this->actingAs(User::factory()->create(['is_admin' => true]));
 
         Livewire::test(ListOffers::class)
-            ->callTableAction('confirmPartnerReview', $offer)
+            ->callTableAction('confirmPartnerReview', $offer, data: ['reviewed_url' => $offer->partner_url])
             ->assertHasNoTableActionErrors();
 
         $this->assertNotNull($offer->fresh()->partner_reviewed_at);
@@ -88,6 +88,30 @@ class PartnerLinkReviewTest extends TestCase
         $this->assertNull($offer->fresh()->partner_reviewed_at);
         $this->assertSame([$offer->id], Offer::partnerReviewDue()->pluck('id')->all());
         $this->get('/offers/reviewed')->assertOk();
+    }
+
+    public function test_admin_cannot_confirm_a_previously_reviewed_destination_after_it_changes(): void
+    {
+        $offer = $this->offer('changed-destination');
+        $reviewedUrl = $offer->partner_url;
+        $this->actingAs(User::factory()->create(['is_admin' => true]));
+
+        $offer->update(['partner_url' => 'https://another-partner.example/education']);
+
+        Livewire::test(ListOffers::class)
+            ->callTableAction('confirmPartnerReview', $offer, data: ['reviewed_url' => $reviewedUrl]);
+
+        $this->assertNull($offer->fresh()->partner_reviewed_at);
+        $this->get('/offers/changed-destination')->assertOk()
+            ->assertDontSee('Visit official partner');
+
+        Livewire::test(ListOffers::class)
+            ->callTableAction('confirmPartnerReview', $offer, data: ['reviewed_url' => $offer->partner_url])
+            ->assertHasNoTableActionErrors();
+
+        $this->assertNotNull($offer->fresh()->partner_reviewed_at);
+        $this->get('/offers/changed-destination')->assertOk()
+            ->assertSee('Visit official partner');
     }
 
     public function test_partner_cta_status_matches_public_visibility_and_invalid_urls_cannot_be_reviewed(): void
