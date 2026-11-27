@@ -205,6 +205,47 @@ class FilamentMediaUploadAcceptanceTest extends TestCase
         $this->get('/articles/disposable-editorial-record')->assertNotFound();
     }
 
+    public function test_brand_cannot_reference_another_existing_logo_via_submitted_path(): void
+    {
+        Storage::disk('public')->put('brands/own-logo.png', 'own fixture');
+        Storage::disk('public')->put('brands/other-logo.png', 'other fixture');
+
+        $brand = Brand::create([
+            'name' => 'Own brand',
+            'slug' => 'own-brand',
+            'logo_path' => 'brands/own-logo.png',
+            'is_published' => true,
+        ]);
+
+        Livewire::test(ManageBrands::class)
+            ->callTableAction('edit', $brand, data: [
+                'logo_path' => ['brands/other-logo.png'],
+            ])
+            ->assertHasTableActionErrors(['logo_path']);
+
+        $this->assertSame('brands/own-logo.png', $brand->fresh()->logo_path);
+        Storage::disk('public')->assertExists('brands/other-logo.png');
+    }
+
+    public function test_article_cannot_reference_an_existing_cover_via_create_payload(): void
+    {
+        Storage::disk('public')->put('articles/other-cover.png', 'other fixture');
+
+        Livewire::test(ManageArticles::class)
+            ->callAction('create', data: [
+                'title' => 'Invalid cover reference',
+                'slug' => 'invalid-cover-reference',
+                'summary' => 'Summary',
+                'body' => 'Content',
+                'is_published' => true,
+                'cover_path' => ['articles/other-cover.png'],
+            ])
+            ->assertHasFormErrors(['cover_path']);
+
+        $this->assertDatabaseMissing('articles', ['slug' => 'invalid-cover-reference']);
+        Storage::disk('public')->assertExists('articles/other-cover.png');
+    }
+
     private function validImage(string $name): UploadedFile
     {
         // Minimal valid PNG; no GD/image-extension dependency required on PHP CI.
