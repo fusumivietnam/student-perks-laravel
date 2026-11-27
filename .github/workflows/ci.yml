@@ -219,6 +219,14 @@ jobs:
             -H 'X-Forwarded-Port: 443' http://127.0.0.1:18080/admin/login)"
           grep -i '^set-cookie: .*; secure;' <<< "$proxy_login_headers"
           grep -i '^set-cookie: .*; httponly;' <<< "$proxy_login_headers"
+          # Cached configuration must preserve exact host and scoped proxy policy.
+          docker compose exec -T app php artisan config:cache
+          cached_html="$(curl --fail --silent --show-error -H 'Host: student.example.test' -H 'X-Forwarded-Proto: https' -H 'X-Forwarded-Port: 443' -H 'X-Forwarded-Host: injected.invalid' http://127.0.0.1:18080/)"
+          grep -F 'href="https://student.example.test/offers"' <<< "$cached_html"
+          if grep -F 'injected.invalid' <<< "$cached_html"; then exit 1; fi
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' -H 'Host: injected.invalid' http://127.0.0.1:18080/up)" = 400
+          docker compose exec -T app php artisan config:clear
+
           # The next smoke scenarios are local/Codespaces, without proxy trust.
           unset TRUSTED_PROXIES TRUSTED_HOSTS SESSION_SECURE_COOKIE
 
