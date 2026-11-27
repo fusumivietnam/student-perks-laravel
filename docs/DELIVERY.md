@@ -10,7 +10,7 @@ Follow the GitHub Project backlog (see `docs/GITHUB_PROJECT.md`) or canonical Is
 - Admin can create/edit/publish with Filament where applicable
 - Models/migrations/validation/authorization are exercised by tests on PostgreSQL 18
 - Responsive, accessible UI with appropriate metadata, links and error states
-- CI passes, changes documented and no unrelated functionality introduced
+- Mandatory CI passes for the exact head SHA, PR is merged, changes documented and no unrelated functionality introduced
 
 ## Efficiency policy
 
@@ -41,6 +41,10 @@ One meaningful vertical slice per PR; reduce repeated CI and branches. Commit lo
 ## Quality bar
 
 No hardcoded demo data in production UI, no placeholder buttons, no broken links, no dashboard-only feature without public integration when necessary, no needless JS frameworks, no unreviewed open redirects, no student verification workflow.
+
+## Final acceptance and source freeze
+
+Once the MVP requirements are implemented, consolidate verified defects and launch blockers, complete the source audit, and record a candidate revision and CI evidence in Issue #4. Do not open speculative hardening or optional feature PRs merely to extend development. After the candidate is frozen, change source only for verified defects, security, data integrity or launch blockers; revalidate any changed candidate. Keep manual real-device UAT, editorial approval and actual production verification separate. An unavailable environment or tool is an explicit unverified gate, not a pass. Do not rebuild preview after each PR; synchronize at a meaningful acceptance checkpoint. Production deployment, paid services, destructive operations and architecture changes require owner approval.
 
 ## Deviation policy
 
