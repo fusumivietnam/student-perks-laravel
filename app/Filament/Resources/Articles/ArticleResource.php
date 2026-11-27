@@ -41,6 +41,7 @@ class ArticleResource extends Resource
                         ->helperText('Lowercase letters, numbers and single hyphens only. Previously published URLs are reserved for redirects.'),
                     Textarea::make('summary')->required()->columnSpanFull(),
                     FileUpload::make('cover_path')
+                        ->preventFilePathTampering()
                         ->image()
                         ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                         ->maxSize(4096)
