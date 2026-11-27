@@ -139,6 +139,63 @@ class HistoricSlugIntegrityTest extends TestCase
         }
     }
 
+    public function test_previously_published_slugs_survive_unpublish_and_multiple_draft_renames(): void
+    {
+        $brand = Brand::create(['name' => 'Partner', 'slug' => 'partner', 'is_published' => true]);
+        $category = Category::create(['name' => 'Learning', 'slug' => 'learning', 'is_published' => true]);
+
+        $offer = Offer::create([
+            'brand_id' => $brand->id,
+            'category_id' => $category->id,
+            'title' => 'Offer',
+            'slug' => 'public-offer',
+            'summary' => 'Summary',
+            'description' => 'Description',
+            'partner_url' => 'https://example.org/student',
+            'is_published' => true,
+        ]);
+        $article = Article::create([
+            'title' => 'Guide', 'slug' => 'public-guide',
+            'summary' => 'Summary', 'body' => 'Body', 'is_published' => true,
+        ]);
+        $page = Page::create([
+            'title' => 'Information', 'slug' => 'public-page',
+            'body' => 'Body', 'is_published' => true,
+        ]);
+
+        foreach ([
+            [$offer, 'offers.show', 'offer_slug_redirects'],
+            [$article, 'articles.show', 'article_slug_redirects'],
+            [$page, 'pages.show', 'page_slug_redirects'],
+        ] as [$record, $route, $table]) {
+            $oldSlug = $record->slug;
+            $this->get(route($route, $oldSlug))->assertOk();
+
+            $record->update(['is_published' => false]);
+            $record = $record->fresh();
+            $this->assertTrue($record->slug_was_published);
+
+            $draftSlug = 'draft-'.$oldSlug;
+            $newSlug = 'new-'.$oldSlug;
+            $record->update(['slug' => $draftSlug]);
+            $this->assertFalse($record->fresh()->slug_was_published);
+            $record->update(['slug' => $newSlug]);
+
+            $this->assertDatabaseHas($table, ['slug' => $oldSlug]);
+            $this->assertDatabaseMissing($table, ['slug' => $draftSlug]);
+            $this->get(route($route, $oldSlug))->assertNotFound();
+            $this->get(route($route, $newSlug))->assertNotFound();
+
+            $record->update(['is_published' => true]);
+            $this->assertTrue($record->fresh()->slug_was_published);
+            $this->get(route($route, $oldSlug))
+                ->assertStatus(301)
+                ->assertRedirect(route($route, $newSlug));
+            $this->get(route($route, $draftSlug))->assertNotFound();
+            $this->get(route($route, $newSlug))->assertOk();
+        }
+    }
+
     private function expectHistoricSlugIsReserved(
         callable $createInvalid,
         callable $createValid,
