@@ -71,7 +71,7 @@ class LaunchAcceptanceJourneyTest extends TestCase
             ->assertSee('rel="canonical"', false);
 
         Livewire::test(ListOffers::class)
-            ->callTableAction('confirmPartnerReview', $offer)
+            ->callTableAction('confirmPartnerReview', $offer, data: ['reviewed_url' => $offer->partner_url])
             ->assertHasNoTableActionErrors();
 
         $this->get('/offers/verified-student-plan')->assertOk()
