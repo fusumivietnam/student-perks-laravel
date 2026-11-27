@@ -56,7 +56,7 @@ class PartnerReviewLaunchGateJourneyTest extends TestCase
 
         // This action records an explicit human confirmation, not an HTTP link check.
         Livewire::test(ListOffers::class)
-            ->callTableAction('confirmPartnerReview', $offer)
+            ->callTableAction('confirmPartnerReview', $offer, data: ['reviewed_url' => $offer->partner_url])
             ->assertHasNoTableActionErrors();
 
         $this->assertNotNull($offer->fresh()->partner_reviewed_at);
@@ -112,7 +112,7 @@ class PartnerReviewLaunchGateJourneyTest extends TestCase
             ->assertDontSee('href="https://example.org/learning"', false);
 
         Livewire::test(ListOffers::class)
-            ->callTableAction('confirmPartnerReview', $offer)
+            ->callTableAction('confirmPartnerReview', $offer, data: ['reviewed_url' => $offer->partner_url])
             ->assertHasNoTableActionErrors();
 
         $this->assertSame(0, Artisan::call('launch:check'));
